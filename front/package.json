@@ -10,14 +10,14 @@
     "test": "echo \"No test specified\" && exit 0"
   },
   "dependencies": {
-    "@quasar/extras": "^1.11.4",
+    "@quasar/extras": "^1.12.4",
     "axios": "^0.21.1",
     "core-js": "^3.6.5",
-    "quasar": "^2.2.2"
+    "quasar": "^2.4.13"
   },
   "devDependencies": {
     "@babel/eslint-parser": "^7.13.14",
-    "@quasar/app": "^3.1.8",
+    "@quasar/app": "^3.3.1",
     "eslint": "^7.14.0",
     "eslint-config-standard": "^16.0.2",
     "eslint-plugin-import": "^2.19.1",
