@@ -112,6 +112,7 @@
 import { defineComponent, ref } from 'vue'
 // eslint-disable-next-line no-unused-vars
 import { useQuasar } from 'quasar'
+import { api } from 'src/boot/axios'
 
 const columns = [
   { name: 'id', required: true, label: 'Identificador', field: 'id', format: val => `${val}` },
@@ -221,9 +222,22 @@ export default defineComponent({
       productsPerPage: ref([6, 9, 15, 21, 27, 30, 42, 0])
     }
   },
+  created () {
+    console.log('nova página renderizada')
+    this.getProducts()
+  },
   methods: {
     selectProduct (val) {
       console.log('produto selecionado ' + JSON.stringify(val))
+    },
+    async getProducts () {
+      api.get('/products')
+        .then((response) => {
+          console.log('RESPOSTA COMPLETA: ' + JSON.stringify(response.data))
+        })
+        .catch((error) => {
+          console.error('erro identificado ' + error.message + ' code ' + error.code)
+        })
     }
   }
 })
