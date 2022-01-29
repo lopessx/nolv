@@ -25,7 +25,7 @@ $app = new Laravel\Lumen\Application(
 
 // $app->withFacades();
 
-// $app->withEloquent();
+$app->withEloquent();
 
 /*
 |--------------------------------------------------------------------------
@@ -79,6 +79,10 @@ $app->configure('app');
 // $app->routeMiddleware([
 //     'auth' => App\Http\Middleware\Authenticate::class,
 // ]);
+
+$app->middleware([
+	App\Http\Middleware\CorsMiddleware::class,
+]);
 
 /*
 |--------------------------------------------------------------------------
@@ -145,5 +149,7 @@ $app->router->group([
  * schema:dump          Dump the given database schema
  */
 $app->register(Flipbox\LumenGenerator\LumenGeneratorServiceProvider::class);
+
+$app->register(App\Providers\CatchAllOptionsRequestsProvider::class);
 
 return $app;
