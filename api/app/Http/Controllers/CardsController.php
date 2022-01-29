@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Cards;
 use Exception;
-use Illuminate\Http\Client\Request;
+use Illuminate\Http\Request;
 
 class CardsController extends Controller {
 	/**

@@ -2,7 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Client\Request;
+use Exception;
+use Illuminate\Http\Request;
 
 class ClientsController extends Controller {
 	/**
@@ -15,22 +16,42 @@ class ClientsController extends Controller {
 	}
 
 	public function get(Request $request) {
-		# code...
+		try {
+			return response(['success' => true]);
+		} catch (Exception $e) {
+			return response(['message' => $e->getMessage(), 'code' => $e->getCode()], 404);
+		}
 	}
 
 	public function getOne(Request $request) {
-		# code...
+		try {
+			return response(['success' => true]);
+		} catch (Exception $e) {
+			return response(['message' => $e->getMessage(), 'code' => $e->getCode()], 404);
+		}
 	}
 
 	public function store(Request $request) {
-		# code...
+		try {
+			return response(['success' => true]);
+		} catch (Exception $e) {
+			return response(['message' => $e->getMessage(), 'code' => $e->getCode()], 404);
+		}
 	}
 
 	public function update(Request $request) {
-		# code...
+		try {
+			return response(['success' => true]);
+		} catch (Exception $e) {
+			return response(['message' => $e->getMessage(), 'code' => $e->getCode()], 404);
+		}
 	}
 
 	public function delete(Request $request) {
-		# code...
+		try {
+			return response(['success' => true]);
+		} catch (Exception $e) {
+			return response(['message' => $e->getMessage(), 'code' => $e->getCode()], 404);
+		}
 	}
 }
