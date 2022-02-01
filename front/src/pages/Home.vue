@@ -6,24 +6,19 @@
         <div class="text-subtitle1">
           Preço
         </div>
-        <div class="q-pa-md">
-          <q-range
-            v-model="priceRange"
-            color="accent"
-            :left-label-value="priceRange.min + ' R$'"
-            :right-label-value="priceRange.max + ' R$'"
-            label-always
-            :min="0"
-            :max="50"
-          />
-        </div>
-        <div class="text-subtitle1">
-          Idioma
-        </div>
-        <div class="q-pa-md">
-          <q-select
-            label="Selecione um idioma"
-          />
+        <div class="row q-pa-md">
+          <div class="col-6 q-pa-xs">
+            <q-input
+              label="Mínimo"
+              outlined
+            />
+          </div>
+          <div class="col-6 q-pa-xs">
+            <q-input
+              label="Máximo"
+              outlined
+            />
+          </div>
         </div>
         <div class="text-subtitle1">
           Categoria
@@ -47,8 +42,8 @@
       <div class="col-7">
         <q-table
           color="grey-8"
-          :grid="$q.screen.gt.xs"
-          :rows="rows"
+          grid
+          :rows="productList"
           :columns="columns"
           row-key="name"
           :filter="filter"
@@ -73,32 +68,33 @@
           </template>
 
           <template #item="props">
-            <div class="q-pa-xs col-xs-12 col-sm-6 col-md-4 col-lg-3 grid-style-transition">
+            <div class="q-pa-xs col-12 grid-style-transition">
               <q-card
                 clickable
                 class="cursor-pointer q-hoverable"
                 @click="selectProduct(props.cols[0].value)"
               >
-                <q-card-section>
-                  <q-img
-                    src="../assets/placeholder.png"
-                    spinner-color="black"
-                    style="height: 150px; max-width: auto"
-                  />
-                </q-card-section>
-                <q-separator />
-                <q-card-section>
-                  <div class="text-body1 text-weight-bold">
-                    {{ props.cols[2].value }}
-                  </div>
-                </q-card-section>
-                <q-separator />
-                <div
-                  class="subtitle-1 text-weight-bold q-pa-md"
-                  style="color: #838383;"
+                <q-card-section
+                  horizontal
+                  class="row"
                 >
-                  {{ props.row.name }}
-                </div>
+                  <div class="col-5 q-pa-sm">
+                    <q-img
+                      src="../assets/placeholder.png"
+                      spinner-color="black"
+                      style="height: 150px; max-width: auto"
+                    />
+                  </div>
+                  <q-card-section class="col-7">
+                    <div class="text-body2">
+                      {{ props.row.name }}
+                    </div>
+
+                    <div class="text-body1 text-weight-bold">
+                      {{ props.cols[2].value }}
+                    </div>
+                  </q-card-section>
+                </q-card-section>
               </q-card>
             </div>
           </template>
@@ -118,9 +114,9 @@ const columns = [
   { name: 'id', required: true, label: 'Identificador', field: 'id', format: val => `${val}` },
   { name: 'desc', required: true, label: 'Produto', align: 'left', field: row => row.name, format: val => `${val}`, sortable: true },
   { name: 'price', label: 'Preço (R$)', field: 'price', format: val => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(val), sortable: true },
-  { name: 'language', required: true, label: 'Idioma', field: 'language', format: val => `${val}`, sortable: true },
-  { name: 'category', required: true, label: 'Categoria', field: 'category', format: val => `${val}`, sortable: true },
-  { name: 'os', required: true, label: 'Sistema operacional', field: 'os', format: val => `${val}`, sortable: true }
+  // { name: 'language', required: true, label: 'Idioma', field: 'language', format: val => `${val}`, sortable: true },
+  { name: 'category', required: true, label: 'Categoria', field: 'category', format: val => `${val}`, sortable: true }
+  // { name: 'os', required: true, label: 'Sistema operacional', field: 'os', format: val => `${val}`, sortable: true }
 ]
 
 const rows = [
@@ -213,8 +209,9 @@ export default defineComponent({
       filter: ref(''),
       columns,
       rows,
+      productList: ref([]),
       ordenation: ref(),
-      orderOptions: ref(['nome', 'preço']),
+      orderOptions: ref(['Nome', 'Preço']),
       priceRange: ref({
         min: 5,
         max: 25
@@ -234,6 +231,16 @@ export default defineComponent({
       api.get('/products')
         .then((response) => {
           console.log('RESPOSTA COMPLETA: ' + JSON.stringify(response.data))
+          for (let c = 0; c < response.data.products.length; c++) {
+            const product = {}
+            product.id = response.data.products[c].id
+            product.name = response.data.products[c].name
+            // product.language = 'en-US'
+            product.category = response.data.products[c].category_id
+            product.os = response.data.products[c].operational_system_id
+            product.price = response.data.products[c].price
+            this.productList.push(product)
+          }
         })
         .catch((error) => {
           console.error('erro identificado ' + error.message + ' code ' + error.code)
