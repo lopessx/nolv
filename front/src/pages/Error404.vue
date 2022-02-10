@@ -1,4 +1,5 @@
 <template>
+  <!-- // TODO change color to red/or something? -->
   <div class="fullscreen bg-blue text-white text-center q-pa-md flex flex-center">
     <div>
       <div style="font-size: 30vh">
@@ -9,7 +10,7 @@
         class="text-h2"
         style="opacity:.4"
       >
-        Oops. Nothing here...
+        Nada por aqui...
       </div>
 
       <q-btn
@@ -18,7 +19,7 @@
         text-color="blue"
         unelevated
         to="/"
-        label="Go Home"
+        label="Voltar para página principal"
         no-caps
       />
     </div>
