@@ -1,22 +1,28 @@
 <template>
   <q-page>
-    <div class="row q-pa-md">
+    <div class="row justify-center">
       <!-- Filters -->
       <div class="col-4 q-pt-xl">
         <div class="text-subtitle1">
           Preço
         </div>
-        <div class="row q-pa-md">
+        <div class="row q-py-md justify-center">
           <div class="col-6 q-pa-xs">
             <q-input
+              v-model="minPrice"
               label="Mínimo"
+              debounce="500"
               outlined
+              @update:model-value="filterPriceMin()"
             />
           </div>
           <div class="col-6 q-pa-xs">
             <q-input
+              v-model="maxPrice"
               label="Máximo"
+              debounce="500"
               outlined
+              @update:model-value="filterPriceMax()"
             />
           </div>
         </div>
@@ -25,9 +31,13 @@
         </div>
         <div class="q-pa-md">
           <q-select
+            v-model="categorySearch"
             label="Selecione uma categoria"
+            :options="categoryOptions"
+            @update:model-value="filterCategory()"
           />
         </div>
+        <!--
         <div class="text-subtitle1">
           Sistema operacional
         </div>
@@ -36,6 +46,7 @@
           <q-checkbox label="Windows" />
           <q-checkbox label="MacOS" />
         </div>
+        -->
       </div>
 
       <!-- Product display -->
@@ -86,13 +97,25 @@
                     />
                   </div>
                   <q-card-section class="col-7">
-                    <div class="text-body2">
-                      {{ props.row.name }}
+                    <div class="row justify-start items-start">
+                      <div class="text-body2 col-auto">
+                        {{ props.row.name }}
+                      </div>
                     </div>
 
-                    <div class="text-body1 text-weight-bold">
-                      {{ props.cols[2].value }}
+                    <div class="row justify-end items-end">
+                      <div class="text-body1 text-weight-bold col-auto">
+                        {{ props.cols[2].value }}
+                      </div>
                     </div>
+
+                    <!-- // TODO create OS indicator?
+                    <div class="row justify-start items-end">
+                      <div class="text-body1 text-weight-bold col-auto">
+                        {{ props.cols[3].value }}
+                      </div>
+                    </div>
+-->
                   </q-card-section>
                 </q-card-section>
               </q-card>
@@ -119,109 +142,26 @@ const columns = [
   // { name: 'os', required: true, label: 'Sistema operacional', field: 'os', format: val => `${val}`, sortable: true }
 ]
 
-const rows = [
-  {
-    id: 0,
-    name: 'Frozen Yogurt',
-    language: 'pt-BR',
-    category: 'Entretenimento',
-    os: 'Windows',
-    price: 50.00
-  },
-  {
-    id: 1,
-    name: 'Ice cream sandwich',
-    language: 'pt-BR',
-    category: 'Entretenimento',
-    os: 'Windows',
-    price: 15.50
-  },
-  {
-    id: 2,
-    name: 'Eclair',
-    language: 'pt-BR',
-    category: 'Entretenimento',
-    os: 'Windows',
-    price: 125.15
-  },
-  {
-    id: 3,
-    name: 'Cupcake',
-    language: 'pt-BR',
-    category: 'Entretenimento',
-    os: 'Windows',
-    price: 2435.00
-  },
-  {
-    id: 4,
-    name: 'Gingerbread',
-    language: 'pt-BR',
-    category: 'Finança',
-    os: 'Windows',
-    price: 45.00
-  },
-  {
-    id: 5,
-    name: 'Jelly bean',
-    language: 'pt-BR',
-    category: 'Finança',
-    os: 'MacOS',
-    price: 55.00
-  },
-  {
-    id: 6,
-    name: 'Lollipop',
-    language: 'en-US',
-    category: 'Design',
-    os: 'MacOS',
-    price: 65.00
-  },
-  {
-    id: 7,
-    name: 'Honeycomb',
-    language: 'pt-BR',
-    category: 'Design',
-    os: 'MacOS',
-    price: 75.00
-  },
-  {
-    id: 8,
-    name: 'Donut',
-    language: 'en-US',
-    category: 'Produtividade',
-    os: 'Linux',
-    price: 85.00
-  },
-  {
-    id: 9,
-    name: 'KitKat',
-    language: 'en-US',
-    category: 'Produtividade',
-    os: 'Linux',
-    price: 95.00
-  }
-]
-
 export default defineComponent({
   name: 'Home',
   setup () {
     return {
       filter: ref(''),
       columns,
-      rows,
       productList: ref([]),
       ordenation: ref(),
       orderOptions: ref(['Nome', 'Preço']),
-      priceRange: ref({
-        min: 5,
-        max: 25
-      }),
-      productsPerPage: ref([6, 9, 15, 21, 27, 30, 42, 0])
+      minPrice: ref(null),
+      maxPrice: ref(null),
+      categorySearch: ref(null),
+      categoryOptions: ref([]),
+      productsPerPage: ref([6, 9, 15, 0])
     }
   },
   created () {
     console.log('nova página renderizada')
     this.getProducts()
+    this.getCategories()
   },
   methods: {
     selectProduct (val) {
@@ -245,6 +185,26 @@ export default defineComponent({
         .catch((error) => {
           console.error('erro identificado ' + error.message + ' code ' + error.code)
         })
+    },
+    async getCategories () {
+      api.get('/category')
+        .then((response) => {
+          console.log('resposta: ' + JSON.stringify(response.data))
+          this.categoryOptions = response.data.category
+        })
+        .catch((error) => {
+          console.error('erro identificado ' + error.message + ' code ' + error.code)
+        })
+    },
+    filterCategory () {
+      // TODO implement filter
+      console.log('categoria procurar: ' + this.categorySearch.label)
+    },
+    filterPriceMin () {
+      console.log('preço min a ser filtrado ' + this.minPrice)
+    },
+    filterPriceMax () {
+      console.log('preço max a ser filtrado ' + this.maxPrice)
     }
   }
 })

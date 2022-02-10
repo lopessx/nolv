@@ -16,8 +16,9 @@
           />
         </q-toolbar-title>
         <q-input
+          v-model="searchText"
           filled
-          class="col-7"
+          class="col-7 q-py-xs"
           bg-color="white"
           label="Pesquisar..."
         >
@@ -25,7 +26,7 @@
             <q-icon
               name="search"
               class="cursor-pointer"
-              @click="searchProduct"
+              @click="searchProduct(searchText)"
             />
           </template>
         </q-input>
@@ -61,6 +62,7 @@
         />
 
         <q-input
+          v-model="searchText"
           filled
           class="col-6"
           bg-color="white"
@@ -70,7 +72,7 @@
             <q-icon
               name="search"
               class="cursor-pointer"
-              @click="searchProduct"
+              @click="searchProduct(searchText)"
             />
           </template>
         </q-input>
@@ -120,8 +122,9 @@ export default defineComponent({
     }
   },
   methods: {
-    searchProduct () {
+    searchProduct (searchText) {
       // TODO generate search method and return
+      console.log('procurar produto: ' + JSON.stringify(searchText))
     }
   }
 })
