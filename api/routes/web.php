@@ -25,13 +25,16 @@ $router->put('/product/{id}', 'ProductsController@update');
 $router->delete('/product/{id}', 'ProductsController@delete');
 
 // Clients
-// $router->get('/', [ClientsController::class, 'get']);
+// $router->get('/category', 'CategoryController@get');
 
 // Stores
-// $router->get('/', [StoreController::class, 'get']);
+// $router->get('/category', 'CategoryController@get');
 
 // Tickets
-// $router->get('/', [TicketsController::class, 'get']);
+// $router->get('/category', 'CategoryController@get');
 
 // Sales
-// $router->get('/', [SalesController::class, 'get']);
+// $router->get('/category', 'CategoryController@get');
+
+// Category
+$router->get('/category', 'CategoryController@get');

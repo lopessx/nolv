@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Category;
 use Exception;
 use Illuminate\Http\Request;
 
@@ -17,7 +18,9 @@ class CategoryController extends Controller {
 
 	public function get(Request $request) {
 		try {
-			return response(['success' => true]);
+			$category = Category::all(['id as value', 'name as label']);
+
+			return response(['success' => true, 'category' => $category]);
 		} catch (Exception $e) {
 			return response(['message' => $e->getMessage(), 'code' => $e->getCode()], 404);
 		}
