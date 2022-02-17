@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost
--- Tempo de geração: 01/02/2022 às 01:01
+-- Tempo de geração: 17/02/2022 às 02:09
 -- Versão do servidor: 10.4.21-MariaDB
 -- Versão do PHP: 7.4.23
 
@@ -84,6 +84,26 @@ INSERT INTO `clients` (`id`, `name`, `email`, `phone`) VALUES
 -- --------------------------------------------------------
 
 --
+-- Estrutura para tabela `languages`
+--
+
+CREATE TABLE `languages` (
+  `id` int(11) NOT NULL,
+  `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Despejando dados para a tabela `languages`
+--
+
+INSERT INTO `languages` (`id`, `name`) VALUES
+(1, 'pt-br'),
+(2, 'en-us'),
+(3, 'es');
+
+-- --------------------------------------------------------
+
+--
 -- Estrutura para tabela `migrations`
 --
 
@@ -146,19 +166,22 @@ CREATE TABLE `products` (
   `name` varchar(255) CHARACTER SET utf8 NOT NULL,
   `price` double DEFAULT 0,
   `file_path` varchar(255) CHARACTER SET utf8 NOT NULL,
-  `operational_system_id` int(11) NOT NULL
+  `operational_system_id` int(11) NOT NULL,
+  `language_id` int(11) DEFAULT NULL,
+  `version` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `description` text COLLATE utf8mb4_unicode_ci DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Despejando dados para a tabela `products`
 --
 
-INSERT INTO `products` (`id`, `store_id`, `category_id`, `name`, `price`, `file_path`, `operational_system_id`) VALUES
-(13, 1, 1, 'Sistema de gerenciamento de pizzaria acbdef abcdef acdef', 187.99, '/arquivo.txt', 1),
-(14, 1, 1, 'Gestão fácil', 89.54, '/arquivo.txt', 2),
-(15, 1, 1, 'Padafácil', 9.99, '/arquivo.txt', 3),
-(16, 1, 1, 'Farmapédia', 3.46, '/arquivo.txt', 1),
-(17, 1, 1, 'Opera PIP', 10, '/arquivo.txt', 2);
+INSERT INTO `products` (`id`, `store_id`, `category_id`, `name`, `price`, `file_path`, `operational_system_id`, `language_id`, `version`, `description`) VALUES
+(13, 1, 1, 'Sistema de gerenciamento de pizzaria acbdef abcdef acdef', 187.99, '/arquivo.txt', 1, 1, '1.0.0', 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis aliquet nulla porta tellus malesuada, at commodo ante viverra. Quisque nisl orci, accumsan sit amet leo eget, fringilla suscipit neque. Vivamus in auctor tellus, non ornare orci. Integer maximus vehicula sollicitudin. Integer congue tempor tempor. Nulla iaculis mi sagittis mi tincidunt, at consequat metus tincidunt. Nam in condimentum sapien.\n\nMaecenas vehicula mi in ex laoreet mattis. Aliquam augue lorem, finibus quis ultricies a, congue sit amet velit. Maecenas gravida elit non sem sagittis luctus. Aliquam nisl sapien, viverra laoreet suscipit quis, iaculis non turpis. Nunc iaculis finibus eleifend. Fusce ut efficitur magna. Pellentesque quis mattis nisl, porttitor mollis tellus. Cras ornare id lacus eget maximus. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas.'),
+(14, 1, 1, 'Gestão fácil', 89.54, '/arquivo.txt', 2, 1, '0.0.5', 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis aliquet nulla porta tellus malesuada, at commodo ante viverra. Quisque nisl orci, accumsan sit amet leo eget, fringilla suscipit neque. Vivamus in auctor tellus, non ornare orci. Integer maximus vehicula sollicitudin. Integer congue tempor tempor. Nulla iaculis mi sagittis mi tincidunt, at consequat metus tincidunt. Nam in condimentum sapien.\n\nMaecenas vehicula mi in ex laoreet mattis. Aliquam augue lorem, finibus quis ultricies a, congue sit amet velit. Maecenas gravida elit non sem sagittis luctus. Aliquam nisl sapien, viverra laoreet suscipit quis, iaculis non turpis. Nunc iaculis finibus eleifend. Fusce ut efficitur magna. Pellentesque quis mattis nisl, porttitor mollis tellus. Cras ornare id lacus eget maximus. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas.'),
+(15, 1, 1, 'Padafácil', 9.99, '/arquivo.txt', 3, 2, '2.1.19', 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis aliquet nulla porta tellus malesuada, at commodo ante viverra. Quisque nisl orci, accumsan sit amet leo eget, fringilla suscipit neque. Vivamus in auctor tellus, non ornare orci. Integer maximus vehicula sollicitudin. Integer congue tempor tempor. Nulla iaculis mi sagittis mi tincidunt, at consequat metus tincidunt. Nam in condimentum sapien.\n\nMaecenas vehicula mi in ex laoreet mattis. Aliquam augue lorem, finibus quis ultricies a, congue sit amet velit. Maecenas gravida elit non sem sagittis luctus. Aliquam nisl sapien, viverra laoreet suscipit quis, iaculis non turpis. Nunc iaculis finibus eleifend. Fusce ut efficitur magna. Pellentesque quis mattis nisl, porttitor mollis tellus. Cras ornare id lacus eget maximus. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas.'),
+(16, 1, 1, 'Farmapédia', 3.46, '/arquivo.txt', 1, 2, '2.55.0', 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis aliquet nulla porta tellus malesuada, at commodo ante viverra. Quisque nisl orci, accumsan sit amet leo eget, fringilla suscipit neque. Vivamus in auctor tellus, non ornare orci. Integer maximus vehicula sollicitudin. Integer congue tempor tempor. Nulla iaculis mi sagittis mi tincidunt, at consequat metus tincidunt. Nam in condimentum sapien.\n\nMaecenas vehicula mi in ex laoreet mattis. Aliquam augue lorem, finibus quis ultricies a, congue sit amet velit. Maecenas gravida elit non sem sagittis luctus. Aliquam nisl sapien, viverra laoreet suscipit quis, iaculis non turpis. Nunc iaculis finibus eleifend. Fusce ut efficitur magna. Pellentesque quis mattis nisl, porttitor mollis tellus. Cras ornare id lacus eget maximus. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas.'),
+(17, 1, 1, 'Opera PIP', 10, '/arquivo.txt', 2, 3, '5.0.0', 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis aliquet nulla porta tellus malesuada, at commodo ante viverra. Quisque nisl orci, accumsan sit amet leo eget, fringilla suscipit neque. Vivamus in auctor tellus, non ornare orci. Integer maximus vehicula sollicitudin. Integer congue tempor tempor. Nulla iaculis mi sagittis mi tincidunt, at consequat metus tincidunt. Nam in condimentum sapien.\n\nMaecenas vehicula mi in ex laoreet mattis. Aliquam augue lorem, finibus quis ultricies a, congue sit amet velit. Maecenas gravida elit non sem sagittis luctus. Aliquam nisl sapien, viverra laoreet suscipit quis, iaculis non turpis. Nunc iaculis finibus eleifend. Fusce ut efficitur magna. Pellentesque quis mattis nisl, porttitor mollis tellus. Cras ornare id lacus eget maximus. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas.');
 
 -- --------------------------------------------------------
 
@@ -302,6 +325,12 @@ ALTER TABLE `clients`
   ADD PRIMARY KEY (`id`);
 
 --
+-- Índices de tabela `languages`
+--
+ALTER TABLE `languages`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- Índices de tabela `migrations`
 --
 ALTER TABLE `migrations`
@@ -326,6 +355,7 @@ ALTER TABLE `products`
   ADD PRIMARY KEY (`id`),
   ADD KEY `products_FK` (`store_id`),
   ADD KEY `products_FK_1` (`category_id`),
+  ADD KEY `products_FK_3` (`language_id`),
   ADD KEY `products_FK_2` (`operational_system_id`);
 
 --
@@ -401,6 +431,12 @@ ALTER TABLE `category`
 -- AUTO_INCREMENT de tabela `clients`
 --
 ALTER TABLE `clients`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+
+--
+-- AUTO_INCREMENT de tabela `languages`
+--
+ALTER TABLE `languages`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
@@ -485,7 +521,8 @@ ALTER TABLE `cards`
 ALTER TABLE `products`
   ADD CONSTRAINT `products_FK` FOREIGN KEY (`store_id`) REFERENCES `stores` (`id`) ON DELETE CASCADE,
   ADD CONSTRAINT `products_FK_1` FOREIGN KEY (`category_id`) REFERENCES `category` (`id`) ON DELETE CASCADE,
-  ADD CONSTRAINT `products_FK_2` FOREIGN KEY (`operational_system_id`) REFERENCES `operational_system` (`id`) ON DELETE CASCADE;
+  ADD CONSTRAINT `products_FK_2` FOREIGN KEY (`operational_system_id`) REFERENCES `operational_system` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `products_FK_3` FOREIGN KEY (`language_id`) REFERENCES `languages` (`id`);
 
 --
 -- Restrições para tabelas `products_sales`
