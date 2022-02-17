@@ -11,9 +11,9 @@ const routes = [
       { path: 'perfil', component: () => import('src/pages/Profile.vue') },
       { path: 'vendedor', component: () => import('src/pages/VendorArea.vue') },
       { path: 'suporte', component: () => import('src/pages/Suport.vue') },
-      { path: 'produto', component: () => import('src/pages/Product.vue') },
+      { path: 'produto/:id', component: () => import('src/pages/Product.vue') },
       { path: 'download', component: () => import('src/pages/ProductDownload.vue') },
-      { path: 'editar-produto', component: () => import('src/pages/ProductEdit.vue') }
+      { path: 'produto/editar/:id', component: () => import('src/pages/ProductEdit.vue') }
     ]
   },
 

@@ -109,7 +109,7 @@
                       </div>
                     </div>
 
-                    <!-- // TODO create OS indicator?
+                    <!-- // TODO create OS && language indicator?
                     <div class="row justify-start items-end">
                       <div class="text-body1 text-weight-bold col-auto">
                         {{ props.cols[3].value }}
@@ -166,6 +166,7 @@ export default defineComponent({
   methods: {
     selectProduct (val) {
       console.log('produto selecionado ' + JSON.stringify(val))
+      this.$router.push(`/produto/${val}`)
     },
     async getProducts () {
       api.get('/products')
@@ -175,7 +176,7 @@ export default defineComponent({
             const product = {}
             product.id = response.data.products[c].id
             product.name = response.data.products[c].name
-            // product.language = 'en-US'
+            product.language = response.data.products[c].language_id
             product.category = response.data.products[c].category_id
             product.os = response.data.products[c].operational_system_id
             product.price = response.data.products[c].price
