@@ -34,6 +34,7 @@ class ProductsController extends Controller {
 			$product->language_name = $product->language->name;
 			$product->store_name = $product->store->name;
 			$product->os_name = $product->os->name;
+			$product->images;
 
 			return response(['success' => true, 'product' => $product]);
 		} catch (Exception $e) {

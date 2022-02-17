@@ -91,10 +91,14 @@
                 >
                   <div class="col-5 q-pa-sm">
                     <q-img
-                      src="../assets/placeholder.png"
+                      :src="props.cols[4].value"
                       spinner-color="black"
                       style="height: 150px; max-width: auto"
-                    />
+                    >
+                      <template #error>
+                        <q-img src="../assets/placeholder.png" />
+                      </template>
+                    </q-img>
                   </div>
                   <q-card-section class="col-7">
                     <div class="row justify-start items-start">
@@ -138,8 +142,9 @@ const columns = [
   { name: 'desc', required: true, label: 'Produto', align: 'left', field: row => row.name, format: val => `${val}`, sortable: true },
   { name: 'price', label: 'Preço (R$)', field: 'price', format: val => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(val), sortable: true },
   // { name: 'language', required: true, label: 'Idioma', field: 'language', format: val => `${val}`, sortable: true },
-  { name: 'category', required: true, label: 'Categoria', field: 'category', format: val => `${val}`, sortable: true }
+  { name: 'category', required: true, label: 'Categoria', field: 'category', format: val => `${val}`, sortable: true },
   // { name: 'os', required: true, label: 'Sistema operacional', field: 'os', format: val => `${val}`, sortable: true }
+  { name: 'image', required: false, label: 'Imagem', field: 'image', format: val => `${val}`, sortable: false }
 ]
 
 export default defineComponent({
@@ -180,6 +185,7 @@ export default defineComponent({
             product.category = response.data.products[c].category_id
             product.os = response.data.products[c].operational_system_id
             product.price = response.data.products[c].price
+            product.image = response.data.products[c].main_image_path
             this.productList.push(product)
           }
         })

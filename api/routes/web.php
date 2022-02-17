@@ -38,3 +38,9 @@ $router->delete('/product/{id}', 'ProductsController@delete');
 
 // Category
 $router->get('/category', 'CategoryController@get');
+
+// Product Images
+$router->get('/product/image/{id}', 'ProductImagesController@getOne');
+
+// Product Ratings
+$router->get('/ratings/product/{id}', 'RatingsController@getProductRatings');

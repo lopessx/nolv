@@ -21,4 +21,8 @@ class ProductsImages extends Model {
 	 * @var array
 	 */
 	protected $fillable = ['product_id', 'path'];
+
+	public function product() {
+		return $this->belongsTo(Products::class);
+	}
 }

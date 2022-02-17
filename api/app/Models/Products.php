@@ -37,4 +37,8 @@ class Products extends Model {
 	public function os() {
 		return $this->hasOne(Os::class, 'id', 'operational_system_id');
 	}
+
+	public function images() {
+		return $this->hasMany(ProductsImages::class, 'product_id', 'id');
+	}
 }

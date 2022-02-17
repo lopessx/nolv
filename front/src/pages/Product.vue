@@ -12,20 +12,10 @@
           transition-next="slide-left"
         >
           <q-carousel-slide
-            :name="1"
-            img-src="https://cdn.quasar.dev/img/mountains.jpg"
-          />
-          <q-carousel-slide
-            :name="2"
-            img-src="https://cdn.quasar.dev/img/parallax1.jpg"
-          />
-          <q-carousel-slide
-            :name="3"
-            img-src="https://cdn.quasar.dev/img/parallax2.jpg"
-          />
-          <q-carousel-slide
-            :name="4"
-            img-src="https://cdn.quasar.dev/img/quasar.jpg"
+            v-for="img in imgs"
+            :key="img.order"
+            :name="img.order"
+            :img-src="img.path"
           />
         </q-carousel>
       </div>
@@ -68,55 +58,57 @@
         </div>
       </div>
 
-      <q-list class="col-5">
-        <q-item>
-          <q-item-section>
-            <q-item-label>Idioma</q-item-label>
-          </q-item-section>
+      <q-card class="col-5">
+        <q-list>
+          <q-item>
+            <q-item-section>
+              <q-item-label>Idioma</q-item-label>
+            </q-item-section>
 
-          <q-item-section side>
-            <q-item-label>{{ languages }}</q-item-label>
-          </q-item-section>
-        </q-item>
+            <q-item-section side>
+              <q-item-label>{{ languages }}</q-item-label>
+            </q-item-section>
+          </q-item>
 
-        <q-separator
-          spaced
-          inset
-          color="grey"
-        />
+          <q-separator
+            spaced
+            inset
+            color="grey"
+          />
 
-        <q-item>
-          <q-item-section>
-            <q-item-label>Categoria</q-item-label>
-          </q-item-section>
+          <q-item>
+            <q-item-section>
+              <q-item-label>Categoria</q-item-label>
+            </q-item-section>
 
-          <q-item-section side>
-            <q-item-label>{{ category }}</q-item-label>
-          </q-item-section>
-        </q-item>
+            <q-item-section side>
+              <q-item-label>{{ category }}</q-item-label>
+            </q-item-section>
+          </q-item>
 
-        <q-separator
-          spaced
-          inset
-          color="grey"
-        />
+          <q-separator
+            spaced
+            inset
+            color="grey"
+          />
 
-        <q-item>
-          <q-item-section>
-            <q-item-label>Sistema operacional</q-item-label>
-          </q-item-section>
+          <q-item>
+            <q-item-section>
+              <q-item-label>Sistema operacional</q-item-label>
+            </q-item-section>
 
-          <q-item-section side>
-            <q-item-label>{{ os }}</q-item-label>
-          </q-item-section>
-        </q-item>
+            <q-item-section side>
+              <q-item-label>{{ os }}</q-item-label>
+            </q-item-section>
+          </q-item>
 
-        <q-separator
-          spaced
-          inset
-          color="grey"
-        />
-      </q-list>
+          <q-separator
+            spaced
+            inset
+            color="grey"
+          />
+        </q-list>
+      </q-card>
     </div>
 
     <q-separator color="grey" />
@@ -198,10 +190,12 @@ export default defineComponent({
       category: ref(''),
       ratingModel: ref(2.5),
       ratingQtd: ref(120),
+      ratings: ref([]),
       productId: ref(null),
       loading: ref(false),
       items,
       description: ref(''),
+      imgs: ref([]),
       onLoad (index, done) {
         setTimeout(() => {
           items.value.push({}, {}, {}, {})
@@ -215,8 +209,20 @@ export default defineComponent({
     console.log('para: ' + this.$route.params.id)
     this.productId = this.$route.params.id
     this.getProductDetails()
+    this.getProductRatings()
   },
   methods: {
+    async getProductRatings () {
+      api.get(`/ratings/product/${this.productId}`)
+        .then((response) => {
+          this.ratings = response.data.ratings
+          this.ratingQtd = this.ratings.length
+          // TODO calculate ratings and show on list
+        })
+        .catch((error) => {
+          console.error('erro message: ' + error.message)
+        })
+    },
     async getProductDetails () {
       api.get(`/product/${this.productId}`)
         .then((response) => {
@@ -229,6 +235,10 @@ export default defineComponent({
           this.store = response.data.product.store_name
           this.os = response.data.product.os_name
           this.description = response.data.product.description
+          this.imgs = response.data.product.images
+          for (let c = 0; c < this.imgs.length; c++) {
+            this.imgs[c].order = c + 1
+          }
         })
         .catch((error) => {
           console.error('erro encontrado: ' + error.message)
