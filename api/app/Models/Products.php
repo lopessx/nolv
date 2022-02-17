@@ -20,5 +20,21 @@ class Products extends Model {
 	 *
 	 * @var array
 	 */
-	protected $fillable = ['store_id', 'category_id', 'name', 'price', 'file_path'];
+	protected $fillable = ['store_id', 'category_id', 'name', 'price', 'file_path', 'operational_system_id', 'lang_id'];
+
+	public function category() {
+		return $this->hasOne(Category::class, 'id', 'category_id');
+	}
+
+	public function store() {
+		return $this->belongsTo(Stores::class);
+	}
+
+	public function language() {
+		return $this->hasOne(Language::class, 'id', 'language_id');
+	}
+
+	public function os() {
+		return $this->hasOne(Os::class, 'id', 'operational_system_id');
+	}
 }

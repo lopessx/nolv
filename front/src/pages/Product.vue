@@ -1,96 +1,7 @@
 <template>
   <q-page>
-    <q-drawer
-      v-model="drawer"
-      show-if-above
-
-      :mini="miniState"
-      mini-to-overlay
-      :width="200"
-      :breakpoint="500"
-
-      bordered
-      class="bg-primary text-secondary"
-      @mouseover="miniState = false"
-      @mouseout="miniState = true"
-    >
-      <q-scroll-area class="fit">
-        <q-list padding>
-          <q-item
-            v-ripple
-            clickable
-          >
-            <q-item-section avatar>
-              <q-icon
-                name="home"
-                color="accent"
-              />
-            </q-item-section>
-
-            <q-item-section>
-              Início
-            </q-item-section>
-          </q-item>
-
-          <q-separator />
-
-          <q-item
-            v-ripple
-            clickable
-          >
-            <q-item-section avatar>
-              <q-icon
-                name="person"
-                color="accent"
-              />
-            </q-item-section>
-
-            <q-item-section>
-              Perfil
-            </q-item-section>
-          </q-item>
-
-          <q-separator />
-
-          <q-item
-            v-ripple
-            clickable
-          >
-            <q-item-section avatar>
-              <q-icon
-                name="store"
-                color="accent"
-              />
-            </q-item-section>
-
-            <q-item-section>
-              Minha loja
-            </q-item-section>
-          </q-item>
-
-          <q-separator />
-
-          <q-item
-            v-ripple
-            clickable
-          >
-            <q-item-section avatar>
-              <q-icon
-                name="contact_support"
-                color="accent"
-              />
-            </q-item-section>
-
-            <q-item-section>
-              Suporte
-            </q-item-section>
-          </q-item>
-        </q-list>
-      </q-scroll-area>
-    </q-drawer>
-
-    <div class="row q-px-xl q-pt-lg q-gutter-sm">
-      <div class="col-6">
+    <div class="row q-px-xl q-pt-lg q-pb-md q-gutter-xs">
+      <div class="col-7">
         <q-carousel
           v-model="slide"
           animated
@@ -118,54 +29,53 @@
           />
         </q-carousel>
       </div>
-      <div class="col-5">
+      <div class="col-4">
         <div class="text-body2">
           {{ description }}
         </div>
       </div>
     </div>
 
-    <div class="row col-12 q-px-xl q-py-md">
-      <div class="col-6">
-        <div class="text-h5">
-          {{ productName }}
-        </div>
-        <div class="text-subtitle1">
-          v {{ version }}
-        </div>
-        <q-rating
-          v-model="ratingModel"
-          readonly
-          size="2em"
-          :max="5"
-          color="accent"
-        />
-        {{ ratingQtd }}
-      </div>
-      <div class="row col-6 justify-center">
-        <div class="text-h5 text-accent text-weight-bold">
-          {{ new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(price) }}
-        </div>
-        <div class="row col-12 justify-center">
-          <q-btn
-            color="accent"
-            label="+ Carrinho"
-          />
-        </div>
-      </div>
-    </div>
-
     <q-separator color="grey" />
 
-    <div class="row q-px-xl q-py-md justify-center">
-      <q-list class="col-7">
+    <div class="row col-12 q-px-xl q-py-md">
+      <div class="row col-7">
+        <div class="col-6 q-pr-lg">
+          <div class="text-h5">
+            {{ productName }}
+          </div>
+          <div class="text-subtitle1">
+            v {{ version }}
+          </div>
+          <q-rating
+            v-model="ratingModel"
+            readonly
+            size="2em"
+            :max="5"
+            color="accent"
+          />
+          {{ ratingQtd }}
+        </div>
+        <div class="col-5">
+          <div class="text-h6 text-accent text-weight-bold">
+            {{ new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(price) }}
+
+            <q-btn
+              color="accent"
+              label="+ Carrinho"
+            />
+          </div>
+        </div>
+      </div>
+
+      <q-list class="col-5">
         <q-item>
           <q-item-section>
             <q-item-label>Idioma</q-item-label>
           </q-item-section>
 
           <q-item-section side>
-            <q-item-label>Português (PT-br)</q-item-label>
+            <q-item-label>{{ languages }}</q-item-label>
           </q-item-section>
         </q-item>
 
@@ -181,7 +91,7 @@
           </q-item-section>
 
           <q-item-section side>
-            <q-item-label>Entretenimento</q-item-label>
+            <q-item-label>{{ category }}</q-item-label>
           </q-item-section>
         </q-item>
 
@@ -197,7 +107,7 @@
           </q-item-section>
 
           <q-item-section side>
-            <q-item-label>Windows</q-item-label>
+            <q-item-label>{{ os }}</q-item-label>
           </q-item-section>
         </q-item>
 
@@ -269,6 +179,7 @@
 </template>
 
 <script>
+import { api } from 'src/boot/axios'
 import { defineComponent, ref } from 'vue'
 
 export default defineComponent({
@@ -277,23 +188,54 @@ export default defineComponent({
     const items = ref([{}, {}, {}])
 
     return {
-      productName: ref('Meu produto'),
-      languages: ref('Português'),
+      productName: ref(''),
+      languages: ref(''),
       slide: ref(1),
-      drawer: ref(false),
-      miniState: ref(true),
       version: ref('1.0.0'),
-      price: ref(1025.50),
+      price: ref(0),
+      store: ref(''),
+      os: ref(''),
+      category: ref(''),
       ratingModel: ref(2.5),
       ratingQtd: ref(120),
+      productId: ref(null),
+      loading: ref(false),
       items,
+      description: ref(''),
       onLoad (index, done) {
         setTimeout(() => {
           items.value.push({}, {}, {}, {})
           done()
         }, 2000)
-      },
-      description: ref('Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt. Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem. Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam, nisi ut aliquid ex ea commodi consequatur? Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse quam nihil molestiae consequatur, vel illum qui dolorem eum fugiat quo voluptas nulla pariatur?')
+      }
+    }
+  },
+  created () {
+    console.log('nova página renderizada')
+    console.log('para: ' + this.$route.params.id)
+    this.productId = this.$route.params.id
+    this.getProductDetails()
+  },
+  methods: {
+    async getProductDetails () {
+      api.get(`/product/${this.productId}`)
+        .then((response) => {
+          console.log('resposta: ' + JSON.stringify(response.data))
+          this.productName = response.data.product.name
+          this.languages = response.data.product.language_name
+          this.version = response.data.product.version
+          this.price = response.data.product.price
+          this.category = response.data.product.category_name
+          this.store = response.data.product.store_name
+          this.os = response.data.product.os_name
+          this.description = response.data.product.description
+        })
+        .catch((error) => {
+          console.error('erro encontrado: ' + error.message)
+        })
+        .finally(() => {
+          this.loading = false
+        })
     }
   }
 })
