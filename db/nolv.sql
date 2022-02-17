@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost
--- Tempo de geração: 17/02/2022 às 02:09
+-- Tempo de geração: 18/02/2022 às 00:04
 -- Versão do servidor: 10.4.21-MariaDB
 -- Versão do PHP: 7.4.23
 
@@ -169,19 +169,20 @@ CREATE TABLE `products` (
   `operational_system_id` int(11) NOT NULL,
   `language_id` int(11) DEFAULT NULL,
   `version` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `description` text COLLATE utf8mb4_unicode_ci DEFAULT NULL
+  `description` text COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `main_image_path` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Despejando dados para a tabela `products`
 --
 
-INSERT INTO `products` (`id`, `store_id`, `category_id`, `name`, `price`, `file_path`, `operational_system_id`, `language_id`, `version`, `description`) VALUES
-(13, 1, 1, 'Sistema de gerenciamento de pizzaria acbdef abcdef acdef', 187.99, '/arquivo.txt', 1, 1, '1.0.0', 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis aliquet nulla porta tellus malesuada, at commodo ante viverra. Quisque nisl orci, accumsan sit amet leo eget, fringilla suscipit neque. Vivamus in auctor tellus, non ornare orci. Integer maximus vehicula sollicitudin. Integer congue tempor tempor. Nulla iaculis mi sagittis mi tincidunt, at consequat metus tincidunt. Nam in condimentum sapien.\n\nMaecenas vehicula mi in ex laoreet mattis. Aliquam augue lorem, finibus quis ultricies a, congue sit amet velit. Maecenas gravida elit non sem sagittis luctus. Aliquam nisl sapien, viverra laoreet suscipit quis, iaculis non turpis. Nunc iaculis finibus eleifend. Fusce ut efficitur magna. Pellentesque quis mattis nisl, porttitor mollis tellus. Cras ornare id lacus eget maximus. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas.'),
-(14, 1, 1, 'Gestão fácil', 89.54, '/arquivo.txt', 2, 1, '0.0.5', 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis aliquet nulla porta tellus malesuada, at commodo ante viverra. Quisque nisl orci, accumsan sit amet leo eget, fringilla suscipit neque. Vivamus in auctor tellus, non ornare orci. Integer maximus vehicula sollicitudin. Integer congue tempor tempor. Nulla iaculis mi sagittis mi tincidunt, at consequat metus tincidunt. Nam in condimentum sapien.\n\nMaecenas vehicula mi in ex laoreet mattis. Aliquam augue lorem, finibus quis ultricies a, congue sit amet velit. Maecenas gravida elit non sem sagittis luctus. Aliquam nisl sapien, viverra laoreet suscipit quis, iaculis non turpis. Nunc iaculis finibus eleifend. Fusce ut efficitur magna. Pellentesque quis mattis nisl, porttitor mollis tellus. Cras ornare id lacus eget maximus. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas.'),
-(15, 1, 1, 'Padafácil', 9.99, '/arquivo.txt', 3, 2, '2.1.19', 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis aliquet nulla porta tellus malesuada, at commodo ante viverra. Quisque nisl orci, accumsan sit amet leo eget, fringilla suscipit neque. Vivamus in auctor tellus, non ornare orci. Integer maximus vehicula sollicitudin. Integer congue tempor tempor. Nulla iaculis mi sagittis mi tincidunt, at consequat metus tincidunt. Nam in condimentum sapien.\n\nMaecenas vehicula mi in ex laoreet mattis. Aliquam augue lorem, finibus quis ultricies a, congue sit amet velit. Maecenas gravida elit non sem sagittis luctus. Aliquam nisl sapien, viverra laoreet suscipit quis, iaculis non turpis. Nunc iaculis finibus eleifend. Fusce ut efficitur magna. Pellentesque quis mattis nisl, porttitor mollis tellus. Cras ornare id lacus eget maximus. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas.'),
-(16, 1, 1, 'Farmapédia', 3.46, '/arquivo.txt', 1, 2, '2.55.0', 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis aliquet nulla porta tellus malesuada, at commodo ante viverra. Quisque nisl orci, accumsan sit amet leo eget, fringilla suscipit neque. Vivamus in auctor tellus, non ornare orci. Integer maximus vehicula sollicitudin. Integer congue tempor tempor. Nulla iaculis mi sagittis mi tincidunt, at consequat metus tincidunt. Nam in condimentum sapien.\n\nMaecenas vehicula mi in ex laoreet mattis. Aliquam augue lorem, finibus quis ultricies a, congue sit amet velit. Maecenas gravida elit non sem sagittis luctus. Aliquam nisl sapien, viverra laoreet suscipit quis, iaculis non turpis. Nunc iaculis finibus eleifend. Fusce ut efficitur magna. Pellentesque quis mattis nisl, porttitor mollis tellus. Cras ornare id lacus eget maximus. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas.'),
-(17, 1, 1, 'Opera PIP', 10, '/arquivo.txt', 2, 3, '5.0.0', 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis aliquet nulla porta tellus malesuada, at commodo ante viverra. Quisque nisl orci, accumsan sit amet leo eget, fringilla suscipit neque. Vivamus in auctor tellus, non ornare orci. Integer maximus vehicula sollicitudin. Integer congue tempor tempor. Nulla iaculis mi sagittis mi tincidunt, at consequat metus tincidunt. Nam in condimentum sapien.\n\nMaecenas vehicula mi in ex laoreet mattis. Aliquam augue lorem, finibus quis ultricies a, congue sit amet velit. Maecenas gravida elit non sem sagittis luctus. Aliquam nisl sapien, viverra laoreet suscipit quis, iaculis non turpis. Nunc iaculis finibus eleifend. Fusce ut efficitur magna. Pellentesque quis mattis nisl, porttitor mollis tellus. Cras ornare id lacus eget maximus. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas.');
+INSERT INTO `products` (`id`, `store_id`, `category_id`, `name`, `price`, `file_path`, `operational_system_id`, `language_id`, `version`, `description`, `main_image_path`) VALUES
+(13, 1, 1, 'Sistema de gerenciamento de pizzaria acbdef abcdef acdef', 187.99, '/arquivo.txt', 1, 1, '1.0.0', 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis aliquet nulla porta tellus malesuada, at commodo ante viverra. Quisque nisl orci, accumsan sit amet leo eget, fringilla suscipit neque. Vivamus in auctor tellus, non ornare orci. Integer maximus vehicula sollicitudin. Integer congue tempor tempor. Nulla iaculis mi sagittis mi tincidunt, at consequat metus tincidunt. Nam in condimentum sapien.\n\nMaecenas vehicula mi in ex laoreet mattis. Aliquam augue lorem, finibus quis ultricies a, congue sit amet velit. Maecenas gravida elit non sem sagittis luctus. Aliquam nisl sapien, viverra laoreet suscipit quis, iaculis non turpis. Nunc iaculis finibus eleifend. Fusce ut efficitur magna. Pellentesque quis mattis nisl, porttitor mollis tellus. Cras ornare id lacus eget maximus. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas.', 'https://picsum.photos/600'),
+(14, 1, 1, 'Gestão fácil', 89.54, '/arquivo.txt', 2, 1, '0.0.5', 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis aliquet nulla porta tellus malesuada, at commodo ante viverra. Quisque nisl orci, accumsan sit amet leo eget, fringilla suscipit neque. Vivamus in auctor tellus, non ornare orci. Integer maximus vehicula sollicitudin. Integer congue tempor tempor. Nulla iaculis mi sagittis mi tincidunt, at consequat metus tincidunt. Nam in condimentum sapien.\n\nMaecenas vehicula mi in ex laoreet mattis. Aliquam augue lorem, finibus quis ultricies a, congue sit amet velit. Maecenas gravida elit non sem sagittis luctus. Aliquam nisl sapien, viverra laoreet suscipit quis, iaculis non turpis. Nunc iaculis finibus eleifend. Fusce ut efficitur magna. Pellentesque quis mattis nisl, porttitor mollis tellus. Cras ornare id lacus eget maximus. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas.', 'https://picsum.photos/600'),
+(15, 1, 1, 'Padafácil', 9.99, '/arquivo.txt', 3, 2, '2.1.19', 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis aliquet nulla porta tellus malesuada, at commodo ante viverra. Quisque nisl orci, accumsan sit amet leo eget, fringilla suscipit neque. Vivamus in auctor tellus, non ornare orci. Integer maximus vehicula sollicitudin. Integer congue tempor tempor. Nulla iaculis mi sagittis mi tincidunt, at consequat metus tincidunt. Nam in condimentum sapien.\n\nMaecenas vehicula mi in ex laoreet mattis. Aliquam augue lorem, finibus quis ultricies a, congue sit amet velit. Maecenas gravida elit non sem sagittis luctus. Aliquam nisl sapien, viverra laoreet suscipit quis, iaculis non turpis. Nunc iaculis finibus eleifend. Fusce ut efficitur magna. Pellentesque quis mattis nisl, porttitor mollis tellus. Cras ornare id lacus eget maximus. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas.', 'https://picsum.photos/600'),
+(16, 1, 1, 'Farmapédia', 3.46, '/arquivo.txt', 1, 2, '2.55.0', 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis aliquet nulla porta tellus malesuada, at commodo ante viverra. Quisque nisl orci, accumsan sit amet leo eget, fringilla suscipit neque. Vivamus in auctor tellus, non ornare orci. Integer maximus vehicula sollicitudin. Integer congue tempor tempor. Nulla iaculis mi sagittis mi tincidunt, at consequat metus tincidunt. Nam in condimentum sapien.\n\nMaecenas vehicula mi in ex laoreet mattis. Aliquam augue lorem, finibus quis ultricies a, congue sit amet velit. Maecenas gravida elit non sem sagittis luctus. Aliquam nisl sapien, viverra laoreet suscipit quis, iaculis non turpis. Nunc iaculis finibus eleifend. Fusce ut efficitur magna. Pellentesque quis mattis nisl, porttitor mollis tellus. Cras ornare id lacus eget maximus. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas.', 'https://picsum.photos/600'),
+(17, 1, 1, 'Opera PIP', 10, '/arquivo.txt', 2, 3, '5.0.0', 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis aliquet nulla porta tellus malesuada, at commodo ante viverra. Quisque nisl orci, accumsan sit amet leo eget, fringilla suscipit neque. Vivamus in auctor tellus, non ornare orci. Integer maximus vehicula sollicitudin. Integer congue tempor tempor. Nulla iaculis mi sagittis mi tincidunt, at consequat metus tincidunt. Nam in condimentum sapien.\n\nMaecenas vehicula mi in ex laoreet mattis. Aliquam augue lorem, finibus quis ultricies a, congue sit amet velit. Maecenas gravida elit non sem sagittis luctus. Aliquam nisl sapien, viverra laoreet suscipit quis, iaculis non turpis. Nunc iaculis finibus eleifend. Fusce ut efficitur magna. Pellentesque quis mattis nisl, porttitor mollis tellus. Cras ornare id lacus eget maximus. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas.', 'https://picsum.photos/600');
 
 -- --------------------------------------------------------
 
@@ -207,6 +208,22 @@ CREATE TABLE `product_images` (
   `path` varchar(255) CHARACTER SET utf8 NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+--
+-- Despejando dados para a tabela `product_images`
+--
+
+INSERT INTO `product_images` (`id`, `product_id`, `path`) VALUES
+(3, 13, 'https://picsum.photos/600'),
+(4, 13, 'https://picsum.photos/600'),
+(5, 14, 'https://picsum.photos/600'),
+(6, 14, 'https://picsum.photos/600'),
+(7, 15, 'https://picsum.photos/600'),
+(8, 15, 'https://picsum.photos/600'),
+(9, 16, 'https://picsum.photos/600'),
+(10, 16, 'https://picsum.photos/600'),
+(11, 17, 'https://picsum.photos/600'),
+(12, 17, 'https://picsum.photos/600');
+
 -- --------------------------------------------------------
 
 --
@@ -217,8 +234,18 @@ CREATE TABLE `ratings` (
   `id` int(11) NOT NULL,
   `product_id` int(11) NOT NULL,
   `rating` int(11) DEFAULT 0,
-  `client_id` int(11) NOT NULL
+  `client_id` int(11) NOT NULL,
+  `comment` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Despejando dados para a tabela `ratings`
+--
+
+INSERT INTO `ratings` (`id`, `product_id`, `rating`, `client_id`, `comment`) VALUES
+(2, 13, 5, 1, 'Esse produto é muito bom'),
+(3, 13, 3, 2, 'Esse produto é meh'),
+(4, 13, 1, 3, 'esse produto é ruim');
 
 -- --------------------------------------------------------
 
@@ -473,13 +500,13 @@ ALTER TABLE `products_sales`
 -- AUTO_INCREMENT de tabela `product_images`
 --
 ALTER TABLE `product_images`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
 
 --
 -- AUTO_INCREMENT de tabela `ratings`
 --
 ALTER TABLE `ratings`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT de tabela `sales`
