@@ -113,59 +113,12 @@
 
     <q-separator color="grey" />
 
-    <div class="row q-px-xl q-py-md">
-      <div class="text-h6">
-        Comentários
-      </div>
-      <q-list class="col-12">
-        <q-infinite-scroll
-          :offset="250"
-          @load="onLoad"
-        >
-          <div
-            v-for="(item, index) in items"
-            :key="index"
-          >
-            <q-item>
-              <q-item-section>
-                <q-item-label>Nome do cliente</q-item-label>
-                <q-item-label caption>
-                  Comentário completo. Lorem ipsum dolor sit amet, consectetur adipiscit elit.
-                </q-item-label>
-              </q-item-section>
-
-              <q-item-section
-                side
-                top
-              >
-                <q-item-label caption>
-                  12/10/2020
-                </q-item-label>
-                <div class="text-orange">
-                  <q-rating
-                    v-model="ratingModel"
-                    color="accent"
-                    readonly
-                  />
-                </div>
-              </q-item-section>
-            </q-item>
-
-            <q-separator
-              spaced
-              inset
-            />
-          </div>
-          <template #loading>
-            <div class="row justify-center q-my-md">
-              <q-spinner-dots
-                color="primary"
-                size="40px"
-              />
-            </div>
-          </template>
-        </q-infinite-scroll>
-      </q-list>
+    <div class="row q-px-xl q-py-md justify-end">
+      <Comments
+        :ratings="ratings"
+        :product-id="productId"
+        @save="storeComment"
+      />
     </div>
   </q-page>
 </template>
@@ -173,12 +126,13 @@
 <script>
 import { api } from 'src/boot/axios'
 import { defineComponent, ref } from 'vue'
+import Comments from 'src/components/Comments.vue'
 
 export default defineComponent({
-  name: 'Product',
-  setup () {
-    const items = ref([{}, {}, {}])
 
+  name: 'Product',
+  components: { Comments },
+  setup () {
     return {
       productName: ref(''),
       languages: ref(''),
@@ -188,20 +142,13 @@ export default defineComponent({
       store: ref(''),
       os: ref(''),
       category: ref(''),
-      ratingModel: ref(2.5),
+      ratingModel: ref(0),
       ratingQtd: ref(120),
       ratings: ref([]),
       productId: ref(null),
       loading: ref(false),
-      items,
       description: ref(''),
-      imgs: ref([]),
-      onLoad (index, done) {
-        setTimeout(() => {
-          items.value.push({}, {}, {}, {})
-          done()
-        }, 2000)
-      }
+      imgs: ref([])
     }
   },
   created () {
@@ -217,7 +164,13 @@ export default defineComponent({
         .then((response) => {
           this.ratings = response.data.ratings
           this.ratingQtd = this.ratings.length
-          // TODO calculate ratings and show on list
+          if (this.ratings.length > 0) {
+            let ratingAverage = 0
+            for (let c = 0; c < this.ratings.length; c++) {
+              ratingAverage += this.ratings[c].rating
+            }
+            this.ratingModel = ratingAverage / this.ratings.length
+          }
         })
         .catch((error) => {
           console.error('erro message: ' + error.message)
@@ -245,6 +198,17 @@ export default defineComponent({
         })
         .finally(() => {
           this.loading = false
+        })
+    },
+
+    async storeComment (rating) {
+      console.log('salvou comentário novo: ' + JSON.stringify(rating))
+      api.post('/rating', { product_id: rating.product_id, rating: rating.rating, comment: rating.comment, client_id: rating.client_id })
+        .then((response) => {
+          console.log('resposta ' + JSON.stringify(response.data))
+        })
+        .catch((error) => {
+          console.error('erro encontrado: ' + error.message)
         })
     }
   }

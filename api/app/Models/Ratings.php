@@ -9,6 +9,13 @@ class Ratings extends Model {
 	use HasFactory;
 
 	/**
+	 * Indicates if the model should be timestamped
+	 *
+	 * @var bool
+	 */
+	public $timestamps = true;
+
+	/**
 	 * The table associated with the model.
 	 *
 	 * @var string
@@ -21,4 +28,8 @@ class Ratings extends Model {
 	 * @var array
 	 */
 	protected $fillable = ['product_id', 'rating'];
+
+	public function client() {
+		return $this->belongsTo(Clients::class);
+	}
 }

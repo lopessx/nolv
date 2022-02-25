@@ -44,3 +44,4 @@ $router->get('/product/image/{id}', 'ProductImagesController@getOne');
 
 // Product Ratings
 $router->get('/ratings/product/{id}', 'RatingsController@getProductRatings');
+$router->post('/rating', 'RatingsController@store');

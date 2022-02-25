@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Ratings;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class RatingsController extends Controller {
 	/**
@@ -27,6 +28,9 @@ class RatingsController extends Controller {
 	public function getProductRatings($id) {
 		try {
 			$ratings = Ratings::where('product_id', $id)->get();
+			foreach ($ratings as $rating) {
+				$rating->client;
+			}
 
 			return response(['success' => true, 'ratings' => $ratings]);
 		} catch (Exception $e) {
@@ -43,9 +47,22 @@ class RatingsController extends Controller {
 	}
 
 	public function store(Request $request) {
+		DB::beginTransaction();
+
 		try {
+			$rating = new Ratings();
+			$rating->product_id = $request->product_id;
+			$rating->rating = $request->rating;
+			$rating->client_id = $request->client_id;
+			$rating->comment = $request->comment;
+			$rating->save();
+
+			DB::commit();
+
 			return response(['success' => true]);
 		} catch (Exception $e) {
+			DB::rollBack();
+
 			return response(['message' => $e->getMessage(), 'code' => $e->getCode()], 404);
 		}
 	}
