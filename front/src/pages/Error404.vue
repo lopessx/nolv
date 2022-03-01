@@ -1,6 +1,5 @@
 <template>
-  <!-- // TODO change color to red/or something? -->
-  <div class="fullscreen bg-blue text-white text-center q-pa-md flex flex-center">
+  <div class="fullscreen bg-red text-white text-center q-pa-md flex flex-center">
     <div>
       <div style="font-size: 30vh">
         404
@@ -16,7 +15,7 @@
       <q-btn
         class="q-mt-xl"
         color="white"
-        text-color="blue"
+        text-color="red"
         unelevated
         to="/"
         label="Voltar para página principal"

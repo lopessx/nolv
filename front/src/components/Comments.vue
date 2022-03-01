@@ -2,9 +2,13 @@
   <div class="col-12 text-h6">
     Comentários
   </div>
-  <div class="q-py-md col-12">
+  <div
+    v-if="enableComment"
+    class="q-py-md col-12"
+  >
     <q-input
       v-model="comment"
+      :readonly="readonly"
       type="textarea"
       outlined
       label="Insira seu comentário..."
@@ -12,19 +16,28 @@
       <template #append>
         <q-rating
           v-model="newRating"
+          :readonly="readonly"
           color="accent"
         />
       </template>
     </q-input>
   </div>
-  <div class="col-auto justify-end q-pb-lg">
+  <div
+    v-if="enableComment"
+    class="col-auto justify-end q-pb-lg"
+  >
     <q-btn
+      :loading="readonly"
       color="primary"
       label="enviar"
       @click="sendComment"
     />
   </div>
-  <q-list class="col-12">
+  <!-- // TODO review and optimize commnets listing -->
+  <q-list
+    v-if="ratings"
+    class="col-12 q-pt-md"
+  >
     <q-infinite-scroll
       :offset="250"
       @load="onLoad"
@@ -73,12 +86,21 @@
       </template>
     </q-infinite-scroll>
   </q-list>
+  <div
+    v-else
+    class="row col-12 q-py-md justify-center align-center"
+  >
+    <div
+      class="col-auto text-grey-8 text-weight-bold"
+    >
+      Nenhum comentário
+    </div>
+  </div>
 </template>
 
 <script>
 import { defineComponent, ref } from 'vue'
 import { toBrazilianDate } from 'src/utils/functions'
-// import api from 'src/boot/axios'
 
 export default defineComponent({
   name: 'Comments',
@@ -90,6 +112,14 @@ export default defineComponent({
     productId: {
       type: String,
       default: '0'
+    },
+    enableComment: {
+      type: Boolean,
+      default: false
+    },
+    readonly: {
+      type: Boolean,
+      default: false
     }
   },
   emits: ['save'],
@@ -122,6 +152,8 @@ export default defineComponent({
       console.log('botão clicado')
       // TODO add client id for logged users
       this.$emit('save', { product_id: this.productId, rating: this.newRating, comment: this.comment, client_id: 1 })
+      this.comment = ''
+      this.newRating = 0
     }
   }
 

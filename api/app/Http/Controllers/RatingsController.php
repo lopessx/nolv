@@ -59,7 +59,7 @@ class RatingsController extends Controller {
 
 			DB::commit();
 
-			return response(['success' => true]);
+			return response(['success' => true, 'rating' => $rating]);
 		} catch (Exception $e) {
 			DB::rollBack();
 

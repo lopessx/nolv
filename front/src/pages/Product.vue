@@ -38,7 +38,7 @@
             v {{ version }}
           </div>
           <q-rating
-            v-model="ratingModel"
+            v-model="ratingAverage"
             readonly
             size="2em"
             :max="5"
@@ -51,6 +51,7 @@
             {{ new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(price) }}
 
             <q-btn
+              :loading="loading"
               color="accent"
               label="+ Carrinho"
             />
@@ -113,8 +114,11 @@
 
     <q-separator color="grey" />
 
+    <!-- //TODO Verify if user is logged in and has bought a product to comment -->
     <div class="row q-px-xl q-py-md justify-end">
       <Comments
+        :enable-comment="false"
+        :readonly="loading"
         :ratings="ratings"
         :product-id="productId"
         @save="storeComment"
@@ -142,7 +146,7 @@ export default defineComponent({
       store: ref(''),
       os: ref(''),
       category: ref(''),
-      ratingModel: ref(0),
+      ratingAverage: ref(0),
       ratingQtd: ref(120),
       ratings: ref([]),
       productId: ref(null),
@@ -163,13 +167,14 @@ export default defineComponent({
       api.get(`/ratings/product/${this.productId}`)
         .then((response) => {
           this.ratings = response.data.ratings
+          console.log('ratings: ' + this.ratings)
           this.ratingQtd = this.ratings.length
           if (this.ratings.length > 0) {
             let ratingAverage = 0
             for (let c = 0; c < this.ratings.length; c++) {
               ratingAverage += this.ratings[c].rating
             }
-            this.ratingModel = ratingAverage / this.ratings.length
+            this.ratingAverage = ratingAverage / this.ratings.length
           }
         })
         .catch((error) => {
@@ -202,13 +207,29 @@ export default defineComponent({
     },
 
     async storeComment (rating) {
+      this.loading = true
       console.log('salvou comentário novo: ' + JSON.stringify(rating))
       api.post('/rating', { product_id: rating.product_id, rating: rating.rating, comment: rating.comment, client_id: rating.client_id })
         .then((response) => {
           console.log('resposta ' + JSON.stringify(response.data))
+          const newRating = response.data.rating
+          // TODO change static name to session name
+          newRating.client = { name: 'João Silva' }
+          this.ratings.push(newRating)
+          this.ratingQtd = this.ratings.length
+          if (this.ratings.length > 0) {
+            let ratingAverage = 0
+            for (let c = 0; c < this.ratings.length; c++) {
+              ratingAverage += this.ratings[c].rating
+            }
+            this.ratingAverage = ratingAverage / this.ratings.length
+          }
         })
         .catch((error) => {
           console.error('erro encontrado: ' + error.message)
+        })
+        .finally(() => {
+          this.loading = false
         })
     }
   }
