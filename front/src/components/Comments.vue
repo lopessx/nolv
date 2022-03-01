@@ -35,7 +35,7 @@
   </div>
   <!-- // TODO review and optimize commnets listing -->
   <q-list
-    v-if="ratings"
+    v-if="ratings.length > 0"
     class="col-12 q-pt-md"
   >
     <q-infinite-scroll
@@ -87,7 +87,7 @@
     </q-infinite-scroll>
   </q-list>
   <div
-    v-else
+    v-if="ratings.length === 0"
     class="row col-12 q-py-md justify-center align-center"
   >
     <div
