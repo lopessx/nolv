@@ -239,7 +239,7 @@ export default defineComponent({
       email: ref(''),
       otp: ref(''),
       products: ref([{ id: 0, name: 'Abacaxi', price: 21.00 }, { id: 1, name: 'Banana', price: 10.00 }, { id: 2, name: 'Batata', price: 34.23 }]),
-      totalPrice: ref(65.23),
+      totalPrice: ref(0),
       paymentForm: ref(''),
       paymentOptions: ref(['cartão de crédito', 'boleto', 'pix']),
       phone: ref(''),
@@ -257,6 +257,11 @@ export default defineComponent({
     }
   },
 
+  created () {
+    this.products = this.$q.sessionStorage.getItem('cart')
+    this.getTotalPrice()
+  },
+
   mounted () {
     console.log('carregado')
   },
@@ -268,6 +273,28 @@ export default defineComponent({
     },
     deleteFromCheckout (id) {
       console.log('produto a ser deletado: ' + id)
+      for (let c = 0; c < this.products.length; c++) {
+        console.log('repetição produto: ' + this.products[c].id + ' id deletado: ' + id)
+        if (this.products[c].id === id) {
+          this.products.splice(c, 1)
+        }
+      }
+      console.log('produtos ' + JSON.stringify(this.products))
+      this.$q.sessionStorage.set('cart', this.products)
+
+      window.dispatchEvent(new CustomEvent('modify-cart', {
+        detail: {
+          storage: this.products.length
+        }
+      }))
+
+      this.getTotalPrice()
+    },
+    getTotalPrice () {
+      this.totalPrice = 0
+      for (let c = 0; c < this.products.length; c++) {
+        this.totalPrice += this.products[c].price
+      }
     }
   }
 })

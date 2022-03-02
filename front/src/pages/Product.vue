@@ -54,6 +54,7 @@
               :loading="loading"
               color="accent"
               label="+ Carrinho"
+              @click="addToCart"
             />
           </div>
         </div>
@@ -167,7 +168,7 @@ export default defineComponent({
       api.get(`/ratings/product/${this.productId}`)
         .then((response) => {
           this.ratings = response.data.ratings
-          console.log('ratings: ' + this.ratings)
+          console.log('ratings: ' + JSON.stringify(this.ratings))
           this.ratingQtd = this.ratings.length
           if (this.ratings.length > 0) {
             let ratingAverage = 0
@@ -231,6 +232,25 @@ export default defineComponent({
         .finally(() => {
           this.loading = false
         })
+    },
+
+    async addToCart () {
+      // TODO do not add duplicate items
+      console.log('adicionado ao carrinho')
+      let cart = this.$q.sessionStorage.getItem('cart')
+      if (cart) {
+        cart.push({ id: this.productId, name: this.productName, price: this.price })
+        this.$q.sessionStorage.set('cart', cart)
+      } else {
+        cart = [{ id: this.productId, name: this.productName, price: this.price }]
+        this.$q.sessionStorage.set('cart', cart)
+      }
+
+      window.dispatchEvent(new CustomEvent('modify-cart', {
+        detail: {
+          storage: cart.length
+        }
+      }))
     }
   }
 })

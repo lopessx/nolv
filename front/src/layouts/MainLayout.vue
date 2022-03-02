@@ -135,7 +135,15 @@
           icon="shopping_cart"
           round
           @click="$router.push('/pagamento')"
-        />
+        >
+          <q-badge
+            v-if="cartItems !== 0"
+            color="red"
+            floating
+          >
+            {{ cartItems }}
+          </q-badge>
+        </q-btn>
       </q-toolbar>
 
       <!-- Toolbar mobile -->
@@ -210,9 +218,26 @@ export default defineComponent({
       searchText: ref(''),
       drawer: ref(false),
       miniState: ref(true),
-      sessionStarted: ref(false)
+      sessionStarted: ref(false),
+      cartItems: ref(0)
     }
   },
+
+  created () {
+    console.log('nova sessão criada')
+    console.log('carrinho: ' + JSON.stringify(this.$q.sessionStorage.getItem('cart')))
+    const cartItems = this.$q.sessionStorage.getItem('cart')
+    if (cartItems) {
+      this.cartItems = cartItems.length
+    }
+  },
+
+  mounted () {
+    window.addEventListener('modify-cart', (event) => {
+      this.cartItems = event.detail.storage
+    })
+  },
+
   methods: {
     searchProduct (searchText) {
       // TODO generate search method and return
