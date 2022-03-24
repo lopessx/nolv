@@ -111,7 +111,8 @@ module.exports = configure(function (ctx) {
         'LocalStorage',
         'SessionStorage',
         'Loading',
-        'LoadingBar'
+        'LoadingBar',
+        'Notify'
       ]
     },
 
