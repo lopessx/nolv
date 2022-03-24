@@ -58,19 +58,27 @@
 
           <template #navigation>
             <q-stepper-navigation>
-              <q-btn
-                v-if="step > 1"
-                flat
-                color="primary"
-                label="Voltar"
-                class="q-ml-sm"
-                @click="step--"
-              />
-              <q-btn
-                color="primary"
-                :label="step === 2 ? 'Confirmar' : 'Continuar'"
-                @click="loginCheck()"
-              />
+              <div class="row justify-end q-gutter-xs">
+                <q-btn
+                  v-if="step > 1"
+                  flat
+                  color="primary"
+                  label="Voltar"
+                  class="q-ml-sm"
+                  @click="step--"
+                />
+                <q-btn
+                  v-if="step === 1"
+                  color="accent"
+                  label="Registrar"
+                  @click="$router.push('/registro')"
+                />
+                <q-btn
+                  color="primary"
+                  :label="step === 2 ? 'Confirmar' : 'Continuar'"
+                  @click="loginCheck()"
+                />
+              </div>
             </q-stepper-navigation>
           </template>
         </q-stepper>
