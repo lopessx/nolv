@@ -190,7 +190,7 @@
           icon="shopping_cart"
           round
           size="10px"
-          @click="$router.push('/login')"
+          @click="$router.push('/pagamento')"
         />
       </q-toolbar>
     </q-header>

@@ -16,10 +16,7 @@
             title="Cadastro"
             icon="person"
           >
-            <div
-              class="text-h4 q-pa-md"
-              style="color: #838383;"
-            >
+            <div class="text-h4 q-pa-md text-grey-7">
               Cadastro
             </div>
             <q-separator />
@@ -49,10 +46,7 @@
             title="Validação"
             icon="assignment_ind"
           >
-            <div
-              class="text-h4 q-pa-md"
-              style="color: #838383;"
-            >
+            <div class="text-h4 q-pa-md text-grey-7">
               Código de acesso
             </div>
             <q-separator />
@@ -73,10 +67,7 @@
             title="Pagamento"
             icon="payments"
           >
-            <div
-              class="text-h4 q-pa-md"
-              style="color: #838383;"
-            >
+            <div class="text-h4 q-pa-md text-grey-7">
               Pagamento
             </div>
             <q-separator />

@@ -162,10 +162,7 @@
                     </div>
                   </q-card-section>
                   <q-separator />
-                  <div
-                    class="subtitle-1 text-weight-bold q-pa-md"
-                    style="color: #838383;"
-                  >
+                  <div class="subtitle-1 text-weight-bold q-pa-md text-grey-7">
                     {{ props.row.name }}
                   </div>
                 </q-card>

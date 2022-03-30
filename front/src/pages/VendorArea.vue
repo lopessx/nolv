@@ -112,10 +112,7 @@
           </q-card-section>
           <q-separator />
           <div class="row justify-center align-center">
-            <div
-              class="col-6 subtitle-1 text-weight-bold q-pa-md"
-              style="color: #838383;"
-            >
+            <div class="col-6 subtitle-1 text-weight-bold q-pa-md text-grey-7">
               <div class="text-h5 text-accent text-weight-bold">
                 {{ new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(balance) }}
               </div>
@@ -193,10 +190,7 @@
                     </div>
                   </q-card-section>
                   <q-separator />
-                  <div
-                    class="subtitle-1 text-weight-bold q-pa-md"
-                    style="color: #838383;"
-                  >
+                  <div class="subtitle-1 text-weight-bold q-pa-md text-grey-7">
                     {{ props.row.name }}
                   </div>
                 </q-card>

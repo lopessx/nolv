@@ -14,10 +14,7 @@
             title="Login"
             icon="person"
           >
-            <div
-              class="text-h4 q-pa-md"
-              style="color: #838383;"
-            >
+            <div class="text-h4 q-pa-md text-grey-7">
               Login
             </div>
             <q-separator />
@@ -37,10 +34,7 @@
             title="Validação"
             icon="assignment_ind"
           >
-            <div
-              class="text-h4 q-pa-md"
-              style="color: #838383;"
-            >
+            <div class="text-h4 q-pa-md text-grey-7">
               Código de acesso
             </div>
             <q-separator />
@@ -70,7 +64,7 @@
                 <q-btn
                   v-if="step === 1"
                   color="accent"
-                  label="Registrar"
+                  label="Cadastrar"
                   @click="$router.push('/registro')"
                 />
                 <q-btn
