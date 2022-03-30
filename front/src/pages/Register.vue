@@ -3,7 +3,7 @@
     <q-form class="row q-py-xl justify-center align center">
       <q-stepper
         v-model="step"
-        class="col-6"
+        class="col-xs-12 col-sm-8"
         animated
         :contracted="$q.screen.lt.sm"
       >
@@ -13,10 +13,7 @@
           title="Cadastro"
           icon="person"
         >
-          <div
-            class="text-h4 q-pa-md"
-            style="color: #838383;"
-          >
+          <div class="text-h4 q-pa-md text-grey-7">
             Cadastro
           </div>
           <q-separator />
@@ -63,13 +60,13 @@
           title="Validação"
           icon="assignment_ind"
         >
-          <div
-            class="text-h4 q-pa-md"
-            style="color: #838383;"
-          >
+          <div class="text-h4 q-pa-md text-grey-7">
             Código de acesso
           </div>
           <q-separator />
+          <div class="q-pa-md text-grey-7">
+            Código de acesso enviado ao e-mail <b>{{ email }}</b>
+          </div>
           <div class="q-px-sm q-py-lg">
             <q-input
               v-model="otp"
@@ -78,6 +75,8 @@
               type="tel"
               mask="######"
               hint="Código de 6 dígitos"
+              lazy-rules
+              :rules="[codeValidation, required]"
               required
             />
           </div>
@@ -89,12 +88,12 @@
               v-if="step > 1"
               color="primary"
               label="Confirmar"
-              @click="validateCode()"
+              @click="login()"
             />
             <q-btn
               v-if="step === 1"
               color="primary"
-              label="Registrar"
+              label="Cadastrar"
               @click="register()"
             />
           </q-stepper-navigation>
@@ -108,7 +107,7 @@
 import { defineComponent, ref } from 'vue'
 // eslint-disable-next-line no-unused-vars
 import { api } from 'src/boot/axios'
-import { required, emailValidation, phoneValidation } from 'src/utils/validations'
+import { required, emailValidation, phoneValidation, codeValidation } from 'src/utils/validations'
 
 export default defineComponent({
   name: 'Register',
@@ -145,8 +144,17 @@ export default defineComponent({
           })
       }
     },
-    validateCode () {
-      console.log('Validate email')
+    login () {
+      api.post('client/login', { email: this.email, code: this.otp })
+        .then((response) => {
+          console.log('login efetuado ' + JSON.stringify(response.data))
+          if (response.data.success === true) {
+            this.$q.sessionStorage.set('client', response.data.client)
+            this.$router.push('/cliente')
+          } else {
+            this.showMessage('Código inválido', 'negative', 'error')
+          }
+        })
     },
     showMessage (msg, color, icon) {
       this.$q.notify({
@@ -157,7 +165,8 @@ export default defineComponent({
     },
     required,
     emailValidation,
-    phoneValidation
+    phoneValidation,
+    codeValidation
   }
 })
 </script>
