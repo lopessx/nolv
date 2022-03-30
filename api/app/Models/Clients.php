@@ -26,7 +26,7 @@ class Clients extends Model implements AuthenticatableContract, AuthorizableCont
 	 *
 	 * @var array
 	 */
-	protected $fillable = ['name', 'email', 'phone'];
+	protected $fillable = ['name', 'email', 'password', 'expiration_time', 'phone'];
 
 	public $timestamps = false;
 }

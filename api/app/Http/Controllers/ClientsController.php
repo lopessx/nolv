@@ -2,11 +2,16 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\NewLogin;
 use App\Models\Clients;
+use DateInterval;
+use DateTime;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
 
 class ClientsController extends Controller {
 	/**
@@ -62,15 +67,32 @@ class ClientsController extends Controller {
 		DB::beginTransaction();
 
 		try {
-			$client = new Clients();
-			$client->name = $request->name;
-			$client->email = $request->email;
-			$client->phone = $request->phone;
-			$client->save();
+			$client = Clients::where('email', $request->email)
+				->first();
 
-			DB::commit();
+			if (empty($client)) {
+				$accessCode = random_int(100000, 999999);
+				$expirationDate = date('Y-m-d H:i:s');
+				$client = new Clients();
+				$client->name = $request->name;
+				$client->email = $request->email;
+				$client->phone = $request->phone;
+				$client->password = Hash::make($accessCode);
+				$client->expiration_time = $expirationDate;
 
-			return response(['success' => true, 'client' => $client], 200);
+				$client->save();
+
+				Mail::to($request->email)
+					->send(new NewLogin((string) $accessCode));
+
+				DB::commit();
+
+				return response(['success' => true, 'client' => $client], 200);
+			} else {
+				DB::rollBack();
+
+				return response(['success' => false], 200);
+			}
 		} catch (Exception $e) {
 			DB::rollBack();
 
@@ -80,11 +102,19 @@ class ClientsController extends Controller {
 
 	public function login(Request $request) {
 		try {
-			$client = Clients::first(['email' => $request->email]);
-			Auth::login($client);
-			$client = Auth::user();
+			$client = Clients::where('email', $request->email)->first();
+			/*
+			$expirationDate = new DateTime($expirationDate);
+			$expirationDate->add(new DateInterval('PT' . 5 . 'M'));
+			*/
 
-			return response(['success' => true, 'client' => $client], 200);
+			if (Hash::check($request->code, $client->password)) {
+				$client = Auth::user();
+
+				return response(['success' => true, 'client' => $client], 200);
+			} else {
+				return response(['success' => false], 200);
+			}
 		} catch (Exception $e) {
 			return response(['message' => $e->getMessage(), 'code' => $e->getCode()], 500);
 		}

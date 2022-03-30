@@ -60,6 +60,7 @@ $app->singleton(
 */
 
 $app->configure('app');
+$app->configure('mail');
 
 /*
 |--------------------------------------------------------------------------
@@ -76,9 +77,9 @@ $app->configure('app');
 //     App\Http\Middleware\ExampleMiddleware::class
 // ]);
 
-// $app->routeMiddleware([
-//     'auth' => App\Http\Middleware\Authenticate::class,
-// ]);
+$app->routeMiddleware([
+	'auth' => App\Http\Middleware\Authenticate::class,
+]);
 
 $app->middleware([
 	App\Http\Middleware\CorsMiddleware::class,
@@ -96,7 +97,7 @@ $app->middleware([
 */
 
 // $app->register(App\Providers\AppServiceProvider::class);
-// $app->register(App\Providers\AuthServiceProvider::class);
+$app->register(App\Providers\AuthServiceProvider::class);
 // $app->register(App\Providers\EventServiceProvider::class);
 
 /*
@@ -151,8 +152,20 @@ $app->router->group([
 $app->register(Flipbox\LumenGenerator\LumenGeneratorServiceProvider::class);
 
 /**
- * Cors option request catch
+ * Cors http option request catch
  */
 $app->register(App\Providers\CatchAllOptionsRequestsProvider::class);
+
+/**
+ * Mail Provider configuration and lib loading
+ */
+$app->register(Illuminate\Mail\MailServiceProvider::class);
+
+$app->alias('mail.manager', Illuminate\Mail\MailManager::class);
+$app->alias('mail.manager', Illuminate\Contracts\Mail\Factory::class);
+
+$app->alias('mailer', Illuminate\Mail\Mailer::class);
+$app->alias('mailer', Illuminate\Contracts\Mail\Mailer::class);
+$app->alias('mailer', Illuminate\Contracts\Mail\MailQueue::class);
 
 return $app;

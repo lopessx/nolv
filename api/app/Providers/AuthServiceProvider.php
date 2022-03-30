@@ -28,6 +28,7 @@ class AuthServiceProvider extends ServiceProvider {
 		// the User instance via an API token or any other method necessary.
 
 		$this->app['auth']->viaRequest('api', function ($request) {
+			// TODO review this authenticate via api token? Or cookies?
 			if ($request->input('api_token')) {
 				return Clients::where('api_token', $request->input('api_token'))->first();
 			}
