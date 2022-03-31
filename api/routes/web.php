@@ -28,6 +28,7 @@ $router->delete('/product/{id}', 'ProductsController@delete');
 // $router->get('/category', 'CategoryController@get');
 $router->post('/client/register', 'ClientsController@register');
 $router->post('/client/login', 'ClientsController@login');
+$router->post('/client/auth', 'ClientsController@auth');
 
 // Stores
 // $router->get('/category', 'CategoryController@get');

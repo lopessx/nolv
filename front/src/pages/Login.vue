@@ -1,13 +1,12 @@
 <template>
   <q-page>
-    <div class="row q-px-md q-py-xl align-center justify-center">
+    <q-form class="row q-py-xl justify-center align center">
       <div class="col-xs-12 col-sm-8">
         <q-stepper
           v-model="step"
           animated
           :contracted="$q.screen.lt.sm"
         >
-          <!-- // TODO adicionar link redirecionando para cadastro, utilizar página de checkout de novos clientes -->
           <q-step
             :name="1"
             :done="step > 1"
@@ -20,11 +19,14 @@
             <q-separator />
             <div class="q-px-sm q-py-lg">
               <q-input
+                ref="emailInput"
                 v-model="email"
                 outlined
                 label="Insira seu e-mail"
                 type="email"
                 required
+                lazy-rules
+                :rules="[required, emailValidation]"
               />
             </div>
           </q-step>
@@ -38,13 +40,19 @@
               Código de acesso
             </div>
             <q-separator />
+            <div class="q-pa-md text-grey-7">
+              Código de acesso enviado ao e-mail <b>{{ email }}</b>
+            </div>
             <div class="q-px-sm q-py-lg">
               <q-input
+                ref="codeInput"
                 v-model="otp"
                 outlined
                 label="Insira o código de acesso"
                 type="tel"
                 mask="######"
+                lazy-rules
+                :rules="[codeValidation, required]"
                 required
               />
             </div>
@@ -53,6 +61,20 @@
           <template #navigation>
             <q-stepper-navigation>
               <div class="row justify-end q-gutter-xs">
+                <!-- Auth request -->
+                <q-btn
+                  v-if="step === 1"
+                  color="accent"
+                  label="Cadastrar"
+                  @click="$router.push('/registro')"
+                />
+                <q-btn
+                  v-if="step === 1"
+                  color="primary"
+                  label="Continuar"
+                  @click="auth()"
+                />
+                <!-- Login validation -->
                 <q-btn
                   v-if="step > 1"
                   flat
@@ -62,27 +84,24 @@
                   @click="step--"
                 />
                 <q-btn
-                  v-if="step === 1"
-                  color="accent"
-                  label="Cadastrar"
-                  @click="$router.push('/registro')"
-                />
-                <q-btn
+                  v-if="step === 2"
                   color="primary"
-                  :label="step === 2 ? 'Confirmar' : 'Continuar'"
-                  @click="loginCheck()"
+                  label="Confirmar"
+                  @click="login()"
                 />
               </div>
             </q-stepper-navigation>
           </template>
         </q-stepper>
       </div>
-    </div>
+    </q-form>
   </q-page>
 </template>
 
 <script>
 import { defineComponent, ref } from 'vue'
+import { api } from 'src/boot/axios'
+import { required, emailValidation, phoneValidation, codeValidation } from 'src/utils/validations'
 
 export default defineComponent({
   name: 'Login',
@@ -99,10 +118,54 @@ export default defineComponent({
   },
 
   methods: {
-    loginCheck () {
-      this.step++
-      console.log('login foi feito ' + this.otp)
-    }
+    auth () {
+      this.$refs.emailInput.validate()
+
+      if (this.$refs.emailInput.hasError) {
+        this.showMessage('Preencha todos os campos', 'warning', 'warning')
+      } else {
+        api.post('client/auth', { email: this.email })
+          .then((response) => {
+            console.log('solicitação de autenticação feita ' + JSON.stringify(response.data))
+            if (response.data.success === true) {
+              this.step = 2
+            } else {
+              this.showMessage('E-mail inválido ou não cadastrado', 'negative', 'error')
+            }
+          })
+      }
+    },
+    login () {
+      this.$refs.codeInput.validate()
+
+      if (this.$refs.codeInput.hasError) {
+        this.showMessage('Preencha todos os campos', 'warning', 'warning')
+      } else {
+        api.post('client/login', { email: this.email, code: this.otp })
+          .then((response) => {
+            console.log('login efetuado ' + JSON.stringify(response.data))
+            if (response.data.success === true) {
+              this.$q.sessionStorage.set('client', response.data.client)
+              // this.$cookies.set('authKey', response.data.key)
+              this.$q.sessionStorage.set('authKey', response.data.key)
+              this.$router.push('/cliente')
+            } else {
+              this.showMessage('Código inválido', 'negative', 'error')
+            }
+          })
+      }
+    },
+    showMessage (msg, color, icon) {
+      this.$q.notify({
+        message: msg,
+        color: color,
+        icon: icon
+      })
+    },
+    required,
+    emailValidation,
+    phoneValidation,
+    codeValidation
   }
 })
 </script>

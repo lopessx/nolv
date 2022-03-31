@@ -69,6 +69,7 @@
           </div>
           <div class="q-px-sm q-py-lg">
             <q-input
+              ref="codeInput"
               v-model="otp"
               outlined
               label="Insira o código de acesso"
@@ -145,16 +146,24 @@ export default defineComponent({
       }
     },
     login () {
-      api.post('client/login', { email: this.email, code: this.otp })
-        .then((response) => {
-          console.log('login efetuado ' + JSON.stringify(response.data))
-          if (response.data.success === true) {
-            this.$q.sessionStorage.set('client', response.data.client)
-            this.$router.push('/cliente')
-          } else {
-            this.showMessage('Código inválido', 'negative', 'error')
-          }
-        })
+      this.$refs.codeInput.validate()
+
+      if (this.$refs.codeInput.hasError) {
+        this.showMessage('Preencha todos os campos', 'warning', 'warning')
+      } else {
+        api.post('client/login', { email: this.email, code: this.otp })
+          .then((response) => {
+            console.log('login efetuado ' + JSON.stringify(response.data))
+            if (response.data.success === true) {
+              this.$q.sessionStorage.set('client', response.data.client)
+              // this.$cookies.set('authKey', response.data.key)
+              this.$q.sessionStorage.set('authKey', response.data.key)
+              this.$router.push('/cliente')
+            } else {
+              this.showMessage('Código inválido', 'negative', 'error')
+            }
+          })
+      }
     },
     showMessage (msg, color, icon) {
       this.$q.notify({
