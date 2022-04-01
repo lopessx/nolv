@@ -89,18 +89,13 @@
         </q-list>
       </q-scroll-area>
     </q-drawer>
-    <div class="row q-px-md q-pt-xl q-pb-md">
-      <div class="col-6 text-center">
+    <div class="row q-px-xl q-pt-xl q-pb-md">
+      <div class="col-12">
         <div class="text-h5">
-          Bem vindo, {{ username }}
-        </div>
-        <div class="text-subtitle1">
-          {{ email }}
-        </div>
-      </div>
-      <div class="col-6 text-center">
-        <div class="text-h5 text-accent text-weight-bold">
-          {{ new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(balance) }}
+          <q-icon
+            name="person"
+            color="accent"
+          /> Bem vindo, {{ username }}
         </div>
       </div>
     </div>
@@ -111,21 +106,26 @@
           <q-table
             color="grey-8"
             :grid="$q.screen.gt.xs"
-            :rows="rows"
+            :rows="products"
             :columns="columns"
             row-key="name"
             :filter="filter"
             :rows-per-page-options="productsPerPage"
+            no-data-label="Nenhum pedido encontrado"
             hide-header
           >
             <template #top-right>
               <q-input
                 v-model="filter"
-                borderless
                 dense
                 debounce="300"
                 placeholder="Pesquisar..."
-              />
+                prefix=""
+              >
+                <template #before>
+                  <q-icon name="search" />
+                </template>
+              </q-input>
             </template>
 
             <template #top-left>
@@ -136,7 +136,7 @@
                   size="sm"
                 />
                 <div class="text-subtitle1">
-                  Meus pedidos
+                  Compras
                 </div>
               </div>
             </template>
@@ -279,22 +279,24 @@ export default defineComponent({
   name: 'ClientArea',
   setup () {
     return {
-      email: ref('anymail@gmas.com'),
-      products: ref([{ id: 0, name: 'Abacaxi', price: 21.00 }, { id: 1, name: 'Banana', price: 10.00 }, { id: 2, name: 'Batata', price: 34.23 }]),
-      balance: ref(19.23),
+      email: ref(''),
+      products: ref([]),
+      balance: ref(0.00),
       drawer: ref(false),
       miniState: ref(true),
-      username: ref('João'),
+      username: ref(''),
       filter: ref(''),
       columns,
       rows,
-      productsPerPage: ref([6, 9, 15, 21, 27, 30, 42, 0]),
-      lorem: ref('Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.')
+      productsPerPage: ref([6, 9, 15, 21, 27, 30, 42, 0])
     }
   },
 
   mounted () {
-    console.log('carregado')
+    const client = this.$q.sessionStorage.getItem('client')
+
+    this.email = client.email
+    this.username = client.name
   },
 
   methods: {

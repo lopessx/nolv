@@ -146,8 +146,14 @@ export default defineComponent({
             console.log('login efetuado ' + JSON.stringify(response.data))
             if (response.data.success === true) {
               this.$q.sessionStorage.set('client', response.data.client)
-              // this.$cookies.set('authKey', response.data.key)
               this.$q.sessionStorage.set('authKey', response.data.key)
+
+              window.dispatchEvent(new CustomEvent('client-localstorage-changed', {
+                detail: {
+                  client: this.$q.sessionStorage.getItem('client')
+                }
+              }))
+
               this.$router.push('/cliente')
             } else {
               this.showMessage('Código inválido', 'negative', 'error')

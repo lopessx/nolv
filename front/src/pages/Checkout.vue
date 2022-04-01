@@ -229,7 +229,7 @@ export default defineComponent({
       step: ref(1),
       email: ref(''),
       otp: ref(''),
-      products: ref([{ id: 0, name: 'Abacaxi', price: 21.00 }, { id: 1, name: 'Banana', price: 10.00 }, { id: 2, name: 'Batata', price: 34.23 }]),
+      products: ref([]),
       totalPrice: ref(0),
       paymentForm: ref(''),
       paymentOptions: ref(['cartão de crédito', 'boleto', 'pix']),
@@ -249,8 +249,12 @@ export default defineComponent({
   },
 
   created () {
-    this.products = this.$q.sessionStorage.getItem('cart')
-    this.getTotalPrice()
+    const cart = this.$q.sessionStorage.getItem('cart')
+
+    if (cart) {
+      this.products = this.$q.sessionStorage.getItem('cart')
+      this.getTotalPrice()
+    }
   },
 
   mounted () {
@@ -275,7 +279,7 @@ export default defineComponent({
 
       window.dispatchEvent(new CustomEvent('modify-cart', {
         detail: {
-          storage: this.products.length
+          productQtd: this.products.length
         }
       }))
 

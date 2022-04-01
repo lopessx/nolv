@@ -248,7 +248,7 @@ export default defineComponent({
 
       window.dispatchEvent(new CustomEvent('modify-cart', {
         detail: {
-          storage: cart.length
+          productQtd: cart.length
         }
       }))
     }

@@ -100,7 +100,7 @@
           <q-btn
             color="primary"
             unelevated
-            label="Softnew"
+            label="Nolv"
             @click="$router.push('/')"
           />
         </q-toolbar-title>
@@ -123,6 +123,15 @@
         <q-space />
 
         <q-btn
+          v-if="clientName !== ''"
+          color="primary"
+          unelevated
+          icon="person"
+          :label="clientName"
+          @click="$router.push('/cliente')"
+        />
+        <q-btn
+          v-else
           color="primary"
           unelevated
           icon="person"
@@ -201,7 +210,7 @@
 
     <footer class="bg-grey-5 q-pa-sm">
       <div class="text-center text-subtitle2">
-        © SoftNew - 2021
+        © Nolv - {{ currentYear }}
       </div>
     </footer>
   </q-layout>
@@ -219,22 +228,37 @@ export default defineComponent({
       drawer: ref(false),
       miniState: ref(true),
       sessionStarted: ref(false),
-      cartItems: ref(0)
+      cartItems: ref(0),
+      clientName: ref(''),
+      currentYear: ref(new Date().getFullYear())
     }
   },
 
   created () {
-    console.log('nova sessão criada')
-    console.log('carrinho: ' + JSON.stringify(this.$q.sessionStorage.getItem('cart')))
+    const client = this.$q.sessionStorage.getItem('client')
+
+    if (client) {
+      this.clientName = client.name
+    }
+
     const cartItems = this.$q.sessionStorage.getItem('cart')
     if (cartItems) {
       this.cartItems = cartItems.length
     }
+
+    console.log('nova sessão criada')
+    console.log('carrinho: ' + JSON.stringify(this.$q.sessionStorage.getItem('cart')))
+    console.log('cliente ' + JSON.stringify(this.clientName))
   },
 
   mounted () {
     window.addEventListener('modify-cart', (event) => {
-      this.cartItems = event.detail.storage
+      this.cartItems = event.detail.productQtd
+    })
+
+    window.addEventListener('client-localstorage-changed', (event) => {
+      this.clientName = event.detail.client.name
+      console.log('client: ' + this.clientName)
     })
   },
 
