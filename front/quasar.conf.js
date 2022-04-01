@@ -157,8 +157,8 @@ module.exports = configure(function (ctx) {
       },
 
       manifest: {
-        name: 'Softnew',
-        short_name: 'Softnew',
+        name: 'Nolv',
+        short_name: 'Nolv',
         description: 'A marketplace for buying and selling software',
         display: 'standalone',
         orientation: 'portrait',
@@ -224,7 +224,7 @@ module.exports = configure(function (ctx) {
       builder: {
         // https://www.electron.build/configuration/configuration
 
-        appId: 'softnew-marketplace'
+        appId: 'nolv-marketplace'
       },
 
       // "chain" is a webpack-chain object https://github.com/neutrinojs/webpack-chain

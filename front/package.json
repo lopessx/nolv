@@ -1,8 +1,8 @@
 {
-  "name": "softnew-marketplace",
+  "name": "nolv-marketplace",
   "version": "0.0.1",
   "description": "A marketplace for buying and selling software",
-  "productName": "Softnew",
+  "productName": "nolv",
   "author": "lopessx <warlopess@gmail.com>",
   "private": true,
   "scripts": {
