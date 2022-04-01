@@ -122,14 +122,45 @@
 
         <q-space />
 
-        <q-btn
+        <q-btn-dropdown
           v-if="clientName !== ''"
           color="primary"
           unelevated
           icon="person"
           :label="clientName"
-          @click="$router.push('/cliente')"
-        />
+        >
+          <q-list>
+            <q-item
+              v-close-popup
+              clickable
+              @click="$router.push('/cliente')"
+            >
+              <q-item-section>
+                <q-item-label>Compras</q-item-label>
+              </q-item-section>
+            </q-item>
+
+            <q-item
+              v-close-popup
+              clickable
+              @click="$router.push('/perfil')"
+            >
+              <q-item-section>
+                <q-item-label>Meu perfil</q-item-label>
+              </q-item-section>
+            </q-item>
+
+            <q-item
+              v-close-popup
+              clickable
+              @click="logout()"
+            >
+              <q-item-section>
+                <q-item-label>Sair</q-item-label>
+              </q-item-section>
+            </q-item>
+          </q-list>
+        </q-btn-dropdown>
         <q-btn
           v-else
           color="primary"
@@ -217,6 +248,7 @@
 </template>
 
 <script>
+import { api } from 'src/boot/axios'
 import { defineComponent, ref } from 'vue'
 
 export default defineComponent({
@@ -266,6 +298,32 @@ export default defineComponent({
     searchProduct (searchText) {
       // TODO generate search method and return
       console.log('procurar produto: ' + JSON.stringify(searchText))
+    },
+    logout () {
+      console.log('logout clicado')
+      const client = this.$q.sessionStorage.getItem('client')
+      api.post('logout', { email: client.email })
+        .then((response) => {
+          if (response.data.success === true) {
+            this.$q.sessionStorage.clear()
+            this.clientName = ''
+            this.cartItems = 0
+            this.$router.push('/')
+          } else {
+            this.showMessage('Logout falhou', 'negative', 'error')
+          }
+        })
+        .catch((error) => {
+          console.error('erro: ' + error.message)
+          this.showMessage('Logout falhou', 'negative', 'error')
+        })
+    },
+    showMessage (msg, color, icon) {
+      this.$q.notify({
+        message: msg,
+        color: color,
+        icon: icon
+      })
     }
   }
 })

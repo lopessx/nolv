@@ -150,4 +150,32 @@ class ClientsController extends Controller {
 			return response(['message' => $e->getMessage(), 'code' => $e->getCode()], 500);
 		}
 	}
+
+	public function logout(Request $request) {
+		DB::beginTransaction();
+
+		try {
+			$client = Clients::where('email', $request->email)
+			->first();
+
+			if (empty($client)) {
+				DB::rollBack();
+
+				return response(['success' => false], 200);
+			} else {
+				$accessCode = md5(random_int(100000000, 999999999));
+				$expirationDate = date('Y-m-d H:i:s');
+				$client->password = Hash::make($accessCode);
+				$client->expiration_time = $expirationDate;
+
+				$client->save();
+
+				DB::commit();
+
+				return response(['success' => true], 200);
+			}
+		} catch (Exception $e) {
+			return response(['message' => $e->getMessage(), 'code' => $e->getCode()], 500);
+		}
+	}
 }

@@ -194,7 +194,7 @@
                                     <!-- Header Button -->
                                     <table border="0" cellspacing="0" cellpadding="0" role="presentation" align="center" class="center-float">
                                         <tr>
-                                            <td align="center"    bgcolor="#d6df58" style="border-radius: 6px;">
+                                            <td align="center"    bgcolor="#d6df58" style="border-radius: 6px; padding: 10px; font-size: 20px; font-weight: 600;">
                                                 <!--[if (gte mso 9)|(IE)]>
                                                 <table border="0" cellpadding="0" cellspacing="0" align="center">
                                                     <tr>

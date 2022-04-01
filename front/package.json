@@ -2,7 +2,7 @@
   "name": "nolv-marketplace",
   "version": "0.0.1",
   "description": "A marketplace for buying and selling software",
-  "productName": "nolv",
+  "productName": "Nolv",
   "author": "lopessx <warlopess@gmail.com>",
   "private": true,
   "scripts": {

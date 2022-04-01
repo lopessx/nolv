@@ -13,10 +13,6 @@
 |
 */
 
-$router->get('/', function () use ($router) {
-	return $router->app->version();
-});
-
 // Products
 $router->get('/products', 'ProductsController@get');
 $router->get('/product/{id}', 'ProductsController@getOne');
@@ -29,6 +25,7 @@ $router->delete('/product/{id}', 'ProductsController@delete');
 $router->post('/client/register', 'ClientsController@register');
 $router->post('/client/login', 'ClientsController@login');
 $router->post('/client/auth', 'ClientsController@auth');
+$router->post('/logout', 'ClientsController@logout');
 
 // Stores
 // $router->get('/category', 'CategoryController@get');
