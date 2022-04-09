@@ -1,6 +1,6 @@
 <template>
   <q-page>
-    <div class="row q-px-md q-py-xl">
+    <q-form class="row q-px-md q-py-xl">
       <div
         id="col-end"
         class="col-xs-12 col-sm-8"
@@ -22,21 +22,27 @@
             <q-separator />
             <div class="q-px-sm q-pb-sm q-pt-lg">
               <q-input
+                ref="emailInput"
                 v-model="email"
                 outlined
                 label="Insira seu e-mail"
                 type="email"
                 required
+                lazy-rules
+                :rules="[required, emailValidation]"
               />
             </div>
             <div class="q-px-sm q-pt-sm q-pb-lg">
               <q-input
+                ref="phoneInput"
                 v-model="phone"
                 outlined
                 label="Insira seu número de celular"
                 type="tel"
                 mask="(##) ##### - ####"
                 required
+                lazy-rules
+                :rules="[required, phoneValidation]"
               />
             </div>
           </q-step>
@@ -52,12 +58,15 @@
             <q-separator />
             <div class="q-px-sm q-py-lg">
               <q-input
+                ref="codeInput"
                 v-model="otp"
                 outlined
                 label="Insira o código de acesso"
                 type="tel"
                 mask="######"
                 required
+                lazy-rules
+                :rules="[required, codeValidation]"
               />
             </div>
           </q-step>
@@ -90,14 +99,18 @@
                 outlined
                 label="Nome do titular do cartão"
                 required
+                lazy-rules
+                :rules="[required]"
               />
               <q-input
                 v-model="card.expDate"
                 class="col-xs-12 col-sm-4"
                 outlined
                 label="Data de expiração"
-                mask="## / ##"
+                mask="##/##"
                 required
+                lazy-rules
+                :rules="[required, expDate]"
               />
               <q-input
                 v-model="card.number"
@@ -106,6 +119,8 @@
                 label="Número do cartão"
                 mask="#### #### #### #### ####"
                 required
+                lazy-rules
+                :rules="[required]"
               />
               <q-input
                 v-model="card.cvv"
@@ -114,6 +129,8 @@
                 label="CVV"
                 mask="####"
                 required
+                lazy-rules
+                :rules="[required, cvv]"
               />
             </div>
             <div
@@ -156,9 +173,22 @@
                 @click="step--"
               />
               <q-btn
+                v-if="step === 1"
                 color="primary"
-                :label="step === 3 ? 'Confirmar' : 'Continuar'"
-                @click="loginCheck()"
+                label="Continuar"
+                @click="auth()"
+              />
+              <q-btn
+                v-if="step === 2"
+                color="primary"
+                label="Continuar"
+                @click="login()"
+              />
+              <q-btn
+                v-if="step === 3"
+                color="primary"
+                label="Confirmar"
+                @click="placeOrder()"
               />
             </q-stepper-navigation>
           </template>
@@ -215,12 +245,14 @@
           />
         </q-list>
       </div>
-    </div>
+    </q-form>
   </q-page>
 </template>
 
 <script>
 import { defineComponent, ref } from 'vue'
+import { required, emailValidation, codeValidation, expDate, cvv, phoneValidation, cardValidation } from 'src/utils/validations'
+import { api } from 'src/boot/axios'
 
 export default defineComponent({
   name: 'Checkout',
@@ -262,9 +294,52 @@ export default defineComponent({
   },
 
   methods: {
-    loginCheck () {
-      this.step++
-      console.log('login foi feito ' + this.otp)
+    auth () {
+      this.$refs.emailInput.validate()
+      this.$refs.phoneInput.validate()
+
+      if (this.$refs.emailInput.hasError || this.$refs.phoneInput.hasError) {
+        this.showMessage('Preencha todos os campos', 'warning', 'warning')
+      } else {
+        api.post('client/auth', { email: this.email })
+          .then((response) => {
+            console.log('solicitação de autenticação feita ' + JSON.stringify(response.data))
+            if (response.data.success === true) {
+              this.step = 2
+            } else {
+              this.showMessage('E-mail inválido ou não cadastrado', 'negative', 'error')
+            }
+          })
+      }
+    },
+    login () {
+      this.$refs.codeInput.validate()
+
+      if (this.$refs.codeInput.hasError) {
+        this.showMessage('Preencha todos os campos', 'warning', 'warning')
+      } else {
+        api.post('client/login', { email: this.email, code: this.otp })
+          .then((response) => {
+            console.log('login efetuado ' + JSON.stringify(response.data))
+            if (response.data.success === true) {
+              this.$q.sessionStorage.set('client', response.data.client)
+              this.$q.sessionStorage.set('authKey', response.data.key)
+
+              window.dispatchEvent(new CustomEvent('client-localstorage-changed', {
+                detail: {
+                  client: this.$q.sessionStorage.getItem('client')
+                }
+              }))
+
+              this.step = 3
+            } else {
+              this.showMessage('Código inválido', 'negative', 'error')
+            }
+          })
+      }
+    },
+    placeOrder () {
+      console.log('validar pedido e gerar nova fatura')
     },
     deleteFromCheckout (id) {
       console.log('produto a ser deletado: ' + id)
@@ -290,7 +365,21 @@ export default defineComponent({
       for (let c = 0; c < this.products.length; c++) {
         this.totalPrice += this.products[c].price
       }
-    }
+    },
+    showMessage (msg, color, icon) {
+      this.$q.notify({
+        message: msg,
+        color: color,
+        icon: icon
+      })
+    },
+    required,
+    emailValidation,
+    codeValidation,
+    expDate,
+    phoneValidation,
+    cvv,
+    cardValidation
   }
 })
 </script>
