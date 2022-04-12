@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost
--- Tempo de geração: 18/02/2022 às 00:04
+-- Tempo de geração: 12/04/2022 às 03:03
 -- Versão do servidor: 10.4.21-MariaDB
 -- Versão do PHP: 7.4.23
 
@@ -67,8 +67,10 @@ INSERT INTO `category` (`id`, `name`) VALUES
 
 CREATE TABLE `clients` (
   `id` int(11) NOT NULL,
-  `name` varchar(255) CHARACTER SET utf8 NOT NULL,
+  `name` varchar(255) CHARACTER SET utf8 DEFAULT NULL,
   `email` varchar(255) CHARACTER SET utf8 NOT NULL,
+  `password` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `expiration_time` datetime NOT NULL DEFAULT current_timestamp(),
   `phone` varchar(255) CHARACTER SET utf8 NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -76,10 +78,16 @@ CREATE TABLE `clients` (
 -- Despejando dados para a tabela `clients`
 --
 
-INSERT INTO `clients` (`id`, `name`, `email`, `phone`) VALUES
-(1, 'Jonas Silva', 'jonas123@alskla.su', '81993431392'),
-(2, 'João Ferreira', 'joao222@asasda.su', '81993431392]'),
-(3, 'Luan Silva', 'lsilva@aslkas.su', '81993431392');
+INSERT INTO `clients` (`id`, `name`, `email`, `password`, `expiration_time`, `phone`) VALUES
+(1, 'Jonas Silva', 'jonas123@alskla.su', NULL, '2022-03-29 17:30:10', '81993431392'),
+(2, 'João Ferreira', 'joao222@asasda.su', NULL, '2022-03-29 17:30:10', '81993431392]'),
+(3, 'Luan Silva', 'lsilva@aslkas.su', NULL, '2022-03-29 17:30:10', '81993431392'),
+(4, 'Antonio Henry Vinicius Mendes', 'antonio_henry_mendes@directnet.com.br', NULL, '2022-03-29 17:30:10', '(65) 99642 - 2060'),
+(5, 'Fabiana Clara Moreira', 'fabiana_clara_moreira@yahool.com', NULL, '2022-03-29 17:30:10', '(98) 98185 - 9693'),
+(6, 'Jéssica Carolina Bernardes', 'jessica_carolina_bernardes@comercialmendes.net', NULL, '2022-03-29 17:30:10', '(83) 99868 - 1677'),
+(13, 'Murilo Gael Martin da Paz', 'yifakis428@kuruapp.com', '$2y$10$aMA7pa9bMnaSFnB/19XsUOBRF3EdfEY16cI9ssV9uOrBLpKDbU14e', '2022-03-29 21:09:54', '(95) 98726 - 7875'),
+(14, 'John Doe', 'nomawa5225@whwow.com', '$2y$10$YzWPfVncH6FV.hFQ2GVUveuQVZzKbhlNxx7GFs9kW5L8noIe.LTBq', '2022-04-09 16:37:16', '(81) 99343 - 1392'),
+(15, NULL, 'pobibac550@hhmel.com', '$2y$10$V/lgo.uXvjm64OVEUZ47BuY8FbxJonWQTcDPuj0FK4EGRxdQA0rO.', '2022-04-11 21:56:23', '(81) 99343 - 1392');
 
 -- --------------------------------------------------------
 
@@ -151,7 +159,9 @@ CREATE TABLE `paymethods` (
 --
 
 INSERT INTO `paymethods` (`id`, `name`, `type`, `active`) VALUES
-(1, 'Pagseguro', 'card', 1);
+(1, 'Cartão de crédito', 'card', 1),
+(2, 'Boleto bancário', 'boleto', 0),
+(3, 'Pix', 'pix', 1);
 
 -- --------------------------------------------------------
 
@@ -235,17 +245,57 @@ CREATE TABLE `ratings` (
   `product_id` int(11) NOT NULL,
   `rating` int(11) DEFAULT 0,
   `client_id` int(11) NOT NULL,
-  `comment` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL
+  `comment` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `created_at` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `updated_at` datetime NOT NULL DEFAULT '0000-00-00 00:00:00'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Despejando dados para a tabela `ratings`
 --
 
-INSERT INTO `ratings` (`id`, `product_id`, `rating`, `client_id`, `comment`) VALUES
-(2, 13, 5, 1, 'Esse produto é muito bom'),
-(3, 13, 3, 2, 'Esse produto é meh'),
-(4, 13, 1, 3, 'esse produto é ruim');
+INSERT INTO `ratings` (`id`, `product_id`, `rating`, `client_id`, `comment`, `created_at`, `updated_at`) VALUES
+(2, 13, 5, 1, 'Esse produto é muito bom', '2022-01-31 00:00:00', '0000-00-00 00:00:00'),
+(3, 13, 3, 2, 'Esse produto é meh', '2022-02-10 00:00:00', '0000-00-00 00:00:00'),
+(4, 13, 1, 3, 'esse produto é ruim', '2022-02-07 00:00:00', '0000-00-00 00:00:00'),
+(5, 13, 4, 1, 'Esse produto é bom mas não é perfeito', '2022-02-25 17:02:49', '2022-02-25 17:02:49'),
+(6, 13, 5, 1, 'Asd comentário gg aslkdlask', '2022-02-28 11:20:49', '2022-02-28 11:20:49'),
+(7, 13, 5, 1, 'Comentário atual 123 123', '2022-02-28 11:23:57', '2022-02-28 11:23:57'),
+(8, 13, 4, 1, 'comentário gg', '2022-02-28 11:24:17', '2022-02-28 11:24:17'),
+(9, 13, 4, 1, 'comentário gg asdasd', '2022-02-28 11:26:22', '2022-02-28 11:26:22'),
+(10, 13, 4, 1, 'comentário gg asdasd asd', '2022-02-28 11:26:48', '2022-02-28 11:26:48'),
+(11, 13, 2, 1, 'comentário gg asdasd asd ddd', '2022-02-28 11:26:52', '2022-02-28 11:26:52'),
+(12, 13, 5, 1, 'qweqwe 123123', '2022-02-28 11:27:02', '2022-02-28 11:27:02'),
+(13, 13, 5, 1, 'qweqwe 123123 3333', '2022-02-28 11:27:18', '2022-02-28 11:27:18'),
+(14, 13, 2, 1, 'asddde eeee', '2022-02-28 11:29:36', '2022-02-28 11:29:36'),
+(15, 13, 5, 1, 'New ratting 123', '2022-02-28 11:31:12', '2022-02-28 11:31:12'),
+(16, 13, 3, 1, 'asdasd 12323', '2022-02-28 11:33:09', '2022-02-28 11:33:09'),
+(17, 13, 5, 1, '123123 asdasd 123123 asdasd', '2022-02-28 11:33:27', '2022-02-28 11:33:27'),
+(18, 13, 4, 1, 'abcdefg 123', '2022-02-28 11:34:28', '2022-02-28 11:34:28'),
+(19, 13, 5, 1, '', '2022-02-28 16:33:08', '2022-02-28 16:33:08'),
+(20, 13, 5, 1, '', '2022-02-28 16:33:10', '2022-02-28 16:33:10'),
+(21, 14, 5, 1, 'asdasdasdasd', '2022-03-01 10:08:43', '2022-03-01 10:08:43'),
+(22, 14, 1, 1, 'asdasd', '2022-03-01 10:08:51', '2022-03-01 10:08:51'),
+(23, 14, 1, 1, '', '2022-03-01 10:08:57', '2022-03-01 10:08:57'),
+(24, 14, 4, 1, '', '2022-03-01 10:09:07', '2022-03-01 10:09:07'),
+(25, 14, 5, 1, '', '2022-03-01 10:09:12', '2022-03-01 10:09:12'),
+(26, 14, 5, 1, 'asdasd', '2022-03-01 10:09:17', '2022-03-01 10:09:17'),
+(27, 14, 5, 1, 'asdasd', '2022-03-01 10:09:19', '2022-03-01 10:09:19'),
+(28, 14, 5, 1, 'asdasd', '2022-03-01 10:09:21', '2022-03-01 10:09:21'),
+(29, 14, 5, 1, 'asdasd', '2022-03-01 10:09:24', '2022-03-01 10:09:24'),
+(30, 14, 5, 1, 'asdasdasd', '2022-03-01 10:20:28', '2022-03-01 10:20:28'),
+(31, 14, 5, 1, 'asdasdasd', '2022-03-01 10:20:30', '2022-03-01 10:20:30'),
+(32, 14, 5, 1, 'asdasd', '2022-03-01 10:20:33', '2022-03-01 10:20:33'),
+(33, 14, 5, 1, 'asdasdasd', '2022-03-01 10:20:35', '2022-03-01 10:20:35'),
+(34, 14, 1, 1, 'asdasd', '2022-03-01 10:20:41', '2022-03-01 10:20:41'),
+(35, 14, 1, 1, 'asdasd', '2022-03-01 10:20:43', '2022-03-01 10:20:43'),
+(36, 14, 1, 1, 'asdasd', '2022-03-01 10:20:45', '2022-03-01 10:20:45'),
+(37, 14, 1, 1, 'asdasd', '2022-03-01 10:20:47', '2022-03-01 10:20:47'),
+(38, 14, 1, 1, 'adsasd', '2022-03-01 10:20:49', '2022-03-01 10:20:49'),
+(39, 14, 1, 1, 'asdasd', '2022-03-01 10:20:51', '2022-03-01 10:20:51'),
+(40, 14, 1, 1, 'asdasd', '2022-03-01 10:20:53', '2022-03-01 10:20:53'),
+(41, 14, 1, 1, 'asdasd', '2022-03-01 10:20:55', '2022-03-01 10:20:55'),
+(42, 14, 1, 1, 'asdasd', '2022-03-01 10:20:56', '2022-03-01 10:20:56');
 
 -- --------------------------------------------------------
 
@@ -458,7 +508,7 @@ ALTER TABLE `category`
 -- AUTO_INCREMENT de tabela `clients`
 --
 ALTER TABLE `clients`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
 
 --
 -- AUTO_INCREMENT de tabela `languages`
@@ -482,7 +532,7 @@ ALTER TABLE `operational_system`
 -- AUTO_INCREMENT de tabela `paymethods`
 --
 ALTER TABLE `paymethods`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT de tabela `products`
@@ -506,7 +556,7 @@ ALTER TABLE `product_images`
 -- AUTO_INCREMENT de tabela `ratings`
 --
 ALTER TABLE `ratings`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=43;
 
 --
 -- AUTO_INCREMENT de tabela `sales`
