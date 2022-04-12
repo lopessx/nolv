@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Paymethods;
 use Exception;
 use Illuminate\Http\Request;
 
@@ -17,7 +18,9 @@ class PaymethodsController extends Controller {
 
 	public function get(Request $request) {
 		try {
-			return response(['success' => true]);
+			$paymethods = Paymethods::where('active', 1)->get();
+
+			return response(['success' => true, 'paymethods' => $paymethods]);
 		} catch (Exception $e) {
 			return response(['message' => $e->getMessage(), 'code' => $e->getCode()], 404);
 		}
@@ -48,6 +51,14 @@ class PaymethodsController extends Controller {
 	}
 
 	public function delete(Request $request) {
+		try {
+			return response(['success' => true]);
+		} catch (Exception $e) {
+			return response(['message' => $e->getMessage(), 'code' => $e->getCode()], 404);
+		}
+	}
+
+	public function proccessPayment(Request $request) {
 		try {
 			return response(['success' => true]);
 		} catch (Exception $e) {
