@@ -82,7 +82,7 @@
             <q-separator />
             <div class="q-px-sm q-py-lg">
               <q-select
-                v-model="paymentForm"
+                v-model="paymentMethod"
                 outlined
                 :options="paymentOptions"
                 label="Escolha uma forma de pagamento"
@@ -90,7 +90,7 @@
               />
             </div>
             <div
-              v-if="paymentForm === 'cartão de crédito'"
+              v-if="paymentMethod && paymentMethod.type === 'card'"
               class="row q-pa-sm q-gutter-md"
             >
               <q-input
@@ -134,19 +134,19 @@
               />
             </div>
             <div
-              v-if="paymentForm === 'boleto' || paymentForm === 'pix'"
-              class="row q-pa-sm q-gutter-md"
+              v-if="paymentMethod && (paymentMethod.type === 'pix' || paymentMethod.type === 'boleto')"
+              class="row q-pa-sm q-gutter-md justify-center"
             >
               <q-input
                 v-model="paymentData.name"
-                class="col-xs-12 col-sm-5"
+                class="col-xs-12 col-sm-7"
                 outlined
                 label="Nome completo"
                 required
               />
               <q-input
                 v-model="paymentData.cpf"
-                class="col-xs-12 col-sm-5"
+                class="col-xs-12 col-sm-4"
                 outlined
                 label="CPF"
                 mask="###.###.###-##"
@@ -165,13 +165,6 @@
 
           <template #navigation>
             <q-stepper-navigation class="row justify-end align-end q-gutter-sm">
-              <q-btn
-                v-if="step > 1"
-                flat
-                color="primary"
-                label="Voltar"
-                @click="step--"
-              />
               <q-btn
                 v-if="step === 1"
                 color="primary"
@@ -258,13 +251,13 @@ export default defineComponent({
   name: 'Checkout',
   setup () {
     return {
-      step: ref(1),
+      step: ref(3),
       email: ref(''),
       otp: ref(''),
       products: ref([]),
       totalPrice: ref(0),
-      paymentForm: ref(''),
-      paymentOptions: ref(['cartão de crédito', 'boleto', 'pix']),
+      paymentMethod: ref(null),
+      paymentOptions: ref([]),
       phone: ref(''),
       card: ref({
         name: '',
@@ -291,6 +284,7 @@ export default defineComponent({
 
   mounted () {
     console.log('carregado')
+    this.getPaymethods()
   },
 
   methods: {
@@ -307,7 +301,14 @@ export default defineComponent({
             if (response.data.success === true) {
               this.step = 2
             } else {
-              this.showMessage('E-mail inválido ou não cadastrado', 'negative', 'error')
+              api.post('client/register', { email: this.email, phone: this.phone })
+                .then((response) => {
+                  if (response.data.success === true) {
+                    this.step = 2
+                  } else {
+                    this.showMessage('E-mail inválido', 'negative', 'error')
+                  }
+                })
             }
           })
       }
@@ -339,7 +340,10 @@ export default defineComponent({
       }
     },
     placeOrder () {
-      console.log('validar pedido e gerar nova fatura')
+      api.post('payment/order', { })
+        .then((response) => {
+          console.log('novo pedido ' + JSON.stringify(response.data))
+        })
     },
     deleteFromCheckout (id) {
       console.log('produto a ser deletado: ' + id)
@@ -365,6 +369,18 @@ export default defineComponent({
       for (let c = 0; c < this.products.length; c++) {
         this.totalPrice += this.products[c].price
       }
+    },
+    async getPaymethods () {
+      api.get('/payment/list')
+        .then((response) => {
+          console.log('payment methods ' + JSON.stringify(response.data.paymethods))
+          const paymethods = response.data.paymethods
+          paymethods.forEach(element => {
+            if (element.active === 1) {
+              this.paymentOptions.push({ label: element.name, value: element.id, type: element.type })
+            }
+          })
+        })
     },
     showMessage (msg, color, icon) {
       this.$q.notify({
