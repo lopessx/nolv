@@ -340,7 +340,9 @@ export default defineComponent({
       }
     },
     placeOrder () {
-      api.post('payment/order', { })
+      const client = this.$q.sessionStorage.getItem('client')
+
+      api.post('payment/order', { total: this.totalPrice, paymethodId: this.paymentMethod.value, clientId: client.id, products: this.products })
         .then((response) => {
           console.log('novo pedido ' + JSON.stringify(response.data))
         })
