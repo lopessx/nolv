@@ -69,15 +69,15 @@ class SalesController extends Controller {
 
 			switch ($paymethod->type) {
 				case 'card':
-					$result = CieloPaymethod::payCreditCard($request->paymentData->card);
+					$result = CieloPaymethod::payCreditCard($request->paymentData->card, $request->amount);
 
 					break;
 				case 'pix':
-					$result = PaghiperPaymethod::payPix($request->paymentData);
+					$result = PaghiperPaymethod::payPix($request->paymentData, $request->amount);
 
 					break;
 				case 'boleto':
-					$result = PaghiperPaymethod::payBoleto($request->paymentData);
+					$result = PaghiperPaymethod::payBoleto($request->paymentData, $request->amount);
 
 					break;
 				default:
