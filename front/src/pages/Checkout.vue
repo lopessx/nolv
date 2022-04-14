@@ -94,7 +94,7 @@
               class="row q-pa-sm q-gutter-md"
             >
               <q-input
-                v-model="card.name"
+                v-model="paymentData.card.name"
                 class="col-xs-12 col-sm-7"
                 outlined
                 label="Nome do titular do cartão"
@@ -103,7 +103,7 @@
                 :rules="[required]"
               />
               <q-input
-                v-model="card.expDate"
+                v-model="paymentData.card.expDate"
                 class="col-xs-12 col-sm-4"
                 outlined
                 label="Data de expiração"
@@ -113,7 +113,7 @@
                 :rules="[required, expDate]"
               />
               <q-input
-                v-model="card.number"
+                v-model="paymentData.card.number"
                 class="col-xs-12 col-sm-7"
                 outlined
                 label="Número do cartão"
@@ -123,7 +123,7 @@
                 :rules="[required]"
               />
               <q-input
-                v-model="card.cvv"
+                v-model="paymentData.card.cvv"
                 class="col-xs-12 col-sm-4"
                 outlined
                 label="CVV"
@@ -259,17 +259,18 @@ export default defineComponent({
       paymentMethod: ref(null),
       paymentOptions: ref([]),
       phone: ref(''),
-      card: ref({
-        name: '',
-        number: '',
-        cvv: '',
-        expDate: ''
-      }),
       paymentData: ref({
         name: '',
         email: '',
-        cpf: ''
-      })
+        cpf: '',
+        card: {
+          name: '',
+          number: '',
+          cvv: '',
+          expDate: ''
+        }
+      }),
+      order: ref(null)
     }
   },
 
@@ -345,6 +346,27 @@ export default defineComponent({
       api.post('payment/order', { total: this.totalPrice, paymethodId: this.paymentMethod.value, clientId: client.id, products: this.products })
         .then((response) => {
           console.log('novo pedido ' + JSON.stringify(response.data))
+          if (response.data.success === true) {
+            this.order = response.data.order
+            this.capturePayment()
+          } else {
+            this.showMessage('Falha ao realizar novo pedido', 'negative', 'error')
+          }
+        })
+        .catch((error) => {
+          console.error('erro mensagem: ' + error.message)
+          this.showMessage('Falha ao realizar novo pedido', 'negative', 'error')
+        })
+    },
+    async capturePayment () {
+      api.post('payment/capture/' + this.order.id, { paymentData: this.paymentData })
+        .then((response) => {
+          if (response.data.success === true) {
+            console.log('caputura dados: ' + response.data)
+            this.$router.push('/cliente')
+          } else {
+            this.showMessage('Falha ao realizar pagamento', 'negative', 'error')
+          }
         })
     },
     deleteFromCheckout (id) {

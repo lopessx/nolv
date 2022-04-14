@@ -49,3 +49,4 @@ $router->post('/rating', 'RatingsController@store');
 // Payment Methods
 $router->get('/payment/list', 'PaymethodsController@get');
 $router->post('/payment/order', 'PaymethodsController@proccessPayment');
+$router->post('/payment/capture/{orderId}', 'SalesController@capturePayment');

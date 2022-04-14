@@ -85,7 +85,7 @@ class PaymethodsController extends Controller {
 
 			DB::commit();
 
-			return response(['success' => true, 'sales' => $sale, 'products' => $productsSale]);
+			return response(['success' => true, 'sales' => $sale, 'order' => $sale]);
 		} catch (Exception $e) {
 			DB::rollBack();
 
