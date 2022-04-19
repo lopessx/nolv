@@ -20,6 +20,8 @@
           <q-item
             v-ripple
             clickable
+            class="text-secondary"
+            to="/"
           >
             <q-item-section avatar>
               <q-icon
@@ -38,6 +40,8 @@
           <q-item
             v-ripple
             clickable
+            class="text-secondary"
+            to="/cliente"
           >
             <q-item-section avatar>
               <q-icon
@@ -56,6 +60,8 @@
           <q-item
             v-ripple
             clickable
+            class="text-secondary"
+            to="/vendedor"
           >
             <q-item-section avatar>
               <q-icon
@@ -74,6 +80,9 @@
           <q-item
             v-ripple
             clickable
+            class="text-secondary"
+
+            to="/suporte"
           >
             <q-item-section avatar>
               <q-icon
@@ -271,6 +280,7 @@ export default defineComponent({
 
     if (client) {
       this.clientName = client.name
+      this.sessionStarted = true
     }
 
     const cartItems = this.$q.sessionStorage.getItem('cart')
@@ -289,6 +299,8 @@ export default defineComponent({
     })
 
     window.addEventListener('client-localstorage-changed', (event) => {
+      this.sessionStarted = true
+
       this.clientName = event.detail.client.name
       console.log('client: ' + this.clientName)
     })
