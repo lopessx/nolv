@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
-class Paymethods extends Model {
+class Card extends Model {
 	use HasFactory;
 
 	/**
@@ -13,12 +13,12 @@ class Paymethods extends Model {
 	 *
 	 * @var string
 	 */
-	protected $table = 'paymethods';
+	protected $table = 'cards';
 
 	/**
 	 * The attributes that are mass assignable.
 	 *
 	 * @var array
 	 */
-	protected $fillable = ['name', 'type', 'active'];
+	protected $fillable = ['client_id', 'token'];
 }

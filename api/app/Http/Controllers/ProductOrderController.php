@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use Exception;
 use Illuminate\Http\Request;
 
-class ProductsSalesController extends Controller {
+class ProductOrderController extends Controller {
 	/**
 	 * Create a new controller instance.
 	 *

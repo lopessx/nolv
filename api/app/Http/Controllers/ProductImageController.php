@@ -2,12 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Ratings;
+use App\Models\ProductImage;
 use Exception;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 
-class RatingsController extends Controller {
+class ProductImageController extends Controller {
 	/**
 	 * Create a new controller instance.
 	 *
@@ -25,44 +24,20 @@ class RatingsController extends Controller {
 		}
 	}
 
-	public function getProductRatings($id) {
+	public function getOne(Request $request, $id) {
 		try {
-			$ratings = Ratings::where('product_id', $id)->get();
-			foreach ($ratings as $rating) {
-				$rating->client;
-			}
+			$image = ProductImage::findOrFail($id);
 
-			return response(['success' => true, 'ratings' => $ratings]);
-		} catch (Exception $e) {
-			return response(['message' => $e->getMessage(), 'code' => $e->getCode()], 404);
-		}
-	}
-
-	public function getOne(Request $request) {
-		try {
-			return response(['success' => true]);
+			return response(['success' => true, 'image' => $image]);
 		} catch (Exception $e) {
 			return response(['message' => $e->getMessage(), 'code' => $e->getCode()], 404);
 		}
 	}
 
 	public function store(Request $request) {
-		DB::beginTransaction();
-
 		try {
-			$rating = new Ratings();
-			$rating->product_id = $request->product_id;
-			$rating->rating = $request->rating;
-			$rating->client_id = $request->client_id;
-			$rating->comment = $request->comment;
-			$rating->save();
-
-			DB::commit();
-
-			return response(['success' => true, 'rating' => $rating]);
+			return response(['success' => true]);
 		} catch (Exception $e) {
-			DB::rollBack();
-
 			return response(['message' => $e->getMessage(), 'code' => $e->getCode()], 404);
 		}
 	}

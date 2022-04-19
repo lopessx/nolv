@@ -5,19 +5,20 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
-class ProductsSales extends Model {
+class Ticket extends Model {
 	use HasFactory;
+
 	/**
 	 * The table associated with the model.
 	 *
 	 * @var string
 	 */
-	protected $table = 'products_sales';
+	protected $table = 'tickets';
 
 	/**
 	 * The attributes that are mass assignable.
 	 *
 	 * @var array
 	 */
-	protected $fillable = ['product_id', 'sales_id'];
+	protected $fillable = ['client_id', 'store_id', 'message', 'status_tickets_id'];
 }

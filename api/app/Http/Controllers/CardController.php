@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Cards;
+use App\Models\Card;
 use Exception;
 use Illuminate\Http\Request;
 
-class CardsController extends Controller {
+class CardController extends Controller {
 	/**
 	 * Create a new controller instance.
 	 *
@@ -19,7 +19,7 @@ class CardsController extends Controller {
 	public function get(Request $request, $clid) {
 		try {
 			$clid = filter_var($clid, FILTER_SANITIZE_STRING);
-			$cards = Cards::where('client_id', $clid)->get();
+			$cards = Card::where('client_id', $clid)->get();
 
 			return response(['success' => true, 'cards' => $cards]);
 		} catch (Exception $e) {
@@ -30,7 +30,7 @@ class CardsController extends Controller {
 	public function getOne(Request $request, $id) {
 		try {
 			$id = filter_var($id, FILTER_SANITIZE_STRING);
-			$card = Cards::find($id);
+			$card = Card::find($id);
 
 			return response(['success' => true, 'card' => $card]);
 		} catch (Exception $e) {
@@ -43,7 +43,7 @@ class CardsController extends Controller {
 			$clid = filter_var($request->clientId, FILTER_SANITIZE_STRING);
 			$token = filter_var($request->token, FILTER_SANITIZE_STRING);
 
-			$card = new Cards();
+			$card = new Card();
 			$card->client_id = $clid;
 			$card->token = $token;
 			$card->save();
@@ -60,7 +60,7 @@ class CardsController extends Controller {
 			$clid = filter_var($request->clientId, FILTER_SANITIZE_STRING);
 			$token = filter_var($request->token, FILTER_SANITIZE_STRING);
 
-			$card = Cards::find($id);
+			$card = Card::find($id);
 			$card->client_id = $clid;
 			$card->token = $token;
 			$card->save();
@@ -75,7 +75,7 @@ class CardsController extends Controller {
 		try {
 			$id = filter_var($id, FILTER_SANITIZE_STRING);
 
-			$card = Cards::find($id);
+			$card = Card::find($id);
 			$card->delete();
 
 			return response(['success' => true]);

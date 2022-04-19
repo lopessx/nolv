@@ -4,13 +4,13 @@ namespace App\Http\Controllers;
 
 use App\Models\Gateways\CieloPaymethod;
 use App\Models\Gateways\PaghiperPaymethod;
-use App\Models\Paymethods;
-use App\Models\Sales;
+use App\Models\Paymethod;
+use App\Models\Order;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
-class SalesController extends Controller {
+class OrderController extends Controller {
 	/**
 	 * Create a new controller instance.
 	 *
@@ -64,8 +64,8 @@ class SalesController extends Controller {
 		DB::beginTransaction();
 
 		try {
-			$order = Sales::find($orderId);
-			$paymethod = Paymethods::find($order->paymethod_id);
+			$order = Order::find($orderId);
+			$paymethod = Paymethod::find($order->paymethod_id);
 
 			switch ($paymethod->type) {
 				case 'card':

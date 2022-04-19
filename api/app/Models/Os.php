@@ -13,7 +13,7 @@ class Os extends Model {
 	 *
 	 * @var string
 	 */
-	protected $table = 'operational_system';
+	protected $table = 'operational_systems';
 
 	/**
 	 * The attributes that are mass assignable.

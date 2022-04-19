@@ -2,11 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\ProductsImages;
 use Exception;
 use Illuminate\Http\Request;
 
-class ProductsImagesController extends Controller {
+class TicketController extends Controller {
 	/**
 	 * Create a new controller instance.
 	 *
@@ -24,11 +23,9 @@ class ProductsImagesController extends Controller {
 		}
 	}
 
-	public function getOne(Request $request, $id) {
+	public function getOne(Request $request) {
 		try {
-			$image = ProductsImages::findOrFail($id);
-
-			return response(['success' => true, 'image' => $image]);
+			return response(['success' => true]);
 		} catch (Exception $e) {
 			return response(['message' => $e->getMessage(), 'code' => $e->getCode()], 404);
 		}

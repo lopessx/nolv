@@ -14,18 +14,18 @@
 */
 
 // Products
-$router->get('/products', 'ProductsController@get');
-$router->get('/product/{id}', 'ProductsController@getOne');
-$router->post('/product', 'ProductsController@store');
-$router->put('/product/{id}', 'ProductsController@update');
-$router->delete('/product/{id}', 'ProductsController@delete');
+$router->get('/products', 'ProductController@get');
+$router->get('/product/{id}', 'ProductController@getOne');
+$router->post('/product', 'ProductController@store');
+$router->put('/product/{id}', 'ProductController@update');
+$router->delete('/product/{id}', 'ProductController@delete');
 
 // Clients
 // $router->get('/category', 'CategoryController@get');
-$router->post('/client/register', 'ClientsController@register');
-$router->post('/client/login', 'ClientsController@login');
-$router->post('/client/auth', 'ClientsController@auth');
-$router->post('/logout', 'ClientsController@logout');
+$router->post('/client/register', 'ClientController@register');
+$router->post('/client/login', 'ClientController@login');
+$router->post('/client/auth', 'ClientController@auth');
+$router->post('/logout', 'ClientController@logout');
 
 // Stores
 // $router->get('/category', 'CategoryController@get');
@@ -40,13 +40,13 @@ $router->post('/logout', 'ClientsController@logout');
 $router->get('/category', 'CategoryController@get');
 
 // Product Images
-$router->get('/product/image/{id}', 'ProductImagesController@getOne');
+$router->get('/product/image/{id}', 'ProductImageController@getOne');
 
 // Product Ratings
-$router->get('/ratings/product/{id}', 'RatingsController@getProductRatings');
-$router->post('/rating', 'RatingsController@store');
+$router->get('/ratings/product/{id}', 'RatingController@getProductRatings');
+$router->post('/rating', 'RatingController@store');
 
 // Payment Methods
-$router->get('/payment/list', 'PaymethodsController@get');
-$router->post('/payment/order', 'PaymethodsController@proccessPayment');
-$router->post('/payment/capture/{orderId}', 'SalesController@capturePayment');
+$router->get('/payment/list', 'PaymethodController@get');
+$router->post('/payment/order', 'PaymethodController@proccessPayment');
+$router->post('/payment/capture/{orderId}', 'OrderController@capturePayment');

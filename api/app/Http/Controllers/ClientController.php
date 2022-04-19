@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Mail\NewLogin;
-use App\Models\Clients;
+use App\Models\Client;
 use DateInterval;
 use DateTime;
 use Exception;
@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 
-class ClientsController extends Controller {
+class ClientController extends Controller {
 	/**
 	 * Create a new controller instance.
 	 *
@@ -66,13 +66,13 @@ class ClientsController extends Controller {
 		DB::beginTransaction();
 
 		try {
-			$client = Clients::where('email', $request->email)
+			$client = Client::where('email', $request->email)
 				->first();
 
 			if (empty($client)) {
 				$accessCode = random_int(100000, 999999);
 				$expirationDate = date('Y-m-d H:i:s');
-				$client = new Clients();
+				$client = new Client();
 				$client->name = $request->name;
 				$client->email = $request->email;
 				$client->phone = $request->phone;
@@ -101,7 +101,7 @@ class ClientsController extends Controller {
 
 	public function login(Request $request) {
 		try {
-			$client = Clients::where('email', $request->email)->first();
+			$client = Client::where('email', $request->email)->first();
 			/*
 			$expirationDate = new DateTime($expirationDate);
 			$expirationDate->add(new DateInterval('PT' . 5 . 'M'));
@@ -124,7 +124,7 @@ class ClientsController extends Controller {
 		DB::beginTransaction();
 
 		try {
-			$client = Clients::where('email', $request->email)
+			$client = Client::where('email', $request->email)
 				->first();
 
 			if (empty($client)) {
@@ -155,7 +155,7 @@ class ClientsController extends Controller {
 		DB::beginTransaction();
 
 		try {
-			$client = Clients::where('email', $request->email)
+			$client = Client::where('email', $request->email)
 			->first();
 
 			if (empty($client)) {

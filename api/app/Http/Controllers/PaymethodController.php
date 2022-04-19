@@ -2,14 +2,14 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Paymethods;
-use App\Models\ProductsSales;
-use App\Models\Sales;
+use App\Models\Paymethod;
+use App\Models\ProductOrder;
+use App\Models\Order;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
-class PaymethodsController extends Controller {
+class PaymethodController extends Controller {
 	/**
 	 * Create a new controller instance.
 	 *
@@ -21,7 +21,7 @@ class PaymethodsController extends Controller {
 
 	public function get(Request $request) {
 		try {
-			$paymethods = Paymethods::where('active', 1)->get();
+			$paymethods = Paymethod::where('active', 1)->get();
 
 			return response(['success' => true, 'paymethods' => $paymethods]);
 		} catch (Exception $e) {
@@ -68,14 +68,14 @@ class PaymethodsController extends Controller {
 			$products = $request->products;
 			$productsSale = [];
 
-			$sale = new Sales();
+			$sale = new Order();
 			$sale->total = $request->total;
 			$sale->paymethod_id = $request->paymethodId;
 			$sale->client_id = $request->clientId;
 			$sale->save();
 
 			foreach ($products as $key => $product) {
-				$order = new ProductsSales();
+				$order = new ProductOrder();
 				$order->product_id = $product->id;
 				$order->sales_id = $sale->id;
 				$order->save();
