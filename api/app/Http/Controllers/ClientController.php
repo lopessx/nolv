@@ -71,13 +71,13 @@ class ClientController extends Controller {
 
 			if (empty($client)) {
 				$accessCode = random_int(100000, 999999);
-				$expirationDate = date('Y-m-d H:i:s');
+				// $expirationDate = date('Y-m-d H:i:s');
 				$client = new Client();
 				$client->name = $request->name;
 				$client->email = $request->email;
 				$client->phone = $request->phone;
 				$client->password = Hash::make($accessCode);
-				$client->expiration_time = $expirationDate;
+				// $client->expiration_time = $expirationDate;
 
 				$client->save();
 

@@ -8,6 +8,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 class Ticket extends Model {
 	use HasFactory;
 
+	public $timestamps = true;
+
 	/**
 	 * The table associated with the model.
 	 *

@@ -7,6 +7,9 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Store extends Model {
 	use HasFactory;
+
+	public $timestamps = false;
+
 	/**
 	 * The table associated with the model.
 	 *

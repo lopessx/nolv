@@ -14,6 +14,8 @@ class Client extends Model implements AuthenticatableContract, AuthorizableContr
 	use Authorizable;
 	use HasFactory;
 
+	public $timestamps = true;
+
 	/**
 	 * The table associated with the model.
 	 *
@@ -35,6 +37,4 @@ class Client extends Model implements AuthenticatableContract, AuthorizableContr
 	 * @var array
 	 */
 	protected $hidden = ['password', 'expiration_time'];
-
-	public $timestamps = false;
 }
