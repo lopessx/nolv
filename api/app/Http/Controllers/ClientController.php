@@ -133,9 +133,9 @@ class ClientController extends Controller {
 				return response(['success' => false], 200);
 			} else {
 				$accessCode = random_int(100000, 999999);
-				$expirationDate = date('Y-m-d H:i:s');
+				// $expirationDate = date('Y-m-d H:i:s');
 				$client->password = Hash::make($accessCode);
-				$client->expiration_time = $expirationDate;
+				// $client->expiration_time = $expirationDate;
 
 				$client->save();
 
@@ -164,9 +164,9 @@ class ClientController extends Controller {
 				return response(['success' => false], 200);
 			} else {
 				$accessCode = md5(random_int(100000000, 999999999));
-				$expirationDate = date('Y-m-d H:i:s');
+				// $expirationDate = date('Y-m-d H:i:s');
 				$client->password = Hash::make($accessCode);
-				$client->expiration_time = $expirationDate;
+				// $client->expiration_time = $expirationDate;
 
 				$client->save();
 
