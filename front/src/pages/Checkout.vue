@@ -275,10 +275,10 @@ export default defineComponent({
   },
 
   created () {
-    const cart = this.$q.sessionStorage.getItem('cart')
+    const cart = this.$q.localStorage.getItem('cart')
 
     if (cart) {
-      this.products = this.$q.sessionStorage.getItem('cart')
+      this.products = this.$q.localStorage.getItem('cart')
       this.getTotalPrice()
     }
   },
@@ -324,12 +324,12 @@ export default defineComponent({
           .then((response) => {
             console.log('login efetuado ' + JSON.stringify(response.data))
             if (response.data.success === true) {
-              this.$q.sessionStorage.set('client', response.data.client)
-              this.$q.sessionStorage.set('authKey', response.data.key)
+              this.$q.localStorage.set('client', response.data.client)
+              this.$q.localStorage.set('authKey', response.data.key)
 
               window.dispatchEvent(new CustomEvent('client-localstorage-changed', {
                 detail: {
-                  client: this.$q.sessionStorage.getItem('client')
+                  client: this.$q.localStorage.getItem('client')
                 }
               }))
 
@@ -341,7 +341,7 @@ export default defineComponent({
       }
     },
     placeOrder () {
-      const client = this.$q.sessionStorage.getItem('client')
+      const client = this.$q.localStorage.getItem('client')
 
       api.post('payment/order', { total: this.totalPrice, paymethodId: this.paymentMethod.value, clientId: client.id, products: this.products })
         .then((response) => {
@@ -378,7 +378,7 @@ export default defineComponent({
         }
       }
       console.log('produtos ' + JSON.stringify(this.products))
-      this.$q.sessionStorage.set('cart', this.products)
+      this.$q.localStorage.set('cart', this.products)
 
       window.dispatchEvent(new CustomEvent('modify-cart', {
         detail: {

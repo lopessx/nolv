@@ -155,12 +155,12 @@ export default defineComponent({
           .then((response) => {
             console.log('login efetuado ' + JSON.stringify(response.data))
             if (response.data.success === true) {
-              this.$q.sessionStorage.set('client', response.data.client)
-              this.$q.sessionStorage.set('authKey', response.data.key)
+              this.$q.localStorage.set('client', response.data.client)
+              this.$q.localStorage.set('authKey', response.data.key)
 
               window.dispatchEvent(new CustomEvent('client-localstorage-changed', {
                 detail: {
-                  client: this.$q.sessionStorage.getItem('client')
+                  client: this.$q.localStorage.getItem('client')
                 }
               }))
 

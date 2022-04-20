@@ -276,20 +276,20 @@ export default defineComponent({
   },
 
   created () {
-    const client = this.$q.sessionStorage.getItem('client')
+    const client = this.$q.localStorage.getItem('client')
 
     if (client) {
       this.clientName = client.name
       this.sessionStarted = true
     }
 
-    const cartItems = this.$q.sessionStorage.getItem('cart')
+    const cartItems = this.$q.localStorage.getItem('cart')
     if (cartItems) {
       this.cartItems = cartItems.length
     }
 
     console.log('nova sessão criada')
-    console.log('carrinho: ' + JSON.stringify(this.$q.sessionStorage.getItem('cart')))
+    console.log('carrinho: ' + JSON.stringify(this.$q.localStorage.getItem('cart')))
     console.log('cliente ' + JSON.stringify(this.clientName))
   },
 
@@ -313,11 +313,11 @@ export default defineComponent({
     },
     logout () {
       console.log('logout clicado')
-      const client = this.$q.sessionStorage.getItem('client')
+      const client = this.$q.localStorage.getItem('client')
       api.post('logout', { email: client.email })
         .then((response) => {
           if (response.data.success === true) {
-            this.$q.sessionStorage.clear()
+            this.$q.localStorage.clear()
             this.clientName = ''
             this.cartItems = 0
             this.$router.push('/')

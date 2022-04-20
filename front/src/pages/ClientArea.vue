@@ -204,7 +204,7 @@ export default defineComponent({
   },
 
   mounted () {
-    const client = this.$q.sessionStorage.getItem('client')
+    const client = this.$q.localStorage.getItem('client')
 
     this.email = client.email
     this.username = client.name

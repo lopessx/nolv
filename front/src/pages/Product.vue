@@ -237,13 +237,13 @@ export default defineComponent({
     async addToCart () {
       // TODO do not add duplicate items
       console.log('adicionado ao carrinho')
-      let cart = this.$q.sessionStorage.getItem('cart')
+      let cart = this.$q.localStorage.getItem('cart')
       if (cart) {
         cart.push({ id: this.productId, name: this.productName, price: this.price })
-        this.$q.sessionStorage.set('cart', cart)
+        this.$q.localStorage.set('cart', cart)
       } else {
         cart = [{ id: this.productId, name: this.productName, price: this.price }]
-        this.$q.sessionStorage.set('cart', cart)
+        this.$q.localStorage.set('cart', cart)
       }
 
       window.dispatchEvent(new CustomEvent('modify-cart', {

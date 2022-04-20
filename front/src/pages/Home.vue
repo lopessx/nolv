@@ -59,6 +59,7 @@
           row-key="name"
           :filter="filter"
           :rows-per-page-options="productsPerPage"
+          no-data-label="Nenhum produto encontrado"
           hide-header
         >
           <template #top-right>
