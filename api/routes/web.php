@@ -21,19 +21,21 @@ $router->put('/product/{id}', 'ProductController@update');
 $router->delete('/product/{id}', 'ProductController@delete');
 
 // Clients
-// $router->get('/category', 'CategoryController@get');
 $router->post('/client/register', 'ClientController@register');
 $router->post('/client/login', 'ClientController@login');
 $router->post('/client/auth', 'ClientController@auth');
 $router->post('/logout', 'ClientController@logout');
 
 // Stores
-// $router->get('/category', 'CategoryController@get');
+$router->delete('/store/{storeId}', 'StoreController@delete');
+$router->get('/store/client/{clientId}', 'StoreController@getClientStore');
+$router->post('/store', 'StoreController@store');
+$router->put('/store/{storeId}', 'StoreController@update');
 
 // Tickets
 // $router->get('/category', 'CategoryController@get');
 
-// Sales
+// Orders
 // $router->get('/category', 'CategoryController@get');
 
 // Category

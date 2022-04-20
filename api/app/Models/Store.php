@@ -22,7 +22,7 @@ class Store extends Model {
 	 *
 	 * @var array
 	 */
-	protected $fillable = ['client_id', 'name', 'balance'];
+	protected $fillable = ['client_id', 'name', 'balance', 'img_path'];
 
 	public function products() {
 		return $this->hasMany(Products::class);
