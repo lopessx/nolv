@@ -5,10 +5,20 @@
         <q-card style="max-width: 500px;">
           <q-card-section>
             <q-img
-              src="../assets/placeholder.png"
+              :src="storeImage"
               spinner-color="black"
               style="height: 250px; max-width: auto;"
-            />
+            >
+              <template #error>
+                <div class="absolute-full flex flex-center bg-white text-white">
+                  <q-img
+                    src="../assets/placeholder.png"
+                    spinner-color="black"
+                    style="height: 250px; max-width: auto;"
+                  />
+                </div>
+              </template>
+            </q-img>
           </q-card-section>
           <q-separator />
           <q-card-section>
@@ -45,11 +55,12 @@
           <q-table
             color="grey-8"
             :grid="$q.screen.gt.xs"
-            :rows="rows"
+            :rows="products"
             :columns="columns"
             row-key="name"
             :filter="filter"
             :rows-per-page-options="productsPerPage"
+            no-data-label="Nenhum produto encontrado"
             hide-header
           >
             <template #top-right>
@@ -120,6 +131,7 @@
 </template>
 
 <script>
+import { api } from 'src/boot/axios'
 import { defineComponent, ref } from 'vue'
 
 const columns = [
@@ -131,116 +143,60 @@ const columns = [
   { name: 'os', required: true, label: 'Sistema operacional', field: 'os', format: val => `${val}`, sortable: true }
 ]
 
-const rows = [
-  {
-    id: 0,
-    name: 'Frozen Yogurt',
-    language: 'pt-BR',
-    category: 'Entretenimento',
-    os: 'Windows',
-    price: 50.00
-  },
-  {
-    id: 1,
-    name: 'Ice cream sandwich',
-    language: 'pt-BR',
-    category: 'Entretenimento',
-    os: 'Windows',
-    price: 15.50
-  },
-  {
-    id: 2,
-    name: 'Eclair',
-    language: 'pt-BR',
-    category: 'Entretenimento',
-    os: 'Windows',
-    price: 125.15
-  },
-  {
-    id: 3,
-    name: 'Cupcake',
-    language: 'pt-BR',
-    category: 'Entretenimento',
-    os: 'Windows',
-    price: 2435.00
-  },
-  {
-    id: 4,
-    name: 'Gingerbread',
-    language: 'pt-BR',
-    category: 'Finança',
-    os: 'Windows',
-    price: 45.00
-  },
-  {
-    id: 5,
-    name: 'Jelly bean',
-    language: 'pt-BR',
-    category: 'Finança',
-    os: 'MacOS',
-    price: 55.00
-  },
-  {
-    id: 6,
-    name: 'Lollipop',
-    language: 'en-US',
-    category: 'Design',
-    os: 'MacOS',
-    price: 65.00
-  },
-  {
-    id: 7,
-    name: 'Honeycomb',
-    language: 'pt-BR',
-    category: 'Design',
-    os: 'MacOS',
-    price: 75.00
-  },
-  {
-    id: 8,
-    name: 'Donut',
-    language: 'en-US',
-    category: 'Produtividade',
-    os: 'Linux',
-    price: 85.00
-  },
-  {
-    id: 9,
-    name: 'KitKat',
-    language: 'en-US',
-    category: 'Produtividade',
-    os: 'Linux',
-    price: 95.00
-  }
-]
-
 export default defineComponent({
-  name: 'ClientArea',
+  name: 'VendorArea',
   setup () {
     return {
-      storeName: ref('Minha loja'),
-      email: ref('anymail@gmas.com'),
-      products: ref([{ id: 0, name: 'Abacaxi', price: 21.00 }, { id: 1, name: 'Banana', price: 10.00 }, { id: 2, name: 'Batata', price: 34.23 }]),
-      balance: ref(19.23),
+      hasStore: ref(true),
+      storeName: ref(''),
+      storeImage: ref('https://cdn.quasar.dev/img/non-existent-image-src.png'),
+      email: ref(''),
+      products: ref([]),
+      balance: ref(0),
       drawer: ref(false),
       miniState: ref(true),
-      username: ref('João'),
+      username: ref(''),
+      clientId: ref(''),
       filter: ref(''),
       columns,
-      rows,
-      productsPerPage: ref([6, 9, 15, 21, 27, 30, 42, 0]),
-      lorem: ref('Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.')
+      productsPerPage: ref([6, 9, 15, 21, 27, 30, 42, 0])
     }
   },
 
   mounted () {
-    console.log('carregado')
+    const client = this.$q.localStorage.getItem('client')
+
+    if (client) {
+      this.email = client.email
+      this.username = client.name
+      this.clientId = client.id
+    }
   },
 
   methods: {
-    loginCheck () {
-      this.step++
-      console.log('login foi feito ' + this.otp)
+    async getClientStore () {
+      api.get(`/store/client/${this.clientId}`)
+        .then((response) => {
+          if (response.data.success === true) {
+            const products = response.data.products
+
+            this.storeName = response.data.store.name
+            this.storeImage = response.data.store.img_path
+            this.balance = response.data.store.balance
+
+            if (products && products.length > 0) {
+              products.forEach(product => {
+                this.products.push({ id: product.id, price: product.balance, name: product.name, img_path: product.img_path })
+              })
+            }
+          } else {
+            // TODO maybe add register vendor page
+            this.hasStore = false
+          }
+        })
+        .catch((error) => {
+          console.error('error message ' + error.message + ' code ' + error.code)
+        })
     },
     deleteFromCheckout (id) {
       console.log('produto a ser deletado: ' + id)
