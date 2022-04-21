@@ -395,7 +395,7 @@ export default defineComponent({
       }
     },
     async getPaymethods () {
-      api.get('/payment/list')
+      api.get('payment/list')
         .then((response) => {
           console.log('payment methods ' + JSON.stringify(response.data.paymethods))
           const paymethods = response.data.paymethods

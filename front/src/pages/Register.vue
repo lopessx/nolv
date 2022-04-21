@@ -131,7 +131,7 @@ export default defineComponent({
       if (this.$refs.nameInput.hasError || this.$refs.emailInput.hasError || this.$refs.phoneInput.hasError) {
         this.showMessage('Preencha todos os campos', 'warning', 'warning')
       } else {
-        api.post('/client/register', { email: this.email, name: this.name, phone: this.phone })
+        api.post('client/register', { email: this.email, name: this.name, phone: this.phone })
           .then((response) => {
             if (response.data.success === true) {
               console.log('resposta do registro ' + JSON.stringify(response.data))

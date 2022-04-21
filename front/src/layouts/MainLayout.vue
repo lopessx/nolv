@@ -105,6 +105,7 @@
       <!-- Toolbar desktop -->
       <q-toolbar class="q-gutter-sm gt-xs">
         <!-- // TODO add logo? -->
+        <!-- Home button -->
         <q-toolbar-title class="col-2">
           <q-btn
             color="primary"
@@ -113,10 +114,11 @@
             @click="$router.push('/')"
           />
         </q-toolbar-title>
+        <!-- Search bar -->
         <q-input
           v-model="searchText"
           filled
-          class="col-7 q-py-xs"
+          class="col-auto q-py-xs"
           bg-color="white"
           label="Pesquisar..."
         >
@@ -128,9 +130,7 @@
             />
           </template>
         </q-input>
-
-        <q-space />
-
+        <!-- Botão de login e perfil -->
         <q-btn-dropdown
           v-if="clientName !== ''"
           color="primary"
@@ -178,6 +178,7 @@
           label="Entrar"
           @click="$router.push('/login')"
         />
+        <!-- Shopping Cart icon -->
         <q-btn
           color="accent"
           unelevated
@@ -279,7 +280,7 @@ export default defineComponent({
     const client = this.$q.localStorage.getItem('client')
 
     if (client) {
-      this.clientName = client.name
+      this.clientName = client.name.split(' ')[0]
       this.sessionStarted = true
     }
 
@@ -301,7 +302,7 @@ export default defineComponent({
     window.addEventListener('client-localstorage-changed', (event) => {
       this.sessionStarted = true
 
-      this.clientName = event.detail.client.name
+      this.clientName = event.detail.client.name.split(' ')[0]
       console.log('client: ' + this.clientName)
     })
   },

@@ -165,7 +165,7 @@ export default defineComponent({
   },
   methods: {
     async getProductRatings () {
-      api.get(`/ratings/product/${this.productId}`)
+      api.get(`ratings/product/${this.productId}`)
         .then((response) => {
           this.ratings = response.data.ratings
           console.log('ratings: ' + JSON.stringify(this.ratings))
@@ -183,7 +183,7 @@ export default defineComponent({
         })
     },
     async getProductDetails () {
-      api.get(`/product/${this.productId}`)
+      api.get(`product/${this.productId}`)
         .then((response) => {
           console.log('resposta: ' + JSON.stringify(response.data))
           this.productName = response.data.product.name
@@ -210,7 +210,7 @@ export default defineComponent({
     async storeComment (rating) {
       this.loading = true
       console.log('salvou comentário novo: ' + JSON.stringify(rating))
-      api.post('/rating', { product_id: rating.product_id, rating: rating.rating, comment: rating.comment, client_id: rating.client_id })
+      api.post('rating', { product_id: rating.product_id, rating: rating.rating, comment: rating.comment, client_id: rating.client_id })
         .then((response) => {
           console.log('resposta ' + JSON.stringify(response.data))
           const newRating = response.data.rating

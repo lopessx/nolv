@@ -175,7 +175,7 @@ export default defineComponent({
       this.$router.push(`/produto/${val}`)
     },
     async getProducts () {
-      api.get('/products')
+      api.get('products')
         .then((response) => {
           console.log('RESPOSTA COMPLETA: ' + JSON.stringify(response.data))
           for (let c = 0; c < response.data.products.length; c++) {
@@ -195,7 +195,7 @@ export default defineComponent({
         })
     },
     async getCategories () {
-      api.get('/category')
+      api.get('category')
         .then((response) => {
           console.log('resposta: ' + JSON.stringify(response.data))
           this.categoryOptions = response.data.category
