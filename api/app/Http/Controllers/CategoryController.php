@@ -20,7 +20,7 @@ class CategoryController extends Controller {
 		try {
 			$category = Category::all(['id as value', 'name as label']);
 
-			return response(['success' => true, 'category' => $category]);
+			return response(['success' => true, 'categories' => $category]);
 		} catch (Exception $e) {
 			return response(['message' => $e->getMessage(), 'code' => $e->getCode()], 404);
 		}

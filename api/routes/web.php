@@ -38,8 +38,14 @@ $router->put('/store/{storeId}', 'StoreController@update');
 // Orders
 // $router->get('/category', 'CategoryController@get');
 
+// Languages
+$router->get('/languages', 'LanguageController@get');
+
+// Operational System
+$router->get('/os', 'OsController@get');
+
 // Category
-$router->get('/category', 'CategoryController@get');
+$router->get('/categories', 'CategoryController@get');
 
 // Product Images
 $router->get('/product/image/{id}', 'ProductImageController@getOne');
