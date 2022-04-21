@@ -46,7 +46,6 @@ class StoreController extends Controller {
 			$store->client_id = $request->clientId;
 			$store->balance = 0;
 			$store->name = $request->name;
-			$store->img_path = $request->imgPath;
 
 			$store->save();
 
