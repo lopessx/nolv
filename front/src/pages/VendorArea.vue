@@ -1,38 +1,27 @@
 <template>
   <q-page>
-    <div class="row q-px-md q-pt-xl q-pb-md justify-center align-center">
+    <q-form class="row q-px-md q-pt-xl q-pb-md justify-start align-center">
       <div class="col-6 text-center">
         <q-card style="max-width: 500px;">
           <q-card-section>
-            <q-img
-              :src="storeImage"
-              spinner-color="black"
-              style="height: 250px; max-width: auto;"
-            >
-              <template #error>
-                <div class="absolute-full flex flex-center bg-white text-white">
-                  <q-img
-                    src="../assets/placeholder.png"
-                    spinner-color="black"
-                    style="height: 250px; max-width: auto;"
-                  />
-                </div>
-              </template>
-            </q-img>
-          </q-card-section>
-          <q-separator />
-          <q-card-section>
             <div class="text-body1 text-weight-bold q-px-md">
               <q-input
+                ref="storeNameInput"
                 v-model="storeName"
                 outline
-                readonly
+                :readonly="hasStore"
                 label="Nome da loja"
+                required
+                lazy-rules
+                :rules="[required]"
               />
             </div>
           </q-card-section>
           <q-separator />
-          <div class="row justify-center align-center">
+          <div
+            v-if="hasStore"
+            class="row justify-center align-center"
+          >
             <div class="col-6 subtitle-1 text-weight-bold q-pa-md text-grey-7">
               <div class="text-h5 text-accent text-weight-bold">
                 {{ new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(balance) }}
@@ -42,12 +31,67 @@
               <q-btn
                 color="accent"
                 label="Saque"
+                @click="withdraw()"
+              />
+            </div>
+          </div>
+          <div
+            v-if="!hasStore"
+            class="row justify-end align-center"
+          >
+            <div
+              v-if="!inputLocked"
+              class="col-6 q-pa-md"
+            >
+              <q-btn
+                color="accent"
+                label="Cadastrar"
+                @click="newStore()"
+              />
+            </div>
+            <div
+              v-if="inputLocked"
+              class="col-6 q-pa-md"
+            >
+              <q-btn
+                color="negative"
+                label="Cancelar"
+                @click="lockInputs()"
+              />
+            </div>
+            <div
+              v-if="inputLocked"
+              class="col-6 q-pa-md"
+            >
+              <q-btn
+                color="accent"
+                label="Salvar"
+                @click="editStore()"
               />
             </div>
           </div>
         </q-card>
       </div>
-    </div>
+      <div
+        v-if="hasStore"
+        class="row col-6 justify-center align-center content-center"
+      >
+        <div class="col-8 q-pa-md">
+          <q-btn
+            color="accent"
+            label="Editar nome da loja"
+            @click="unlockInputs()"
+          />
+        </div>
+        <div class="col-8 q-pa-md">
+          <q-btn
+            color="negative"
+            label="Deletar loja"
+            @click="deleteStore()"
+          />
+        </div>
+      </div>
+    </q-form>
     <q-separator />
     <div class="row q-px-md q-py-md">
       <div class="col-12">
@@ -75,6 +119,7 @@
               <q-btn
                 color="accent"
                 label="Adicionar Produto"
+                to="/produto/cadastro"
               />
             </template>
 
@@ -100,10 +145,20 @@
                 >
                   <q-card-section>
                     <q-img
-                      src="../assets/placeholder.png"
+                      :src="null"
                       spinner-color="black"
                       style="height: 150px; max-width: auto;"
-                    />
+                    >
+                      <template #error>
+                        <div class="absolute-full flex flex-center bg-white text-white">
+                          <q-img
+                            src="../assets/placeholder.png"
+                            spinner-color="black"
+                            style="height: 150px; max-width: auto;"
+                          />
+                        </div>
+                      </template>
+                    </q-img>
                   </q-card-section>
                   <q-separator />
                   <q-card-section>
@@ -133,6 +188,7 @@
 <script>
 import { api } from 'src/boot/axios'
 import { defineComponent, ref } from 'vue'
+import { required } from 'src/utils/validations'
 
 const columns = [
   { name: 'id', required: true, label: 'Identificador', field: 'id', format: val => `${val}` },
@@ -149,7 +205,7 @@ export default defineComponent({
     return {
       hasStore: ref(true),
       storeName: ref(''),
-      storeImage: ref('https://cdn.quasar.dev/img/non-existent-image-src.png'),
+      storeId: ref(''),
       email: ref(''),
       products: ref([]),
       balance: ref(0),
@@ -158,6 +214,7 @@ export default defineComponent({
       username: ref(''),
       clientId: ref(''),
       filter: ref(''),
+      inputLocked: ref(false),
       columns,
       productsPerPage: ref([6, 9, 15, 21, 27, 30, 42, 0])
     }
@@ -171,17 +228,19 @@ export default defineComponent({
       this.username = client.name
       this.clientId = client.id
     }
+
+    this.getClientStore()
   },
 
   methods: {
     async getClientStore () {
-      api.get(`/store/client/${this.clientId}`)
+      api.get(`store/client/${this.clientId}`)
         .then((response) => {
           if (response.data.success === true) {
             const products = response.data.products
 
+            this.storeId = response.data.store.id
             this.storeName = response.data.store.name
-            this.storeImage = response.data.store.img_path
             this.balance = response.data.store.balance
 
             if (products && products.length > 0) {
@@ -190,7 +249,6 @@ export default defineComponent({
               })
             }
           } else {
-            // TODO maybe add register vendor page
             this.hasStore = false
           }
         })
@@ -198,12 +256,105 @@ export default defineComponent({
           console.error('error message ' + error.message + ' code ' + error.code)
         })
     },
-    deleteFromCheckout (id) {
-      console.log('produto a ser deletado: ' + id)
+    newStore () {
+      this.$refs.storeNameInput.validate()
+
+      if (this.$refs.storeNameInput.hasError) {
+        this.showMessage('Preencha todos os campos', 'warning', 'warning')
+      } else {
+        api.post('store', { clientId: this.clientId, name: this.storeName })
+          .then((response) => {
+            console.log('resposta ' + JSON.stringify(response.data))
+            if (response.data.success === true) {
+              this.storeId = response.data.store.id
+              this.hasStore = true
+            } else {
+              this.showMessage('Erro ao cadastrar loja', 'negative', 'error')
+            }
+          })
+          .catch((error) => {
+            console.error('message ' + error.message + ' code ' + error.code)
+            this.showMessage('Erro ao cadastrar loja', 'negative', 'error')
+          })
+      }
+    },
+    withdraw () {
+      console.log('saque ' + this.balance)
+    },
+    unlockInputs () {
+      this.hasStore = false
+      this.inputLocked = true
+      this.$refs.storeNameInput.focus()
+    },
+    lockInputs () {
+      this.hasStore = true
+      this.inputLocked = false
+    },
+    editStore () {
+      this.$refs.storeNameInput.validate()
+
+      if (this.$refs.storeNameInput.hasError) {
+        this.showMessage('Preencha todos os campos', 'warning', 'warning')
+      } else {
+        api.put(`store/${this.storeId}`, { clientId: this.clientId, name: this.storeName })
+          .then((response) => {
+            console.log('resposta ' + JSON.stringify(response.data))
+            if (response.data.success === true) {
+              this.storeId = response.data.store.id
+              this.hasStore = true
+            } else {
+              this.showMessage('Erro ao cadastrar loja', 'negative', 'error')
+            }
+          })
+          .catch((error) => {
+            console.error('message ' + error.message + ' code ' + error.code)
+            this.showMessage('Erro ao cadastrar loja', 'negative', 'error')
+          })
+      }
+    },
+    deleteStore () {
+      this.$q.dialog({
+        title: 'Tem certeza que deseja apagar sua loja?',
+        message: 'Essa ação será irreversível.',
+        cancel: {
+          label: 'Cancelar',
+          color: 'negative'
+        },
+        ok: {
+          label: 'Confirmar',
+          color: 'accent'
+        },
+        persistent: true
+      }).onOk(() => {
+        console.log('loja a ser deletada: ' + this.storeId)
+        api.delete(`store/${this.storeId}`)
+          .then((response) => {
+            if (response.data.success === true) {
+              this.hasStore = false
+              this.storeId = null
+              this.products = []
+              this.showMessage('Loja deletada com sucesso', 'positive', 'check_circle')
+            } else {
+              this.showMessage('Erro ao deletar loja', 'negative', 'error')
+            }
+          })
+          .catch((error) => {
+            console.error('message ' + error.message + ' code ' + error.code)
+            this.showMessage('Erro ao deletar loja', 'negative', 'error')
+          })
+      })
     },
     selectProduct (val) {
       console.log('produto selecionado ' + JSON.stringify(val))
-    }
+    },
+    showMessage (msg, color, icon) {
+      this.$q.notify({
+        message: msg,
+        color: color,
+        icon: icon
+      })
+    },
+    required
   }
 })
 </script>

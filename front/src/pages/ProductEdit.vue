@@ -27,6 +27,22 @@
             :name="4"
             img-src="https://cdn.quasar.dev/img/quasar.jpg"
           />
+
+          <template #control>
+            <q-carousel-control
+              position="top-right"
+              :offset="[18, 18]"
+              class="text-white rounded-borders"
+              style="background: rgba(0, 0, 0, .3); padding: 4px 8px;"
+            >
+              <q-btn
+                color="accent"
+                icon="close"
+                round
+                @click="deleteImage()"
+              />
+            </q-carousel-control>
+          </template>
         </q-carousel>
       </div>
       <div class="col-5">
@@ -64,8 +80,13 @@
       <div class="row col-6 justify-center">
         <q-input
           v-model="price"
+          class="col-6"
           prefix="R$"
           label="Preço"
+          mask="#,##"
+          fill-mask="0"
+          reverse-fill-mask
+          input-class="text-right"
         />
       </div>
     </div>
@@ -191,6 +212,11 @@ export default defineComponent({
     this.price = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(this.price)
     this.price = this.price.replace(/R\$/gm, '')
     this.price = this.price.replace(/\s/gm, '')
+  },
+  methods: {
+    deleteImage () {
+      console.log('deletar imagem: ' + this.slide)
+    }
   }
 })
 </script>
