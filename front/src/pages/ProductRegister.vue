@@ -1,22 +1,9 @@
 <template>
   <q-page>
     <q-form>
-      <div class="row q-px-xl q-pt-lg q-gutter-sm">
-        <div class="col-6">
-          <q-uploader
-            url="http://localhost:4444/upload"
-            label="Upload de imagens"
-            multiple
-            style="max-width: 280px"
-          />
-        </div>
-        <div class="col-5">
-          <q-input
-            v-model="description"
-            filled
-            type="textarea"
-            label="Descrição do produto"
-          />
+      <div class="row q-px-xl q-py-lg q-gutter-sm justify-start">
+        <div class="col-6 text-h5">
+          Cadastrar novo produto
         </div>
       </div>
 
@@ -25,11 +12,17 @@
           <q-input
             v-model="productName"
             label="Nome do produto"
+            required
+            lazy-rules
+            :rules="[required]"
           />
           <q-input
             v-model="version"
             prefix="v"
             label="Versão"
+            required
+            lazy-rules
+            :rules="[required]"
           />
         </div>
         <div class="row col-6 justify-start">
@@ -42,6 +35,47 @@
             fill-mask="0"
             reverse-fill-mask
             input-class="text-right"
+            required
+            lazy-rules
+            :rules="[required]"
+          />
+        </div>
+        <div class="col-12 q-py-md">
+          <q-input
+            v-model="description"
+            filled
+            type="textarea"
+            label="Descrição do produto"
+            required
+            lazy-rules
+            :rules="[required]"
+          />
+        </div>
+      </div>
+
+      <q-separator color="grey" />
+
+      <div class="row justify-center q-py-md">
+        <div class="col-xs-12 col-sm-5">
+          <q-uploader
+            ref="imageUploader"
+            url="http://127.0.0.1:8000/product/image/upload"
+            label="Upload de imagens"
+            multiple
+            hide-upload-btn
+            :form-fields="[{name: 'productId', value: productId}]"
+            style="max-width: 280px"
+          />
+        </div>
+        <div class="col-xs-12 col-sm-5">
+          <q-uploader
+            ref="fileUploader"
+            url="http://127.0.0.1:8000/product/upload"
+            label="Upload do produto"
+            multiple
+            hide-upload-btn
+            :form-fields="[{name: 'productId', value: productId}, {name: 'productName', value: productName}]"
+            style="max-width: 280px"
           />
         </div>
       </div>
@@ -65,6 +99,7 @@
                     filled
                     :options="languageOptions"
                     label="Idioma"
+                    required
                   />
                 </div>
               </q-item-label>
@@ -90,6 +125,7 @@
                   style="min-width: 150px;"
                   :options="categoryOptions"
                   label="Categoria"
+                  required
                 />
               </q-item-label>
             </q-item-section>
@@ -113,6 +149,7 @@
                 filled
                 :options="osOptions"
                 label="Sistema operacional"
+                required
               />
             </q-item-section>
           </q-item>
@@ -141,6 +178,7 @@
 <script>
 import { api } from 'src/boot/axios'
 import { defineComponent, ref } from 'vue'
+import { required } from 'src/utils/validations'
 
 export default defineComponent({
   name: 'ProductRegister',
@@ -157,18 +195,42 @@ export default defineComponent({
       category: ref(null),
       categoryOptions: ref([]),
       osOptions: ref([]),
-      description: ref('')
+      description: ref(''),
+      storeId: ref(''),
+      clientId: ref(''),
+      productId: ref('')
     }
   },
   mounted () {
+    const client = this.$q.localStorage.getItem('client')
+
+    if (client) {
+      this.clientId = client.id
+    }
+
     this.price = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(this.price)
     this.price = this.price.replace(/R\$/gm, '')
     this.price = this.price.replace(/\s/gm, '')
     this.getLanguages()
     this.getOs()
     this.getCategories()
+    this.getStore()
   },
   methods: {
+    getStore () {
+      api.get(`/store/client/${this.clientId}`)
+        .then((response) => {
+          if (response.data.success === true) {
+            this.storeId = response.data.store.id
+          } else {
+            this.showMessage('Nenhuma loja encontrada', 'negative', 'error')
+          }
+        })
+        .catch((error) => {
+          console.error('message ' + error.message + ' code ' + error.code)
+          this.showMessage('Nenhuma loja encontrada', 'negative', 'error')
+        })
+    },
     getLanguages () {
       api.get('languages')
         .then((response) => {
@@ -218,10 +280,11 @@ export default defineComponent({
         })
     },
     newProduct () {
-      api.post('/product', {})
+      api.post('/product', { categoryId: this.category.value, storeId: this.storeId, languageId: this.language.value, osId: this.os.value, name: this.productName, description: this.description, version: this.version, price: this.price })
         .then((response) => {
-          if (response.data.success) {
-            console.log('sucesso')
+          if (response.data.success === true) {
+            console.log('sucesso ' + JSON.stringify(response.data))
+            this.productId = response.data.product.id
           } else {
             this.showMessage('Erro ao salvar novo produto', 'negative', 'error')
           }
@@ -230,6 +293,12 @@ export default defineComponent({
           console.error('message ' + error.message + ' code ' + error.code)
           this.showMessage('Erro ao salvar novo produto', 'negative', 'error')
         })
+        .finally(() => {
+          if (this.productId) {
+            this.$refs.imageUploader.upload()
+            this.$refs.fileUploader.upload()
+          }
+        })
     },
     showMessage (msg, color, icon) {
       this.$q.notify({
@@ -237,7 +306,8 @@ export default defineComponent({
         color: color,
         icon: icon
       })
-    }
+    },
+    required
   }
 })
 </script>

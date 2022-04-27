@@ -61,6 +61,7 @@ $app->singleton(
 
 $app->configure('app');
 $app->configure('mail');
+$app->configure('filesystems');
 
 /*
 |--------------------------------------------------------------------------
@@ -155,6 +156,9 @@ $app->register(Flipbox\LumenGenerator\LumenGeneratorServiceProvider::class);
  * Cors http option request catch
  */
 $app->register(App\Providers\CatchAllOptionsRequestsProvider::class);
+
+// Load the filesystems component
+$app->loadComponent('filesystems', 'Illuminate\Filesystem\FilesystemServiceProvider', 'filesystem');
 
 /**
  * Mail Provider configuration and lib loading

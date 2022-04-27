@@ -19,6 +19,8 @@ $router->get('/product/{id}', 'ProductController@getOne');
 $router->post('/product', 'ProductController@store');
 $router->put('/product/{id}', 'ProductController@update');
 $router->delete('/product/{id}', 'ProductController@delete');
+$router->post('/product/upload', 'ProductController@uploadProduct');
+$router->post('/product/image/upload', 'ProductController@storeImages');
 
 // Clients
 $router->post('/client/register', 'ClientController@register');
