@@ -18,7 +18,7 @@ class CardController extends Controller {
 
 	public function get(Request $request, $clid) {
 		try {
-			$clid = filter_var($clid, FILTER_SANITIZE_STRING);
+			$clid = filter_var($clid, FILTER_SANITIZE_NUMBER_INT);
 			$cards = Card::where('client_id', $clid)->get();
 
 			return response(['success' => true, 'cards' => $cards]);
@@ -29,7 +29,7 @@ class CardController extends Controller {
 
 	public function getOne(Request $request, $id) {
 		try {
-			$id = filter_var($id, FILTER_SANITIZE_STRING);
+			$id = filter_var($id, FILTER_SANITIZE_NUMBER_INT);
 			$card = Card::find($id);
 
 			return response(['success' => true, 'card' => $card]);
@@ -40,8 +40,8 @@ class CardController extends Controller {
 
 	public function store(Request $request) {
 		try {
-			$clid = filter_var($request->clientId, FILTER_SANITIZE_STRING);
-			$token = filter_var($request->token, FILTER_SANITIZE_STRING);
+			$clid = filter_var($request->clientId, FILTER_SANITIZE_NUMBER_INT);
+			$token = strip_tags($request->token);
 
 			$card = new Card();
 			$card->client_id = $clid;
@@ -56,9 +56,9 @@ class CardController extends Controller {
 
 	public function update(Request $request, $id) {
 		try {
-			$id = filter_var($id, FILTER_SANITIZE_STRING);
-			$clid = filter_var($request->clientId, FILTER_SANITIZE_STRING);
-			$token = filter_var($request->token, FILTER_SANITIZE_STRING);
+			$id = filter_var($id, FILTER_SANITIZE_NUMBER_INT);
+			$clid = filter_var($request->clientId, FILTER_SANITIZE_NUMBER_INT);
+			$token = strip_tags($request->token);
 
 			$card = Card::find($id);
 			$card->client_id = $clid;
@@ -73,7 +73,7 @@ class CardController extends Controller {
 
 	public function delete(Request $request, $id) {
 		try {
-			$id = filter_var($id, FILTER_SANITIZE_STRING);
+			$id = filter_var($id, FILTER_SANITIZE_NUMBER_INT);
 
 			$card = Card::find($id);
 			$card->delete();
