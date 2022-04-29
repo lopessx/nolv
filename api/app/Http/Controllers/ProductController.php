@@ -54,10 +54,10 @@ class ProductController extends Controller {
 			$product->category_id = filter_var($request->categoryId, FILTER_SANITIZE_NUMBER_INT);
 			$product->operational_system_id = filter_var($request->osId, FILTER_SANITIZE_NUMBER_INT);
 			$product->language_id = filter_var($request->languageId, FILTER_SANITIZE_NUMBER_INT);
-			$product->name = filter_var($request->name, FILTER_SANITIZE_STRING);
-			$product->price = filter_var($request->price, FILTER_SANITIZE_NUMBER_FLOAT);
+			$product->name = strip_tags($request->name);
+			$product->price = preg_replace('/,/', '.', $request->price);
 			$product->version = $request->version;
-			$product->file_path = filter_var($request->path, FILTER_SANITIZE_STRING);
+			$product->file_path = strip_tags($request->path);
 			$product->description = $request->description;
 
 			$product->save();
@@ -79,21 +79,26 @@ class ProductController extends Controller {
 			$images = $request->allFiles();
 			$paths = [];
 			$i = 0;
+			$product = Product::where('id', $request->productId)->first();
 
 			foreach ($images as $image) {
-				$extension = $image->getClientOriginalName();
-				$filename  = 'image-' . time() . '.' . $extension;
-				Storage::disk('public')->putFileAs('/imgs/', $image, $filename);
-				$paths[] =   Storage::url('/imgs/' . $filename);
+				$filename = preg_replace('/\s/', '-', $image->getClientOriginalName());
+				Storage::disk('public')->putFileAs('/imgs/' . $request->productId . '/', $image, $filename);
+				$paths[] = '/imgs/' . $request->productId . '/' . $filename;
 
 				$productImage = new ProductImage();
 				$productImage->product_id = $request->productId;
 				$productImage->position = $i;
-				$productImage->path = Storage::url('/imgs/' . $filename);
+				$productImage->path = '/imgs/' . $request->productId . '/' . $filename;
 
 				$productImage->save();
 
 				$i++;
+			}
+
+			if (empty($product->main_image_path)) {
+				$product->main_image_path = $paths[0];
+				$product->save();
 			}
 
 			DB::commit();
@@ -114,20 +119,19 @@ class ProductController extends Controller {
 			$paths = [];
 
 			foreach ($files as $file) {
-				$extension = $file->getClientOriginalName();
-				$filename  = $request->productName . $extension;
-				Storage::disk('public')->putFileAs('/files/', $file, $filename);
-				$paths[] =   url(Storage::url('files/' . $filename));
+				$filename = preg_replace('/\s/', '-', $file->getClientOriginalName());
+				Storage::disk('private')->putFileAs('/files/' . $request->productId . '/', $file, $filename);
+				$paths[] = '/files/' . $request->productId . '/' . $filename;
 
-				$product = Product::where('id', $request->id)->first();
-				$product->file_path = url(Storage::url('files/' . $filename));
+				$product = Product::where('id', $request->productId)->first();
+				$product->file_path = '/files/' . $request->productId . '/' . $filename;
 
 				$product->save();
 			}
 
 			DB::commit();
 
-			return response(['success' => true, 'files' => $files]);
+			return response(['success' => true]);
 		} catch (Exception $e) {
 			DB::rollBack();
 
@@ -141,9 +145,9 @@ class ProductController extends Controller {
 			$product = Product::findOrFail($id);
 			$product->store_id = filter_var($request->storeId, FILTER_SANITIZE_NUMBER_INT);
 			$product->category_id = filter_var($request->categoryId, FILTER_SANITIZE_NUMBER_INT);
-			$product->name = filter_var($request->name, FILTER_SANITIZE_STRING);
+			$product->name = strip_tags($request->name);
 			$product->price = filter_var($request->price, FILTER_SANITIZE_NUMBER_FLOAT);
-			$product->file_path = filter_var($request->path, FILTER_SANITIZE_STRING);
+			$product->file_path = strip_tags($request->path);
 			$product->save();
 
 			return response(['success' => true]);
