@@ -92,7 +92,7 @@
                 >
                   <div class="col-5 q-pa-sm">
                     <q-img
-                      :src="props.cols[4].value"
+                      :src="imgUrl + props.cols[4].value"
                       spinner-color="black"
                       style="height: 150px; max-width: auto"
                     >
@@ -161,7 +161,8 @@ export default defineComponent({
       maxPrice: ref(null),
       categorySearch: ref(null),
       categoryOptions: ref([]),
-      productsPerPage: ref([6, 9, 15, 0])
+      productsPerPage: ref([6, 9, 15, 0]),
+      imgUrl: ref(process.env.API + '/storage/')
     }
   },
   created () {

@@ -99,7 +99,7 @@
           <q-table
             color="grey-8"
             :grid="$q.screen.gt.xs"
-            :rows="products"
+            :rows="productsList"
             :columns="columns"
             row-key="name"
             :filter="filter"
@@ -131,7 +131,7 @@
                   size="sm"
                 />
                 <div class="text-subtitle1">
-                  Meus pedidos
+                  Meus produtos
                 </div>
               </div>
             </template>
@@ -145,7 +145,7 @@
                 >
                   <q-card-section>
                     <q-img
-                      :src="null"
+                      :src="imgUrl + props.cols[4].value"
                       spinner-color="black"
                       style="height: 150px; max-width: auto;"
                     >
@@ -194,9 +194,10 @@ const columns = [
   { name: 'id', required: true, label: 'Identificador', field: 'id', format: val => `${val}` },
   { name: 'desc', required: true, label: 'Produto', align: 'left', field: row => row.name, format: val => `${val}`, sortable: true },
   { name: 'price', label: 'Preço (R$)', field: 'price', format: val => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(val), sortable: true },
-  { name: 'language', required: true, label: 'Idioma', field: 'language', format: val => `${val}`, sortable: true },
+  // { name: 'language', required: true, label: 'Idioma', field: 'language', format: val => `${val}`, sortable: true },
   { name: 'category', required: true, label: 'Categoria', field: 'category', format: val => `${val}`, sortable: true },
-  { name: 'os', required: true, label: 'Sistema operacional', field: 'os', format: val => `${val}`, sortable: true }
+  // { name: 'os', required: true, label: 'Sistema operacional', field: 'os', format: val => `${val}`, sortable: true }
+  { name: 'image', required: false, label: 'Imagem', field: 'image', format: val => `${val}`, sortable: false }
 ]
 
 export default defineComponent({
@@ -207,7 +208,7 @@ export default defineComponent({
       storeName: ref(''),
       storeId: ref(''),
       email: ref(''),
-      products: ref([]),
+      productsList: ref([]),
       balance: ref(0),
       drawer: ref(false),
       miniState: ref(true),
@@ -216,7 +217,8 @@ export default defineComponent({
       filter: ref(''),
       inputLocked: ref(false),
       columns,
-      productsPerPage: ref([6, 9, 15, 21, 27, 30, 42, 0])
+      productsPerPage: ref([6, 9, 15, 21, 27, 30, 42, 0]),
+      imgUrl: ref(process.env.API + '/storage/')
     }
   },
 
@@ -244,9 +246,17 @@ export default defineComponent({
             this.balance = response.data.store.balance
 
             if (products && products.length > 0) {
-              products.forEach(product => {
-                this.products.push({ id: product.id, price: product.balance, name: product.name, img_path: product.img_path })
-              })
+              for (let c = 0; c < products.length; c++) {
+                const product = {}
+                product.id = response.data.products[c].id
+                product.name = response.data.products[c].name
+                product.language = response.data.products[c].language_id
+                product.category = response.data.products[c].category_id
+                product.os = response.data.products[c].operational_system_id
+                product.price = response.data.products[c].price
+                product.image = response.data.products[c].main_image_path
+                this.productsList.push(product)
+              }
             }
           } else {
             this.hasStore = false
@@ -344,8 +354,9 @@ export default defineComponent({
           })
       })
     },
-    selectProduct (val) {
-      console.log('produto selecionado ' + JSON.stringify(val))
+    selectProduct (productId) {
+      console.log('produto selecionado ' + JSON.stringify(productId))
+      this.$router.push(`/produto/editar/${productId}`)
     },
     showMessage (msg, color, icon) {
       this.$q.notify({
