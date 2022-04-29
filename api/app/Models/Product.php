@@ -29,7 +29,7 @@ class Product extends Model {
 	}
 
 	public function store() {
-		return $this->belongsTo(Stores::class);
+		return $this->belongsTo(Store::class);
 	}
 
 	public function language() {
@@ -41,6 +41,6 @@ class Product extends Model {
 	}
 
 	public function images() {
-		return $this->hasMany(ProductsImages::class, 'product_id', 'id');
+		return $this->hasMany(ProductImage::class, 'product_id', 'id');
 	}
 }

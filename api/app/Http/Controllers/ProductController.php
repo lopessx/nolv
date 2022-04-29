@@ -33,10 +33,10 @@ class ProductController extends Controller {
 		try {
 			$id = filter_var($id, FILTER_SANITIZE_NUMBER_INT);
 			$product = Product::findOrFail($id);
-			$product->category_name = $product->category->name;
-			$product->language_name = $product->language->name;
+			// $product->category_id = $product->category->id;
+			// $product->language_id = $product->language->id;
 			$product->store_name = $product->store->name;
-			$product->os_name = $product->os->name;
+			// $product->os_id = $product->os->id;
 			$product->images;
 
 			return response(['success' => true, 'product' => $product]);

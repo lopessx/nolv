@@ -106,30 +106,31 @@
       <q-toolbar class="q-gutter-sm gt-xs">
         <!-- // TODO add logo? -->
         <!-- Home button -->
-        <q-toolbar-title class="col-2">
+        <q-toolbar-title class="row">
           <q-btn
             color="primary"
             unelevated
             label="Nolv"
             @click="$router.push('/')"
           />
+          <!-- Search bar -->
+          <q-input
+            v-model="searchText"
+            filled
+            class="col-7 q-py-xs q-pl-md"
+            bg-color="white"
+            label="Pesquisar..."
+          >
+            <template #append>
+              <q-icon
+                name="search"
+                class="cursor-pointer"
+                @click="searchProduct(searchText)"
+              />
+            </template>
+          </q-input>
         </q-toolbar-title>
-        <!-- Search bar -->
-        <q-input
-          v-model="searchText"
-          filled
-          class="col-auto q-py-xs"
-          bg-color="white"
-          label="Pesquisar..."
-        >
-          <template #append>
-            <q-icon
-              name="search"
-              class="cursor-pointer"
-              @click="searchProduct(searchText)"
-            />
-          </template>
-        </q-input>
+
         <!-- Botão de login e perfil -->
         <q-btn-dropdown
           v-if="clientName !== ''"

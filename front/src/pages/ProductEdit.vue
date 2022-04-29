@@ -12,20 +12,10 @@
           transition-next="slide-left"
         >
           <q-carousel-slide
-            :name="1"
-            img-src="https://cdn.quasar.dev/img/mountains.jpg"
-          />
-          <q-carousel-slide
-            :name="2"
-            img-src="https://cdn.quasar.dev/img/parallax1.jpg"
-          />
-          <q-carousel-slide
-            :name="3"
-            img-src="https://cdn.quasar.dev/img/parallax2.jpg"
-          />
-          <q-carousel-slide
-            :name="4"
-            img-src="https://cdn.quasar.dev/img/quasar.jpg"
+            v-for="(image, id) in imgs"
+            :key="id"
+            :name="id + 1"
+            :img-src="imgUrl + image.path"
           />
 
           <template #control>
@@ -66,16 +56,6 @@
           prefix="v"
           label="Versão"
         />
-        <div class="q-py-md">
-          <q-rating
-            v-model="ratingModel"
-            readonly
-            size="2em"
-            :max="5"
-            color="accent"
-          />
-          {{ ratingQtd }}
-        </div>
       </div>
       <div class="row col-6 justify-center">
         <q-input
@@ -93,8 +73,8 @@
 
     <q-separator color="grey" />
 
-    <div class="row q-px-xl q-py-md justify-center">
-      <q-list class="col-7">
+    <div class="row q-px-lg q-py-md justify-center">
+      <q-list class="col-12">
         <q-item>
           <q-item-section>
             <q-item-label>Idioma</q-item-label>
@@ -102,10 +82,19 @@
 
           <q-item-section side>
             <q-item-label>
-              <q-input
-                v-model="language"
-                label="Idioma"
-              />
+              <div class="row">
+                <q-select
+                  v-model="language"
+                  style="min-width: 150px;"
+                  class="col-12"
+                  filled
+                  :options="languageOptions"
+                  label="Idioma"
+                  required
+                  emit-value
+                  map-options
+                />
+              </div>
             </q-item-label>
           </q-item-section>
         </q-item>
@@ -126,8 +115,12 @@
               <q-select
                 v-model="category"
                 filled
+                style="min-width: 150px;"
                 :options="categoryOptions"
                 label="Categoria"
+                required
+                emit-value
+                map-options
               />
             </q-item-label>
           </q-item-section>
@@ -145,14 +138,16 @@
           </q-item-section>
 
           <q-item-section side>
-            <q-item-label>
-              <q-select
-                v-model="os"
-                filled
-                :options="osOptions"
-                label="Sistema operacional"
-              />
-            </q-item-label>
+            <q-select
+              v-model="os"
+              style="min-width: 150px;"
+              filled
+              :options="osOptions"
+              label="Sistema operacional"
+              required
+              emit-value
+              map-options
+            />
           </q-item-section>
         </q-item>
 
@@ -166,7 +161,11 @@
 
     <q-separator color="grey" />
 
-    <div class="row q-px-xl q-py-md justify-center items-center">
+    <div class="row q-px-xl q-py-lg justify-center items-center q-gutter-sm">
+      <q-btn
+        color="negative"
+        label="Deletar"
+      />
       <q-btn
         color="accent"
         label="Salvar"
@@ -176,6 +175,7 @@
 </template>
 
 <script>
+import { api } from 'src/boot/axios'
 import { defineComponent, ref } from 'vue'
 
 export default defineComponent({
@@ -184,20 +184,21 @@ export default defineComponent({
     const items = ref([{}, {}, {}])
 
     return {
-      productName: ref('Meu produto'),
-      languages: ref('Português'),
+      productName: ref(''),
+      languages: ref(''),
       slide: ref(1),
-      drawer: ref(false),
-      miniState: ref(true),
-      version: ref('1.0.0'),
-      price: ref(1025.50),
-      ratingModel: ref(2.5),
-      ratingQtd: ref(120),
-      os: ref('Windows'),
-      language: ref('Português (PT-br)'),
-      category: ref('Entretenimento'),
-      categoryOptions: ref(['Entretenimento', 'Design', 'Produtividade']),
-      osOptions: ref(['Windows', 'Linux', 'MacOS']),
+      version: ref(''),
+      price: ref(0),
+      os: ref(''),
+      language: ref(''),
+      category: ref(''),
+      languageOptions: ref([]),
+      categoryOptions: ref([]),
+      osOptions: ref([]),
+      productId: ref(null),
+      store: ref(null),
+      imgs: ref([]),
+      imgUrl: ref(process.env.API + '/storage/'),
       items,
       onLoad (index, done) {
         setTimeout(() => {
@@ -209,11 +210,88 @@ export default defineComponent({
     }
   },
   mounted () {
+    this.productId = this.$route.params.id
+    this.getLanguages()
+    this.getOs()
+    this.getCategories()
+    this.getProductDetails()
     this.price = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(this.price)
     this.price = this.price.replace(/R\$/gm, '')
     this.price = this.price.replace(/\s/gm, '')
   },
   methods: {
+    async getProductDetails () {
+      api.get(`product/${this.productId}`)
+        .then((response) => {
+          console.log('resposta: ' + JSON.stringify(response.data))
+          this.productName = response.data.product.name
+          this.language = response.data.product.language_id
+          this.version = response.data.product.version
+          this.price = response.data.product.price
+          this.category = response.data.product.category_id
+          this.store = response.data.product.store_name
+          this.os = response.data.product.operational_system_id
+          this.description = response.data.product.description
+          this.imgs = response.data.product.images
+          for (let c = 0; c < this.imgs.length; c++) {
+            this.imgs[c].order = c + 1
+          }
+        })
+        .catch((error) => {
+          console.error('erro encontrado: ' + error.message)
+        })
+        .finally(() => {
+          this.loading = false
+        })
+    },
+    getLanguages () {
+      api.get('languages')
+        .then((response) => {
+          if (response.data.success) {
+            response.data.languages.forEach(language => {
+              this.languageOptions.push(language)
+            })
+          } else {
+            this.showMessage('Nenhum idioma encontrado', 'negative', 'error')
+          }
+        })
+        .catch((error) => {
+          console.error('message ' + error.message + ' code ' + error.code)
+          this.showMessage('Nenhum idioma encontrado', 'negative', 'error')
+        })
+    },
+    getOs () {
+      api.get('os')
+        .then((response) => {
+          if (response.data.success) {
+            response.data.operational_systems.forEach(os => {
+              this.osOptions.push(os)
+            })
+          } else {
+            this.showMessage('Nenhum sistema operacional encontrado', 'negative', 'error')
+          }
+        })
+        .catch((error) => {
+          console.error('message ' + error.message + ' code ' + error.code)
+          this.showMessage('Nenhum sistema operacional encontrado', 'negative', 'error')
+        })
+    },
+    getCategories () {
+      api.get('categories')
+        .then((response) => {
+          if (response.data.success) {
+            response.data.categories.forEach(category => {
+              this.categoryOptions.push(category)
+            })
+          } else {
+            this.showMessage('Nenhuma categoria encontrada', 'negative', 'error')
+          }
+        })
+        .catch((error) => {
+          console.error('message ' + error.message + ' code ' + error.code)
+          this.showMessage('Nenhuma categoria encontrada', 'negative', 'error')
+        })
+    },
     deleteImage () {
       console.log('deletar imagem: ' + this.slide)
     }

@@ -30,6 +30,6 @@ class Rating extends Model {
 	protected $fillable = ['product_id', 'rating'];
 
 	public function client() {
-		return $this->belongsTo(Clients::class);
+		return $this->belongsTo(Client::class);
 	}
 }

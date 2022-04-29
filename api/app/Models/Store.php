@@ -25,6 +25,6 @@ class Store extends Model {
 	protected $fillable = ['client_id', 'name', 'balance'];
 
 	public function products() {
-		return $this->hasMany(Products::class);
+		return $this->hasMany(Product::class);
 	}
 }

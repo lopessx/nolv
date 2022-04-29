@@ -196,7 +196,7 @@ export default defineComponent({
         })
     },
     async getCategories () {
-      api.get('category')
+      api.get('categories')
         .then((response) => {
           console.log('resposta: ' + JSON.stringify(response.data))
           this.categoryOptions = response.data.category
