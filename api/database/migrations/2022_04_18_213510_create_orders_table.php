@@ -21,6 +21,8 @@ class CreateOrdersTable extends Migration {
 			$table->foreign('status_id')->references('id')->on('order_status');
 			$table->double('total');
 			$table->timestamps();
+			$table->onUpdate('cascade');
+			$table->onDelete('cascade');
 		});
 	}
 

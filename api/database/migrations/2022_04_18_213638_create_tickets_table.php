@@ -21,6 +21,8 @@ class CreateTicketsTable extends Migration {
 			$table->foreign('status_ticket_id')->references('id')->on('status_tickets');
 			$table->string('message');
 			$table->timestamps();
+			$table->onUpdate('cascade');
+			$table->onDelete('cascade');
 		});
 	}
 

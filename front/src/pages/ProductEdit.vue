@@ -1,6 +1,6 @@
 <template>
   <q-page>
-    <div class="row q-px-xl q-pt-lg q-gutter-sm">
+    <div class="row q-px-xl q-pt-lg q-pb-md q-gutter-sm">
       <div class="col-6">
         <q-carousel
           v-model="slide"
@@ -44,6 +44,35 @@
         />
       </div>
     </div>
+
+    <q-separator color="grey" />
+
+    <div class="row justify-center q-py-md">
+      <div class="col-xs-12 col-sm-5">
+        <q-uploader
+          ref="imageUploader"
+          :url="urlUpload + '/product/image/upload'"
+          label="Upload de imagens"
+          multiple
+          hide-upload-btn
+          :form-fields="[{name: 'productId', value: productId}]"
+          style="max-width: 280px"
+        />
+      </div>
+      <div class="col-xs-12 col-sm-5">
+        <q-uploader
+          ref="fileUploader"
+          :url="urlUpload + '/product/upload'"
+          label="Upload do produto"
+          multiple
+          hide-upload-btn
+          :form-fields="[{name: 'productId', value: productId}, {name: 'productName', value: productName}]"
+          style="max-width: 280px"
+        />
+      </div>
+    </div>
+
+    <q-separator color="grey" />
 
     <div class="row col-12 q-px-xl q-py-md">
       <div class="col-6">
@@ -165,10 +194,12 @@
       <q-btn
         color="negative"
         label="Deletar"
+        @click="deleteProduct"
       />
       <q-btn
         color="accent"
         label="Salvar"
+        @click="editProduct"
       />
     </div>
   </q-page>
@@ -184,6 +215,7 @@ export default defineComponent({
     const items = ref([{}, {}, {}])
 
     return {
+      urlUpload: ref(process.env.API),
       productName: ref(''),
       languages: ref(''),
       slide: ref(1),
@@ -227,7 +259,7 @@ export default defineComponent({
           this.productName = response.data.product.name
           this.language = response.data.product.language_id
           this.version = response.data.product.version
-          this.price = response.data.product.price
+          this.price = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(response.data.product.price)
           this.category = response.data.product.category_id
           this.store = response.data.product.store_name
           this.os = response.data.product.operational_system_id
@@ -293,7 +325,88 @@ export default defineComponent({
         })
     },
     deleteImage () {
-      console.log('deletar imagem: ' + this.slide)
+      console.log('deletar imagem: ' + this.slide + ' imagem: ' + JSON.stringify(this.imgs[this.slide - 1]))
+      this.$q.dialog({
+        title: 'Tem certeza que deseja deletar essa imagem?',
+        message: 'Essa ação será irreversível.',
+        cancel: {
+          label: 'Cancelar',
+          color: 'negative'
+        },
+        ok: {
+          label: 'Confirmar',
+          color: 'accent'
+        },
+        persistent: true
+      }).onOk(() => {
+        const imgId = this.imgs[this.slide - 1].id
+        api.delete(`/product/image/delete/${imgId}`)
+          .then((response) => {
+            console.log('resposta exclusão: ' + JSON.stringify(response.data))
+            this.showMessage('Falha na exclusão da imagem', 'positive', 'check_circle')
+          })
+          .catch((error) => {
+            console.error('message ' + error.message + ' code ' + error.code)
+            this.showMessage('Falha na exclusão da imagem', 'negative', 'error')
+          })
+      })
+    },
+    editProduct () {
+      api.put(`/product/${this.productId}`, { categoryId: this.category, storeId: this.storeId, languageId: this.language, osId: this.os, name: this.productName, description: this.description, version: this.version, price: this.price })
+        .then((response) => {
+          if (response.data.success === true) {
+            this.showMessage('Produto editado com sucesso', 'positive', 'check_circle')
+          } else {
+            this.showMessage('Erro ao editar produto', 'negative', 'error')
+          }
+        })
+        .catch((error) => {
+          console.error('erro message: ' + error.message + ' code ' + error.code)
+          this.showMessage('Erro ao editar produto', 'negative', 'error')
+        })
+        .finally(() => {
+          if (this.productId) {
+            this.$refs.imageUploader.upload()
+            this.$refs.fileUploader.upload()
+          }
+        })
+    },
+    deleteProduct () {
+      this.$q.dialog({
+        title: 'Tem certeza que deseja deletar esse produto?',
+        message: 'Essa ação será irreversível.',
+        cancel: {
+          label: 'Cancelar',
+          color: 'negative'
+        },
+        ok: {
+          label: 'Confirmar',
+          color: 'accent'
+        },
+        persistent: true
+      }).onOk(() => {
+        api.delete(`/product/${this.productId}`)
+          .then((response) => {
+            console.log('produto deletado ' + JSON.stringify(response.data))
+            if (response.data.success === true) {
+              this.showMessage('Produto deletado com sucesso', 'positive', 'check_circle')
+              this.$router.push('/vendedor')
+            } else {
+              this.showMessage('Erro ao deletar produto', 'negative', 'error')
+            }
+          })
+          .catch((error) => {
+            console.error('erro message: ' + error.message + ' code ' + error.code)
+            this.showMessage('Erro ao deletar produto', 'negative', 'error')
+          })
+      })
+    },
+    showMessage (msg, color, icon) {
+      this.$q.notify({
+        message: msg,
+        color: color,
+        icon: icon
+      })
     }
   }
 })

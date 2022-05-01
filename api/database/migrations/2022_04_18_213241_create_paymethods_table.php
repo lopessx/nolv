@@ -16,6 +16,8 @@ class CreatePaymethodsTable extends Migration {
 			$table->tinyInteger('active');
 			$table->string('name');
 			$table->string('type');
+			$table->onUpdate('cascade');
+			$table->onDelete('cascade');
 		});
 	}
 

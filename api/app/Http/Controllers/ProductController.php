@@ -115,19 +115,23 @@ class ProductController extends Controller {
 		DB::beginTransaction();
 
 		try {
+			$product = Product::where('id', $request->productId)->first();
 			$files = $request->allFiles();
 			$paths = [];
+
+			if (!empty($product->file_path)) {
+				Storage::disk('private')->delete($product->file_path);
+			}
 
 			foreach ($files as $file) {
 				$filename = preg_replace('/\s/', '-', $file->getClientOriginalName());
 				Storage::disk('private')->putFileAs('/files/' . $request->productId . '/', $file, $filename);
 				$paths[] = '/files/' . $request->productId . '/' . $filename;
 
-				$product = Product::where('id', $request->productId)->first();
 				$product->file_path = '/files/' . $request->productId . '/' . $filename;
-
-				$product->save();
 			}
+
+			$product->save();
 
 			DB::commit();
 
@@ -140,29 +144,87 @@ class ProductController extends Controller {
 	}
 
 	public function update(Request $request, $id) {
+		DB::beginTransaction();
+
 		try {
 			$id = filter_var($id, FILTER_SANITIZE_NUMBER_INT);
 			$product = Product::findOrFail($id);
-			$product->store_id = filter_var($request->storeId, FILTER_SANITIZE_NUMBER_INT);
-			$product->category_id = filter_var($request->categoryId, FILTER_SANITIZE_NUMBER_INT);
-			$product->name = strip_tags($request->name);
-			$product->price = filter_var($request->price, FILTER_SANITIZE_NUMBER_FLOAT);
-			$product->file_path = strip_tags($request->path);
+
+			if ($request->exists('categoryId') == true) {
+				$product->category_id = $request->categoryId;
+			}
+
+			if ($request->exists('languageId') == true) {
+				$product->language_id = $request->languageId;
+			}
+
+			if ($request->exists('osId') == true) {
+				$product->operational_system_id = $request->osId;
+			}
+
+			if ($request->exists('name') == true) {
+				$product->name = $request->name;
+			}
+
+			if ($request->exists('description') == true) {
+				$product->description = $request->description;
+			}
+
+			if ($request->exists('version') == true) {
+				$product->version = $request->version;
+			}
+
+			if ($request->exists('price') == true) {
+				$product->price = preg_replace('/,/', '.', $request->price);
+			}
+
 			$product->save();
+
+			DB::commit();
 
 			return response(['success' => true]);
 		} catch (Exception $e) {
+			DB::rollBack();
+
 			return response(['message' => $e->getMessage(), 'code' => $e->getCode()], 404);
 		}
 	}
 
 	public function delete(Request $request, $id) {
+		DB::beginTransaction();
+
 		try {
 			$id = filter_var($id, FILTER_SANITIZE_NUMBER_INT);
-			Product::findOrFail($id)->delete();
+			$product = Product::findOrFail($id);
+			Storage::disk('private')->deleteDirectory('/files/' . $id);
+			Storage::disk('public')->deleteDirectory('/imgs/' . $id);
+			$product->delete();
+
+			DB::commit();
 
 			return response(['success' => true]);
 		} catch (Exception $e) {
+			DB::rollBack();
+
+			return response(['message' => $e->getMessage(), 'code' => $e->getCode()], 404);
+		}
+	}
+
+	public function deleteProductImage($imgId) {
+		// TODO needs to change main_image of product if it's deleted
+		DB::beginTransaction();
+
+		try {
+			$productImage = ProductImage::findOrFail($imgId);
+			Storage::disk('public')->deleteDirectory('/imgs/' . $productImage->product_id);
+			$productImage->delete();
+
+			DB::commit();
+
+			return response(['success' => true]);
+		} catch (Exception $e) {
+			DB::rollBack();
+
 			return response(['message' => $e->getMessage(), 'code' => $e->getCode()], 404);
 		}
 	}

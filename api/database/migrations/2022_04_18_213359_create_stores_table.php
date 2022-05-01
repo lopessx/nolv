@@ -17,6 +17,8 @@ class CreateStoresTable extends Migration {
 			$table->foreign('client_id')->references('id')->on('clients');
 			$table->double('balance');
 			$table->string('name');
+			$table->onUpdate('cascade');
+			$table->onDelete('cascade');
 		});
 	}
 

@@ -59,7 +59,7 @@
         <div class="col-xs-12 col-sm-5">
           <q-uploader
             ref="imageUploader"
-            url="http://127.0.0.1:8000/product/image/upload"
+            :url="urlUpload + '/product/image/upload'"
             label="Upload de imagens"
             multiple
             hide-upload-btn
@@ -70,7 +70,7 @@
         <div class="col-xs-12 col-sm-5">
           <q-uploader
             ref="fileUploader"
-            url="http://127.0.0.1:8000/product/upload"
+            :url="urlUpload + '/product/upload'"
             label="Upload do produto"
             multiple
             hide-upload-btn
@@ -198,7 +198,8 @@ export default defineComponent({
       description: ref(''),
       storeId: ref(''),
       clientId: ref(''),
-      productId: ref('')
+      productId: ref(''),
+      urlUpload: ref(process.env.API)
     }
   },
   mounted () {

@@ -22,5 +22,5 @@ class StatusTicket extends Model {
 	 *
 	 * @var array
 	 */
-	protected $fillable = ['name'];
+	protected $fillable = ['id', 'name'];
 }

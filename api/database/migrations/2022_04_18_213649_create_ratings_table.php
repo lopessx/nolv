@@ -20,6 +20,8 @@ class CreateRatingsTable extends Migration {
 			$table->string('comment');
 			$table->integer('rating');
 			$table->timestamps();
+			$table->onUpdate('cascade');
+			$table->onDelete('cascade');
 		});
 	}
 

@@ -17,6 +17,8 @@ class CreateProductImagesTable extends Migration {
 			$table->foreign('product_id')->references('id')->on('products');
 			$table->integer('position');
 			$table->string('path');
+			$table->onUpdate('cascade');
+			$table->onDelete('cascade');
 		});
 	}
 

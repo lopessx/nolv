@@ -16,6 +16,8 @@ class CreateCardsTable extends Migration {
 			$table->unsignedBigInteger('client_id');
 			$table->foreign('client_id')->references('id')->on('clients');
 			$table->string('token');
+			$table->onUpdate('cascade');
+			$table->onDelete('cascade');
 		});
 	}
 

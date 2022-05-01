@@ -2,10 +2,10 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 
-class Language extends Model {
+class OrderStatus extends Model {
 	use HasFactory;
 
 	public $timestamps = false;
@@ -15,7 +15,7 @@ class Language extends Model {
 	 *
 	 * @var string
 	 */
-	protected $table = 'languages';
+	protected $table = 'order_status';
 
 	/**
 	 * The attributes that are mass assignable.

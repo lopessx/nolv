@@ -22,11 +22,13 @@ class CreateProductsTable extends Migration {
 			$table->foreign('operational_system_id')->references('id')->on('operational_systems');
 			$table->foreign('store_id')->references('id')->on('stores');
 			$table->string('name');
-			$table->string('main_image_path');
-			$table->string('file_path');
+			$table->string('main_image_path')->nullable();
+			$table->string('file_path')->nullable();
 			$table->text('description');
 			$table->string('version');
 			$table->double('price');
+			$table->onUpdate('cascade');
+			$table->onDelete('cascade');
 		});
 	}
 

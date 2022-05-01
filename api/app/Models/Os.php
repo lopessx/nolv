@@ -22,5 +22,5 @@ class Os extends Model {
 	 *
 	 * @var array
 	 */
-	protected $fillable = ['name'];
+	protected $fillable = ['id', 'name'];
 }

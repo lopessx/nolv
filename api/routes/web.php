@@ -21,6 +21,7 @@ $router->put('/product/{id}', 'ProductController@update');
 $router->delete('/product/{id}', 'ProductController@delete');
 $router->post('/product/upload', 'ProductController@uploadProduct');
 $router->post('/product/image/upload', 'ProductController@storeImages');
+$router->delete('/product/image/delete/{imgId}', 'ProductController@deleteProductImage');
 
 // Clients
 $router->post('/client/register', 'ClientController@register');
