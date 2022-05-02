@@ -21,7 +21,7 @@
             v-ripple
             clickable
             class="text-secondary"
-            to="/"
+            to="/cliente"
           >
             <q-item-section avatar>
               <q-icon
@@ -31,7 +31,7 @@
             </q-item-section>
 
             <q-item-section>
-              Início
+              Área do cliente
             </q-item-section>
           </q-item>
 
@@ -41,7 +41,7 @@
             v-ripple
             clickable
             class="text-secondary"
-            to="/cliente"
+            to="/perfil"
           >
             <q-item-section avatar>
               <q-icon

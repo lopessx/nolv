@@ -28,6 +28,8 @@ $router->post('/client/register', 'ClientController@register');
 $router->post('/client/login', 'ClientController@login');
 $router->post('/client/auth', 'ClientController@auth');
 $router->post('/logout', 'ClientController@logout');
+$router->delete('/client/delete/{id}', 'ClientController@delete');
+$router->put('/client/update/{id}', 'ClientController@update');
 
 // Stores
 $router->delete('/store/{storeId}', 'StoreController@delete');

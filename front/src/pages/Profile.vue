@@ -40,7 +40,7 @@
           v-model="phone"
           outlined
           label="Número de telefone"
-          type="phone"
+          type="tel"
           mask="(##) #####-####"
           class="q-py-md q-px-sm"
         />
@@ -58,6 +58,15 @@
           </div>
         </div>
         <q-list bordered>
+          <div v-if="cards.length < 1">
+            <q-item
+              v-ripple
+              clickable
+              class="q-pa-lg"
+            >
+              <q-item-section>Nenhum cartão cadastrado.</q-item-section>
+            </q-item>
+          </div>
           <div
             v-for="card in cards"
             :key="card.id"
@@ -80,11 +89,16 @@
           </div>
         </q-list>
       </div>
-      <div class="row col-12 justify-center q-pa-xl">
+      <div class="row col-12 justify-center q-pa-xl q-gutter-sm">
+        <q-btn
+          color="negative"
+          label="Deletar"
+          @click="deleteProfile()"
+        />
         <q-btn
           color="accent"
           label="Confirmar"
-          @click="saveProfile()"
+          @click="updateProfile()"
         />
       </div>
     </div>
@@ -93,141 +107,90 @@
 
 <script>
 import { defineComponent, ref } from 'vue'
-
-const columns = [
-  { name: 'id', required: true, label: 'Identificador', field: 'id', format: val => `${val}` },
-  { name: 'desc', required: true, label: 'Produto', align: 'left', field: row => row.name, format: val => `${val}`, sortable: true },
-  { name: 'price', label: 'Preço (R$)', field: 'price', format: val => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(val), sortable: true },
-  { name: 'language', required: true, label: 'Idioma', field: 'language', format: val => `${val}`, sortable: true },
-  { name: 'category', required: true, label: 'Categoria', field: 'category', format: val => `${val}`, sortable: true },
-  { name: 'os', required: true, label: 'Sistema operacional', field: 'os', format: val => `${val}`, sortable: true }
-]
-
-const rows = [
-  {
-    id: 0,
-    name: 'Frozen Yogurt',
-    language: 'pt-BR',
-    category: 'Entretenimento',
-    os: 'Windows',
-    price: 50.00
-  },
-  {
-    id: 1,
-    name: 'Ice cream sandwich',
-    language: 'pt-BR',
-    category: 'Entretenimento',
-    os: 'Windows',
-    price: 15.50
-  },
-  {
-    id: 2,
-    name: 'Eclair',
-    language: 'pt-BR',
-    category: 'Entretenimento',
-    os: 'Windows',
-    price: 125.15
-  },
-  {
-    id: 3,
-    name: 'Cupcake',
-    language: 'pt-BR',
-    category: 'Entretenimento',
-    os: 'Windows',
-    price: 2435.00
-  },
-  {
-    id: 4,
-    name: 'Gingerbread',
-    language: 'pt-BR',
-    category: 'Finança',
-    os: 'Windows',
-    price: 45.00
-  },
-  {
-    id: 5,
-    name: 'Jelly bean',
-    language: 'pt-BR',
-    category: 'Finança',
-    os: 'MacOS',
-    price: 55.00
-  },
-  {
-    id: 6,
-    name: 'Lollipop',
-    language: 'en-US',
-    category: 'Design',
-    os: 'MacOS',
-    price: 65.00
-  },
-  {
-    id: 7,
-    name: 'Honeycomb',
-    language: 'pt-BR',
-    category: 'Design',
-    os: 'MacOS',
-    price: 75.00
-  },
-  {
-    id: 8,
-    name: 'Donut',
-    language: 'en-US',
-    category: 'Produtividade',
-    os: 'Linux',
-    price: 85.00
-  },
-  {
-    id: 9,
-    name: 'KitKat',
-    language: 'en-US',
-    category: 'Produtividade',
-    os: 'Linux',
-    price: 95.00
-  }
-]
+import { api } from 'src/boot/axios'
+import { required, emailValidation, phoneValidation } from 'src/utils/validations'
 
 export default defineComponent({
   name: 'ClientArea',
   setup () {
     return {
       email: ref(''),
-      products: ref([{ id: 0, name: 'Abacaxi', price: 21.00 }, { id: 1, name: 'Banana', price: 10.00 }, { id: 2, name: 'Batata', price: 34.23 }]),
-      balance: ref(19.23),
-      drawer: ref(false),
-      miniState: ref(true),
-      username: ref('João'),
-      filter: ref(''),
-      columns,
-      rows,
-      productsPerPage: ref([6, 9, 15, 21, 27, 30, 42, 0]),
+      balance: ref(0.00),
       name: ref(''),
       phone: ref(''),
-      cards: ref([{ id: 0, number: 'xxxxxxxx4754', brand: 'Visa' }, { id: 1, number: 'xxxxxxxx5055', brand: 'Master' }]),
-      lorem: ref('Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.')
+      clientId: ref(''),
+      cards: ref([])
     }
   },
 
   mounted () {
     console.log('carregado')
+    const client = this.$q.localStorage.getItem('client')
+    this.name = client.name
+    this.phone = client.phone
+    this.email = client.email
+    this.clientId = client.id
   },
 
   methods: {
-    loginCheck () {
-      this.step++
-      console.log('login foi feito ' + this.otp)
-    },
-    deleteFromCheckout (id) {
-      console.log('produto a ser deletado: ' + id)
-    },
-    selectProduct (val) {
-      console.log('produto selecionado ' + JSON.stringify(val))
-    },
     deleteCard (val) {
       console.log('cartão deletado ' + val)
     },
-    saveProfile () {
+    updateProfile () {
       console.log('alterações salvas')
-    }
+      api.put(`/client/update/${this.clientId}`, { name: this.name, email: this.email, phone: this.phone })
+        .then((response) => {
+          if (response.data.success === true) {
+            this.showMessage('Informações atualizadas com sucesso', 'positive', 'check_circle')
+          } else {
+            this.showMessage('Erro ao atualizar as informações', 'negative', 'error')
+          }
+        })
+        .catch((error) => {
+          console.error('message ' + error.message + ' code ' + error.code)
+          this.showMessage('Erro ao atualizar as informações', 'negative', 'error')
+        })
+    },
+    deleteProfile () {
+      console.log('deletar perfil')
+      this.$q.dialog({
+        title: 'Tem certeza que deseja deletar esse perfil?',
+        message: 'Essa ação será irreversível.',
+        cancel: {
+          label: 'Cancelar',
+          color: 'negative'
+        },
+        ok: {
+          label: 'Confirmar',
+          color: 'accent'
+        },
+        persistent: true
+      }).onOk(() => {
+        api.delete(`/client/delete/${this.clientId}`)
+          .then((response) => {
+            if (response.data.success === true) {
+              this.showMessage('Perfil deletado com sucesso', 'positive', 'check_circle')
+              this.$q.localStorage.clear()
+            } else {
+              this.showMessage('Erro ao deletar o perfil', 'negative', 'error')
+            }
+          })
+          .catch((error) => {
+            console.error('message ' + error.message + ' code ' + error.code)
+            this.showMessage('Erro ao deletar o perfil', 'negative', 'error')
+          })
+      })
+    },
+    showMessage (msg, color, icon) {
+      this.$q.notify({
+        message: msg,
+        color: color,
+        icon: icon
+      })
+    },
+    required,
+    emailValidation,
+    phoneValidation
   }
 })
 </script>

@@ -46,18 +46,49 @@ class ClientController extends Controller {
 		}
 	}
 
-	public function update(Request $request) {
+	public function update(Request $request, $id) {
+		DB::beginTransaction();
+
 		try {
-			return response(['success' => true]);
+			$client = Client::findOrFail($id);
+
+			if ($request->exists('name')) {
+				$client->name = $request->name;
+			}
+
+			if ($request->exists('email')) {
+				$client->email = $request->email;
+			}
+
+			if ($request->exists('phone')) {
+				$client->phone = $request->phone;
+			}
+
+			$client->save();
+
+			DB::commit();
+
+			return response(['success' => true, 'client' => $client]);
 		} catch (Exception $e) {
+			DB::rollBack();
+
 			return response(['message' => $e->getMessage(), 'code' => $e->getCode()], 404);
 		}
 	}
 
-	public function delete(Request $request) {
+	public function delete(Request $request, $id) {
+		DB::beginTransaction();
+
 		try {
+			$client = Client::findOrFail($id);
+			$client->delete();
+
+			DB::commit();
+
 			return response(['success' => true]);
 		} catch (Exception $e) {
+			DB::rollBack();
+
 			return response(['message' => $e->getMessage(), 'code' => $e->getCode()], 404);
 		}
 	}
