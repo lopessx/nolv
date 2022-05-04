@@ -23,7 +23,7 @@
             <div class="q-px-sm q-pb-sm q-pt-lg">
               <q-input
                 ref="emailInput"
-                v-model="email"
+                v-model="paymentData.email"
                 outlined
                 label="Insira seu e-mail"
                 type="email"
@@ -154,11 +154,13 @@
               />
               <q-input
                 v-model="paymentData.email"
-                class="col-12"
+                class="col-11"
                 outlined
                 label="E-mail"
                 type="email"
                 required
+                lazy-rules
+                :rules="[required, emailValidation]"
               />
             </div>
           </q-step>
@@ -251,14 +253,15 @@ export default defineComponent({
   name: 'Checkout',
   setup () {
     return {
-      step: ref(3),
-      email: ref(''),
+      step: ref(1),
       otp: ref(''),
       products: ref([]),
       totalPrice: ref(0),
       paymentMethod: ref(null),
       paymentOptions: ref([]),
       phone: ref(''),
+      clientId: ref(''),
+      order: ref(null),
       paymentData: ref({
         name: '',
         email: '',
@@ -269,17 +272,25 @@ export default defineComponent({
           cvv: '',
           expDate: ''
         }
-      }),
-      order: ref(null)
+      })
     }
   },
 
   created () {
     const cart = this.$q.localStorage.getItem('cart')
+    const client = this.$q.localStorage.getItem('client')
 
     if (cart) {
       this.products = this.$q.localStorage.getItem('cart')
       this.getTotalPrice()
+    }
+
+    if (client) {
+      this.clientId = client.id
+      this.paymentData.email = client.email
+      this.paymentData.name = client.name
+      this.phone = client.phone
+      this.step = 3
     }
   },
 
@@ -296,13 +307,13 @@ export default defineComponent({
       if (this.$refs.emailInput.hasError || this.$refs.phoneInput.hasError) {
         this.showMessage('Preencha todos os campos', 'warning', 'warning')
       } else {
-        api.post('client/auth', { email: this.email })
+        api.post('client/auth', { email: this.paymentData.email })
           .then((response) => {
             console.log('solicitação de autenticação feita ' + JSON.stringify(response.data))
             if (response.data.success === true) {
               this.step = 2
             } else {
-              api.post('client/register', { email: this.email, phone: this.phone })
+              api.post('client/register', { email: this.paymentData.email, phone: this.phone })
                 .then((response) => {
                   if (response.data.success === true) {
                     this.step = 2
@@ -320,7 +331,7 @@ export default defineComponent({
       if (this.$refs.codeInput.hasError) {
         this.showMessage('Preencha todos os campos', 'warning', 'warning')
       } else {
-        api.post('client/login', { email: this.email, code: this.otp })
+        api.post('client/login', { email: this.paymentData.email, code: this.otp })
           .then((response) => {
             console.log('login efetuado ' + JSON.stringify(response.data))
             if (response.data.success === true) {
@@ -341,9 +352,7 @@ export default defineComponent({
       }
     },
     placeOrder () {
-      const client = this.$q.localStorage.getItem('client')
-
-      api.post('payment/order', { total: this.totalPrice, paymethodId: this.paymentMethod.value, clientId: client.id, products: this.products })
+      api.post('order', { total: this.totalPrice, paymethodId: this.paymentMethod.value, clientId: this.clientId, products: this.products })
         .then((response) => {
           console.log('novo pedido ' + JSON.stringify(response.data))
           if (response.data.success === true) {
@@ -363,6 +372,14 @@ export default defineComponent({
         .then((response) => {
           if (response.data.success === true) {
             console.log('caputura dados: ' + response.data)
+
+            window.dispatchEvent(new CustomEvent('modify-cart', {
+              detail: {
+                productQtd: 0
+              }
+            }))
+
+            this.$q.localStorage.remove('cart')
             this.$router.push('/cliente')
           } else {
             this.showMessage('Falha ao realizar pagamento', 'negative', 'error')

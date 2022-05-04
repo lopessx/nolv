@@ -20,10 +20,10 @@ class PaghiperPaymethod {
 		$body = [
 			'apiKey' => $apiKey,
 			'order_id' => 'bol_' . uniqid(),
-			'payer_email' => $bolData->email,
-			'payer_name' => $bolData->name,
-			'payer_cpf_cnpj' => $bolData->cpfCnpj,
-			'days_due_date' => 3,
+			'payer_email' => $bolData['email'],
+			'payer_name' => $bolData['name'],
+			'payer_cpf_cnpj' => $bolData['cpf'],
+			'days_due_date' => 5,
 			'type_bank_slip' => 'boletoA4',
 			'notification_url' => $listenerUrl,
 			'items' => [[
@@ -50,7 +50,10 @@ class PaghiperPaymethod {
 
 		$result = json_decode(curl_exec($ch));
 		$info = curl_getinfo($ch);
+
+		return true;
 	}
+
 	public static function payPix($pixData, $amount) {
 		$urlPix = 'https://pix.paghiper.com/';
 
@@ -65,10 +68,10 @@ class PaghiperPaymethod {
 		$body = [
 			'apiKey' => $apiKey,
 			'order_id' => 'pix_' . uniqid(),
-			'payer_email' => $pixData->email,
-			'payer_name' => $pixData->name,
-			'payer_cpf_cnpj' => $pixData->cpfCnpj,
-			'days_due_date' => $pixData->expDate,
+			'payer_email' => $pixData['email'],
+			'payer_name' => $pixData['name'],
+			'payer_cpf_cnpj' => $pixData['cpf'],
+			'days_due_date' => 5,
 			'notification_url' => $listenerUrl,
 			'items' => [[
 				'item_id' => '01',
@@ -94,5 +97,7 @@ class PaghiperPaymethod {
 
 		$result = json_decode(curl_exec($ch));
 		$info = curl_getinfo($ch);
+
+		return true;
 	}
 }

@@ -2,10 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Gateways\CieloPaymethod;
-use App\Models\Gateways\PaghiperPaymethod;
-use App\Models\Paymethod;
 use App\Models\Order;
+use App\Models\ProductOrder;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -37,9 +35,34 @@ class OrderController extends Controller {
 	}
 
 	public function store(Request $request) {
+		DB::beginTransaction();
+
 		try {
-			return response(['success' => true]);
+			$products = $request->products;
+			$productsSale = [];
+
+			$order = new Order();
+			$order->status_id = 1;
+			$order->total = $request->total;
+			$order->paymethod_id = $request->paymethodId;
+			$order->client_id = $request->clientId;
+			$order->save();
+
+			foreach ($products as $key => $product) {
+				$productOrder = new ProductOrder();
+				$productOrder->product_id = $product['id'];
+				$productOrder->order_id = $order->id;
+				$productOrder->save();
+
+				$productsSale[] = $productOrder;
+			}
+
+			DB::commit();
+
+			return response(['success' => true, 'order' => $order]);
 		} catch (Exception $e) {
+			DB::rollBack();
+
 			return response(['message' => $e->getMessage(), 'code' => $e->getCode()], 404);
 		}
 	}
@@ -56,42 +79,6 @@ class OrderController extends Controller {
 		try {
 			return response(['success' => true]);
 		} catch (Exception $e) {
-			return response(['message' => $e->getMessage(), 'code' => $e->getCode()], 404);
-		}
-	}
-
-	public function capturePayment(Request $request, $orderId) {
-		DB::beginTransaction();
-
-		try {
-			$order = Order::find($orderId);
-			$paymethod = Paymethod::find($order->paymethod_id);
-
-			switch ($paymethod->type) {
-				case 'card':
-					$result = CieloPaymethod::payCreditCard($request->paymentData->card, $request->amount);
-
-					break;
-				case 'pix':
-					$result = PaghiperPaymethod::payPix($request->paymentData, $request->amount);
-
-					break;
-				case 'boleto':
-					$result = PaghiperPaymethod::payBoleto($request->paymentData, $request->amount);
-
-					break;
-				default:
-					throw new Exception('Paymethod not supported');
-
-					break;
-			}
-
-			DB::commit();
-
-			return response(['success' => true, 'result' => $result]);
-		} catch (Exception $e) {
-			DB::rollBack();
-
 			return response(['message' => $e->getMessage(), 'code' => $e->getCode()], 404);
 		}
 	}

@@ -41,7 +41,12 @@ $router->put('/store/{storeId}', 'StoreController@update');
 // $router->get('/category', 'CategoryController@get');
 
 // Orders
-// $router->get('/category', 'CategoryController@get');
+$router->get('/order', 'OrderController@get');
+$router->get('/orders/client/{id}', 'OrderController@getOrdersClient');
+$router->get('/order/{id}', 'OrderController@show');
+$router->post('/order', 'OrderController@store');
+$router->put('/order/{id}', 'OrderController@update');
+$router->delete('/order/{id}', 'OrderController@delete');
 
 // Languages
 $router->get('/languages', 'LanguageController@get');
@@ -61,5 +66,4 @@ $router->post('/rating', 'RatingController@store');
 
 // Payment Methods
 $router->get('/payment/list', 'PaymethodController@get');
-$router->post('/payment/order', 'PaymethodController@proccessPayment');
-$router->post('/payment/capture/{orderId}', 'OrderController@capturePayment');
+$router->post('/payment/capture/{orderId}', 'PaymethodController@capturePayment');

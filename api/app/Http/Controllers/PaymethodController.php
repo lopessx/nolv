@@ -2,8 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Gateways\CieloPaymethod;
+use App\Models\Gateways\PaghiperPaymethod;
 use App\Models\Paymethod;
-use App\Models\ProductOrder;
 use App\Models\Order;
 use Exception;
 use Illuminate\Http\Request;
@@ -61,31 +62,36 @@ class PaymethodController extends Controller {
 		}
 	}
 
-	public function proccessPayment(Request $request) {
+
+	public function capturePayment(Request $request, $orderId) {
 		DB::beginTransaction();
 
 		try {
-			$products = $request->products;
-			$productsSale = [];
+			$order = Order::find($orderId);
+			$paymethod = Paymethod::find($order->paymethod_id);
 
-			$sale = new Order();
-			$sale->total = $request->total;
-			$sale->paymethod_id = $request->paymethodId;
-			$sale->client_id = $request->clientId;
-			$sale->save();
+			switch ($paymethod->type) {
+				case 'card':
+					$result = CieloPaymethod::payCreditCard($request->paymentData->card, $request->amount);
 
-			foreach ($products as $key => $product) {
-				$order = new ProductOrder();
-				$order->product_id = $product->id;
-				$order->sales_id = $sale->id;
-				$order->save();
+					break;
+				case 'pix':
+					$result = PaghiperPaymethod::payPix($request->paymentData, $request->amount);
 
-				$productsSale[] = $order;
+					break;
+				case 'boleto':
+					$result = PaghiperPaymethod::payBoleto($request->paymentData, $request->amount);
+
+					break;
+				default:
+					throw new Exception('Paymethod not supported');
+
+					break;
 			}
 
 			DB::commit();
 
-			return response(['success' => true, 'sales' => $sale, 'order' => $sale]);
+			return response(['success' => true, 'result' => $result]);
 		} catch (Exception $e) {
 			DB::rollBack();
 
