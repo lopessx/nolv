@@ -4,6 +4,8 @@
       <div class="col-6">
         <q-carousel
           v-model="slide"
+          control-type="push"
+          control-color="accent"
           animated
           navigation
           infinite
