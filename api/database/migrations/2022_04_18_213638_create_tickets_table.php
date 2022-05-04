@@ -16,13 +16,27 @@ class CreateTicketsTable extends Migration {
 			$table->unsignedBigInteger('client_id');
 			$table->unsignedBigInteger('store_id');
 			$table->unsignedBigInteger('status_ticket_id');
-			$table->foreign('client_id')->references('id')->on('clients');
-			$table->foreign('store_id')->references('id')->on('stores');
-			$table->foreign('status_ticket_id')->references('id')->on('status_tickets');
 			$table->string('message');
+
 			$table->timestamps();
-			$table->onUpdate('cascade');
-			$table->onDelete('cascade');
+
+			$table->foreign('client_id')
+			->references('id')
+			->on('clients')
+			->cascadeOnDelete()
+			->cascadeOnUpdate();
+
+			$table->foreign('store_id')
+			->references('id')
+			->on('stores')
+			->cascadeOnDelete()
+			->cascadeOnUpdate();
+
+			$table->foreign('status_ticket_id')
+			->references('id')
+			->on('status_tickets')
+			->restrictOnDelete()
+			->cascadeOnUpdate();
 		});
 	}
 

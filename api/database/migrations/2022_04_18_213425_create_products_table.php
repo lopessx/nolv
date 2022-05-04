@@ -13,22 +13,40 @@ class CreateProductsTable extends Migration {
 	public function up() {
 		Schema::create('products', function (Blueprint $table) {
 			$table->id();
-			$table->unsignedBigInteger('category_id');
-			$table->unsignedBigInteger('language_id');
-			$table->unsignedBigInteger('operational_system_id');
-			$table->unsignedBigInteger('store_id');
-			$table->foreign('category_id')->references('id')->on('categories');
-			$table->foreign('language_id')->references('id')->on('languages');
-			$table->foreign('operational_system_id')->references('id')->on('operational_systems');
-			$table->foreign('store_id')->references('id')->on('stores');
+			$table->unsignedBigInteger('category_id')->nullable();
+			$table->unsignedBigInteger('language_id')->nullable();
+			$table->unsignedBigInteger('operational_system_id')->nullable();
+			$table->unsignedBigInteger('store_id')->nullable();
 			$table->string('name');
 			$table->string('main_image_path')->nullable();
 			$table->string('file_path')->nullable();
 			$table->text('description');
 			$table->string('version');
 			$table->double('price');
-			$table->onUpdate('cascade');
-			$table->onDelete('cascade');
+
+			$table->foreign('category_id')
+			->references('id')
+			->on('categories')
+			->nullOnDelete()
+			->cascadeOnUpdate();
+
+			$table->foreign('language_id')
+			->references('id')
+			->on('languages')
+			->nullOnDelete()
+			->cascadeOnUpdate();
+
+			$table->foreign('operational_system_id')
+			->references('id')
+			->on('operational_systems')
+			->nullOnDelete()
+			->cascadeOnUpdate();
+
+			$table->foreign('store_id')
+			->references('id')
+			->on('stores')
+			->nullOnDelete()
+			->cascadeOnUpdate();
 		});
 	}
 

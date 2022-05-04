@@ -15,8 +15,6 @@ class CreateLanguagesTable extends Migration {
 		Schema::create('languages', function (Blueprint $table) {
 			$table->id();
 			$table->string('name');
-			$table->onUpdate('cascade');
-			$table->onDelete('cascade');
 		});
 
 		Language::insert([

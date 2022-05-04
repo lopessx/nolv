@@ -15,13 +15,22 @@ class CreateRatingsTable extends Migration {
 			$table->id();
 			$table->unsignedBigInteger('client_id');
 			$table->unsignedBigInteger('product_id');
-			$table->foreign('client_id')->references('id')->on('clients');
-			$table->foreign('product_id')->references('id')->on('products');
 			$table->string('comment');
 			$table->integer('rating');
+
 			$table->timestamps();
-			$table->onUpdate('cascade');
-			$table->onDelete('cascade');
+
+			$table->foreign('client_id')
+			->references('id')
+			->on('clients')
+			->cascadeOnDelete()
+			->cascadeOnUpdate();
+
+			$table->foreign('product_id')
+			->references('id')
+			->on('products')
+			->cascadeOnDelete()
+			->cascadeOnUpdate();
 		});
 	}
 

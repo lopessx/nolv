@@ -14,11 +14,15 @@ class CreateStoresTable extends Migration {
 		Schema::create('stores', function (Blueprint $table) {
 			$table->id();
 			$table->unsignedBigInteger('client_id');
-			$table->foreign('client_id')->references('id')->on('clients');
 			$table->double('balance');
 			$table->string('name');
-			$table->onUpdate('cascade');
-			$table->onDelete('cascade');
+
+
+			$table->foreign('client_id')
+			->references('id')
+			->on('clients')
+			->cascadeOnDelete()
+			->cascadeOnUpdate();
 		});
 	}
 

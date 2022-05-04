@@ -15,8 +15,6 @@ class CreateStatusTicketsTable extends Migration {
 		Schema::create('status_tickets', function (Blueprint $table) {
 			$table->id();
 			$table->string('name');
-			$table->onUpdate('cascade');
-			$table->onDelete('cascade');
 		});
 
 		StatusTicket::insert([

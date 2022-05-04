@@ -15,8 +15,6 @@ class CreateOperationalSystemsTable extends Migration {
 		Schema::create('operational_systems', function (Blueprint $table) {
 			$table->id();
 			$table->string('name');
-			$table->onUpdate('cascade');
-			$table->onDelete('cascade');
 		});
 
 		Os::insert([

@@ -16,13 +16,27 @@ class CreateOrdersTable extends Migration {
 			$table->unsignedBigInteger('client_id');
 			$table->unsignedBigInteger('paymethod_id');
 			$table->unsignedBigInteger('status_id');
-			$table->foreign('client_id')->references('id')->on('clients');
-			$table->foreign('paymethod_id')->references('id')->on('paymethods');
-			$table->foreign('status_id')->references('id')->on('order_status');
+
 			$table->double('total');
 			$table->timestamps();
-			$table->onUpdate('cascade');
-			$table->onDelete('cascade');
+
+			$table->foreign('client_id')
+			->references('id')
+			->on('clients')
+			->cascadeOnDelete()
+			->cascadeOnUpdate();
+
+			$table->foreign('paymethod_id')
+			->references('id')
+			->on('paymethods')
+			->restrictOnDelete()
+			->cascadeOnUpdate();
+
+			$table->foreign('status_id')
+			->references('id')
+			->on('order_status')
+			->restrictOnDelete()
+			->cascadeOnUpdate();
 		});
 	}
 
