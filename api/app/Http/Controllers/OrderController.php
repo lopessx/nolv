@@ -82,4 +82,14 @@ class OrderController extends Controller {
 			return response(['message' => $e->getMessage(), 'code' => $e->getCode()], 404);
 		}
 	}
+
+	public function getOrdersClient(Request $request, $id) {
+		try {
+			$orders = Order::where('client_id', $id)->get();
+
+			return response(['success' => true, 'orders' => $orders]);
+		} catch (Exception $e) {
+			return response(['message' => $e->getMessage(), 'code' => $e->getCode()], 404);
+		}
+	}
 }
