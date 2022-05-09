@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Order;
+use App\Models\Product;
 use App\Models\ProductOrder;
 use Exception;
 use Illuminate\Http\Request;
@@ -88,6 +89,32 @@ class OrderController extends Controller {
 			$orders = Order::where('client_id', $id)->get();
 
 			return response(['success' => true, 'orders' => $orders]);
+		} catch (Exception $e) {
+			return response(['message' => $e->getMessage(), 'code' => $e->getCode()], 404);
+		}
+	}
+
+	public function getProductsClient(Request $request, $id) {
+		try {
+			$orders = Order::where('client_id', $id)->get(['id']);
+			$ordersArr = [];
+
+			foreach ($orders as $key => $order) {
+				$ordersArr[] = $order->id;
+			}
+
+			$productOrders = ProductOrder::where('order_id', $ordersArr)->get(['product_id']);
+			$productOrdersArr = [];
+
+			foreach ($productOrders as $key => $productOrder) {
+				$productOrdersArr[] = $productOrder->product_id;
+			}
+
+			$productOrdersArr = array_unique($productOrdersArr);
+
+			$products = Product::where('id', $productOrdersArr)->get();
+
+			return response(['success' => true, 'products' => $products]);
 		} catch (Exception $e) {
 			return response(['message' => $e->getMessage(), 'code' => $e->getCode()], 404);
 		}

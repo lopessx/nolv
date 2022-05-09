@@ -11,9 +11,16 @@
       </div>
     </div>
     <q-separator />
-    <div class="row q-px-md q-py-md">
-      <div class="col-12">
-        <div class="col-12 q-pa-md q-gutter-sm">
+    <q-expansion-item
+      class="q-px-lg q-py-md"
+      expand-separator
+      icon="file_download"
+      label="Meus produtos"
+      caption="Meus produtos"
+      header-class="text-primary"
+    >
+      <div class="row">
+        <div class="col-12 q-gutter-sm">
           <q-table
             color="grey-8"
             :grid="$q.screen.gt.xs"
@@ -29,29 +36,14 @@
               <q-input
                 v-model="filter"
                 class="q-pr-sm"
-                filled
                 dense
                 debounce="300"
                 placeholder="Pesquisar..."
-              />
-              <q-btn
-                color="accent"
-                label="Adicionar Produto"
-                to="/produto/cadastro"
-              />
-            </template>
-
-            <template #top-left>
-              <div class="row align-center justify-center q-gutter-xs">
-                <q-icon
-                  name="shopping_basket"
-                  color="accent"
-                  size="sm"
-                />
-                <div class="text-subtitle1">
-                  Meus produtos
-                </div>
-              </div>
+              >
+                <template #before>
+                  <q-icon name="search" />
+                </template>
+              </q-input>
             </template>
 
             <template #item="props">
@@ -59,6 +51,7 @@
                 <q-card
                   clickable
                   class="cursor-pointer q-hoverable"
+                  style="max-width: 300px;"
                   @click="selectProduct(props.cols[0].value)"
                 >
                   <q-card-section>
@@ -81,6 +74,67 @@
                   <q-separator />
                   <q-card-section>
                     <div class="text-body1 text-weight-bold">
+                      {{ props.row.name }}
+                    </div>
+                  </q-card-section>
+                </q-card>
+              </div>
+            </template>
+          </q-table>
+        </div>
+      </div>
+    </q-expansion-item>
+    <q-expansion-item
+      class="q-px-lg q-py-md"
+      expand-separator
+      icon="shopping_basket"
+      label="Compras"
+      caption="Compras"
+      header-class="text-primary"
+    >
+      <div class="row">
+        <div class="col-12 q-gutter-sm">
+          <q-table
+            color="grey-8"
+            :rows="orders"
+            :columns="orderColumns"
+            row-key="name"
+            :filter="filter"
+            :rows-per-page-options="ordersPerPage"
+            no-data-label="Nenhum pedido encontrado"
+            hide-header
+          >
+            <template #top-right>
+              <q-input
+                v-model="filter"
+                dense
+                debounce="300"
+                placeholder="Pesquisar..."
+                prefix=""
+              >
+                <template #before>
+                  <q-icon name="search" />
+                </template>
+              </q-input>
+            </template>
+
+            <template #item="props">
+              <div class="q-pa-xs col-xs-12 col-sm-6 col-md-4 col-lg-3 grid-style-transition">
+                <q-card
+                  clickable
+                  class="cursor-pointer q-hoverable"
+                  @click="selectProduct(props.cols[0].value)"
+                >
+                  <q-card-section>
+                    <q-img
+                      src="../assets/placeholder.png"
+                      spinner-color="black"
+                      style="height: 150px; max-width: auto;"
+                    />
+                  </q-card-section>
+                  <q-separator />
+                  <q-card-section>
+                    <div class="text-body1 text-weight-bold">
                       {{ props.cols[2].value }}
                     </div>
                   </q-card-section>
@@ -94,85 +148,7 @@
           </q-table>
         </div>
       </div>
-      <q-separator />
-      <div class="row q-px-md q-py-md">
-        <div class="col-12">
-          <div class="col-12 q-pa-md q-gutter-sm">
-            <q-table
-              color="grey-8"
-              :grid="$q.screen.gt.xs"
-              :rows="orders"
-              :columns="orderColumns"
-              row-key="name"
-              :filter="filter"
-              :rows-per-page-options="ordersPerPage"
-              no-data-label="Nenhum pedido encontrado"
-              hide-header
-            >
-              <template #top-right>
-                <q-input
-                  v-model="filter"
-                  dense
-                  debounce="300"
-                  placeholder="Pesquisar..."
-                  prefix=""
-                >
-                  <template #before>
-                    <q-icon name="search" />
-                  </template>
-                </q-input>
-              </template>
-
-              <template #top-left>
-                <div class="row align-center justify-center q-gutter-xs">
-                  <q-icon
-                    name="shopping_basket"
-                    color="accent"
-                    size="sm"
-                  />
-                  <div class="text-subtitle1">
-                    Compras
-                  </div>
-                </div>
-              </template>
-
-              <template #item="props">
-                <div class="q-pa-xs col-xs-12 col-sm-6 col-md-4 col-lg-3 grid-style-transition">
-                  <q-card
-                    clickable
-                    class="cursor-pointer q-hoverable"
-                    @click="selectProduct(props.cols[0].value)"
-                  >
-                    <q-card-section>
-                      <q-img
-                        src="../assets/placeholder.png"
-                        spinner-color="black"
-                        style="height: 150px; max-width: auto;"
-                      />
-                    </q-card-section>
-                    <q-separator />
-                    <q-card-section>
-                      <div class="text-body1 text-weight-bold">
-                        {{ props.cols[2].value }}
-                      </div>
-                    </q-card-section>
-                    <q-separator />
-                    <div class="subtitle-1 text-weight-bold q-pa-md text-grey-7">
-                      {{ props.row.name }}
-                    </div>
-                  </q-card>
-                </div>
-              </template>
-            </q-table>
-          </div>
-        </div>
-        <q-separator />
-        <div>
-          <div />
-          <div />
-        </div>
-      </div>
-    </div>
+    </q-expansion-item>
   </q-page>
 </template>
 
@@ -228,9 +204,26 @@ export default defineComponent({
     this.username = client.name
 
     this.getClientOrders()
+    this.getClientProducts()
   },
 
   methods: {
+    getClientProducts () {
+      api.get(`/products/client/${this.clientId}`)
+        .then((response) => {
+          console.log('reposta produtos ' + JSON.stringify(response.data))
+          const products = response.data.products
+          if (products && response.data.success === true) {
+            products.forEach(product => {
+              this.productsList.push(product)
+            })
+          }
+        })
+        .catch((error) => {
+          console.error('message ' + error.message + ' code ' + error.code)
+          this.showMessage('Erro ao consultar produtos', 'negative', 'error')
+        })
+    },
     getClientOrders () {
       api.get(`/orders/client/${this.clientId}`)
         .then((response) => {
@@ -243,18 +236,12 @@ export default defineComponent({
         })
         .catch((error) => {
           console.error('message ' + error.message + ' code ' + error.code)
-          this.showMessage('Erro ao consultar produtos', 'negative', 'error')
+          this.showMessage('Erro ao consultar pedidos', 'negative', 'error')
         })
     },
-    loginCheck () {
-      this.step++
-      console.log('login foi feito ' + this.otp)
-    },
-    deleteFromCheckout (id) {
-      console.log('produto a ser deletado: ' + id)
-    },
-    selectProduct (val) {
-      console.log('produto selecionado ' + JSON.stringify(val))
+    selectProduct (productId) {
+      console.log('produto selecionado ' + JSON.stringify(productId))
+      this.$router.push(`/produto/${productId}/download`)
     }
   }
 })

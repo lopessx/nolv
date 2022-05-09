@@ -14,20 +14,10 @@
           transition-next="slide-left"
         >
           <q-carousel-slide
-            :name="1"
-            img-src="https://cdn.quasar.dev/img/mountains.jpg"
-          />
-          <q-carousel-slide
-            :name="2"
-            img-src="https://cdn.quasar.dev/img/parallax1.jpg"
-          />
-          <q-carousel-slide
-            :name="3"
-            img-src="https://cdn.quasar.dev/img/parallax2.jpg"
-          />
-          <q-carousel-slide
-            :name="4"
-            img-src="https://cdn.quasar.dev/img/quasar.jpg"
+            v-for="(image, id) in imgs"
+            :key="id"
+            :name="id + 1"
+            :img-src="imgUrl + image.path"
           />
         </q-carousel>
       </div>
@@ -60,6 +50,7 @@
           <q-btn
             color="accent"
             label="Baixar"
+            @click="downloadProduct()"
           />
         </div>
       </div>
@@ -75,7 +66,7 @@
           </q-item-section>
 
           <q-item-section side>
-            <q-item-label>Português (PT-br)</q-item-label>
+            <q-item-label>{{ language }}</q-item-label>
           </q-item-section>
         </q-item>
 
@@ -91,7 +82,7 @@
           </q-item-section>
 
           <q-item-section side>
-            <q-item-label>Entretenimento</q-item-label>
+            <q-item-label>{{ category }}</q-item-label>
           </q-item-section>
         </q-item>
 
@@ -107,7 +98,7 @@
           </q-item-section>
 
           <q-item-section side>
-            <q-item-label>Windows</q-item-label>
+            <q-item-label>{{ os }}</q-item-label>
           </q-item-section>
         </q-item>
 
@@ -128,9 +119,11 @@
       <div class="row col-12 q-py-md">
         <div class="col-12">
           <q-input
+            v-model="comment"
             type="textarea"
             outlined
             label="Insira seu comentário"
+            required
           />
         </div>
         <div class="col-6 q-py-md">
@@ -145,6 +138,7 @@
           <q-btn
             color="primary"
             label="Enviar"
+            @click="sendRating()"
           />
         </div>
       </div>
@@ -203,6 +197,7 @@
 </template>
 
 <script>
+import { api } from 'src/boot/axios'
 import { defineComponent, ref } from 'vue'
 
 export default defineComponent({
@@ -211,24 +206,177 @@ export default defineComponent({
     const items = ref([{}, {}, {}])
 
     return {
+      productId: ref(''),
+      clientId: ref(''),
+      languageOptions: ref([]),
+      categoryOptions: ref([]),
+      osOptions: ref([]),
       ratingModelClient: ref(0),
-      productName: ref('Meu produto'),
-      languages: ref('Português'),
+      comment: ref(''),
+      description: ref(''),
+      productName: ref(''),
+      language: ref(''),
+      category: ref(''),
+      os: ref(''),
       slide: ref(1),
-      drawer: ref(false),
-      miniState: ref(true),
-      version: ref('1.0.0'),
-      price: ref(1025.50),
-      ratingModel: ref(2.5),
-      ratingQtd: ref(120),
+      version: ref(''),
+      price: ref(0),
+      store: ref(''),
+      ratingModel: ref(0),
+      ratingQtd: ref(0),
+      imgs: ref([]),
+      imgUrl: ref(process.env.API + '/storage/'),
       items,
       onLoad (index, done) {
         setTimeout(() => {
           items.value.push({}, {}, {}, {})
           done()
         }, 2000)
-      },
-      description: ref('Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt. Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem. Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam, nisi ut aliquid ex ea commodi consequatur? Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse quam nihil molestiae consequatur, vel illum qui dolorem eum fugiat quo voluptas nulla pariatur?')
+      }
+    }
+  },
+  created () {
+    // TODO make a request to img to see if exists
+    const client = this.$q.localStorage.getItem('client')
+
+    if (client) {
+      this.clientId = client.id
+    }
+
+    this.productId = this.$route.params.id
+    this.getProductDetails()
+
+    console.log('category options: ' + JSON.stringify(this.categoryOptions) + ' category ' + this.category)
+
+    this.getRatings()
+  },
+  methods: {
+    async getProductDetails () {
+      api.get(`product/${this.productId}`)
+        .then((response) => {
+          console.log('resposta: ' + JSON.stringify(response.data))
+          this.productName = response.data.product.name
+          this.language = response.data.product.language_id
+          this.version = response.data.product.version
+          this.price = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(response.data.product.price)
+          this.category = response.data.product.category_id
+          this.store = response.data.product.store_name
+          this.os = response.data.product.operational_system_id
+          this.description = response.data.product.description
+          this.imgs = response.data.product.images
+          for (let c = 0; c < this.imgs.length; c++) {
+            this.imgs[c].order = c + 1
+          }
+        })
+        .catch((error) => {
+          console.error('erro encontrado: ' + error.message)
+        })
+        .finally(() => {
+          this.loading = false
+          this.getLanguages()
+          this.getOs()
+          this.getCategories()
+        })
+    },
+    getRatings () {
+      api.get(`ratings/product/${this.productId}`)
+        .then((response) => {
+          console.log('response: ' + JSON.stringify(response.data))
+          if (response.data.success === true) {
+            this.ratingQtd = response.data.ratings.length
+          }
+        })
+        .catch((error) => {
+          console.error('erro encontrado: ' + error.message)
+        })
+    },
+    getLanguages () {
+      api.get('languages')
+        .then((response) => {
+          if (response.data.success) {
+            response.data.languages.forEach(language => {
+              if (language.value === this.language) {
+                this.language = language.label
+              }
+            })
+          } else {
+            this.showMessage('Nenhum idioma encontrado', 'negative', 'error')
+          }
+        })
+        .catch((error) => {
+          console.error('message ' + error.message + ' code ' + error.code)
+          this.showMessage('Nenhum idioma encontrado', 'negative', 'error')
+        })
+    },
+    getOs () {
+      api.get('os')
+        .then((response) => {
+          if (response.data.success) {
+            response.data.operational_systems.forEach(os => {
+              if (os.value === this.os) {
+                this.os = os.label
+              }
+            })
+          } else {
+            this.showMessage('Nenhum sistema operacional encontrado', 'negative', 'error')
+          }
+        })
+        .catch((error) => {
+          console.error('message ' + error.message + ' code ' + error.code)
+          this.showMessage('Nenhum sistema operacional encontrado', 'negative', 'error')
+        })
+    },
+    getCategories () {
+      api.get('categories')
+        .then((response) => {
+          if (response.data.success) {
+            response.data.categories.forEach(category => {
+              if (category.value === this.category) {
+                this.category = category.label
+              }
+            })
+          } else {
+            this.showMessage('Nenhuma categoria encontrada', 'negative', 'error')
+          }
+        })
+        .catch((error) => {
+          console.error('message ' + error.message + ' code ' + error.code)
+          this.showMessage('Nenhuma categoria encontrada', 'negative', 'error')
+        })
+    },
+    downloadProduct () {
+      api.post(`product/download/${this.productId}`, { clientId: this.clientId })
+        .then((response) => {
+          if (response.data.success === true) {
+            window.open(response.data.downloadUrl)
+          } else {
+            this.showMessage('Download falhou', 'negative', 'error')
+          }
+        })
+        .catch((error) => {
+          console.error('message ' + error.message + ' code ' + error.code)
+          this.showMessage('Download falhou', 'negative', 'error')
+        })
+    },
+    sendRating () {
+      api.post('rating', { clientId: this.clientId, rating: this.ratingModelClient, comment: this.comment })
+        .then((response) => {
+          if (response.data.success === true) {
+            this.comment = ''
+            this.ratingModelClient = 0
+          }
+        })
+        .catch((error) => {
+          console.error('message ' + error.message + ' code ' + error.code)
+          this.showMessage('Download falhou', 'negative', 'error')
+        })
+    },
+    showMessage (msg, color, icon) {
+      this.$q.notify({
+        message: msg,
+        color: color,
+        icon: icon
+      })
     }
   }
 })

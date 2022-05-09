@@ -228,4 +228,12 @@ class ProductController extends Controller {
 			return response(['message' => $e->getMessage(), 'code' => $e->getCode()], 404);
 		}
 	}
+
+	public function downloadProduct(Request $request) {
+		try {
+			return response(['success' => true]);
+		} catch (Exception $e) {
+			return response(['message' => $e->getMessage(), 'code' => $e->getCode()], 404);
+		}
+	}
 }

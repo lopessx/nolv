@@ -13,7 +13,7 @@ const routes = [
       { path: 'suporte', component: () => import('src/pages/Suport.vue') },
       { path: 'produto/:id', component: () => import('src/pages/Product.vue') },
       { path: 'produto/cadastro', component: () => import('src/pages/ProductRegister.vue') },
-      { path: 'download', component: () => import('src/pages/ProductDownload.vue') },
+      { path: 'produto/:id/download', component: () => import('src/pages/ProductDownload.vue') },
       { path: 'produto/editar/:id', component: () => import('src/pages/ProductEdit.vue') },
       { path: 'registro', component: () => import('src/pages/Register.vue') }
     ]
