@@ -17,7 +17,7 @@
             v-for="img in imgs"
             :key="img.order"
             :name="img.order"
-            :img-src="img.path"
+            :img-src="imgUrl + img.path"
           />
         </q-carousel>
       </div>
@@ -155,7 +155,8 @@ export default defineComponent({
       productId: ref(null),
       loading: ref(false),
       description: ref(''),
-      imgs: ref([])
+      imgs: ref([]),
+      imgUrl: ref(process.env.API + '/storage')
     }
   },
   created () {

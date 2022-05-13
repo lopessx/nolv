@@ -232,7 +232,7 @@ export default defineComponent({
       productId: ref(null),
       store: ref(null),
       imgs: ref([]),
-      imgUrl: ref(process.env.API + '/storage/'),
+      imgUrl: ref(process.env.API + '/storage'),
       items,
       onLoad (index, done) {
         setTimeout(() => {

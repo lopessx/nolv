@@ -162,7 +162,7 @@ export default defineComponent({
       categorySearch: ref(null),
       categoryOptions: ref([]),
       productsPerPage: ref([6, 9, 15, 0]),
-      imgUrl: ref(process.env.API + '/storage/')
+      imgUrl: ref(process.env.API + '/storage')
     }
   },
   created () {
