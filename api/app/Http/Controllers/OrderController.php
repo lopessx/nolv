@@ -103,7 +103,7 @@ class OrderController extends Controller {
 				$ordersArr[] = $order->id;
 			}
 
-			$productOrders = ProductOrder::where('order_id', $ordersArr)->get(['product_id']);
+			$productOrders = ProductOrder::whereIn('order_id', $ordersArr)->get(['product_id']);
 			$productOrdersArr = [];
 
 			foreach ($productOrders as $key => $productOrder) {
@@ -112,7 +112,7 @@ class OrderController extends Controller {
 
 			$productOrdersArr = array_unique($productOrdersArr);
 
-			$products = Product::where('id', $productOrdersArr)->get();
+			$products = Product::whereIn('id', $productOrdersArr)->get();
 
 			return response(['success' => true, 'products' => $products]);
 		} catch (Exception $e) {

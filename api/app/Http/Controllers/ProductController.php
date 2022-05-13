@@ -128,7 +128,7 @@ class ProductController extends Controller {
 				Storage::disk('private')->putFileAs('/files/' . $request->productId . '/', $file, $filename);
 				$paths[] = '/files/' . $request->productId . '/' . $filename;
 
-				$product->file_path = '/files/' . $request->productId . '/' . $filename;
+				$product->file_path = $filename;
 			}
 
 			$product->save();
@@ -216,7 +216,7 @@ class ProductController extends Controller {
 
 		try {
 			$productImage = ProductImage::findOrFail($imgId);
-			Storage::disk('public')->deleteDirectory('/imgs/' . $productImage->product_id);
+			Storage::disk('public')->delete('/imgs/' . $productImage->product_id . '/' . $productImage->path);
 			$productImage->delete();
 
 			DB::commit();
@@ -229,9 +229,13 @@ class ProductController extends Controller {
 		}
 	}
 
-	public function downloadProduct(Request $request) {
+	public function downloadProduct(Request $request, $id) {
 		try {
-			return response(['success' => true]);
+			$product = Product::where('id', $id)->first();
+			$file = Storage::disk('private')->get(`files/$id/$product->file_path`);
+			$size = Storage::disk('private')->size(`files/$id/$product->file_path`);
+
+			return response($file, 200, ['Content-Length' => $size, 'Content-Disposition' => 'attachment', 'Content-Transfer-Encoding' => 'binary', 'Content-Type' => 'text/plain', 'Content-Disposition' => 'attachment; filename="' . 'irpf.bin' . '"', ]);
 		} catch (Exception $e) {
 			return response(['message' => $e->getMessage(), 'code' => $e->getCode()], 404);
 		}

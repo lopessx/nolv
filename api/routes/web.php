@@ -23,7 +23,7 @@ $router->post('/product/upload', 'ProductController@uploadProduct');
 $router->post('/product/image/upload', 'ProductController@storeImages');
 $router->delete('/product/image/delete/{imgId}', 'ProductController@deleteProductImage');
 $router->get('/products/client/{id}', 'OrderController@getProductsClient');
-$router->post('/product/download', 'ProductController@downloadProduct');
+$router->get('/product/download/{id}', 'ProductController@downloadProduct');
 
 // Clients
 $router->post('/client/register', 'ClientController@register');

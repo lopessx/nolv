@@ -56,6 +56,25 @@
       </div>
     </div>
 
+    <div
+      v-if="downloadProgress > 0"
+      class="row q-pa-lg"
+    >
+      <q-linear-progress
+        stripe
+        size="25px"
+        :value="downloadProgress"
+        color="accent"
+      >
+        <div class="absolute-full flex flex-center">
+          <q-badge
+            color="white"
+            text-color="accent"
+            :label="downloadProgressLabel"
+          />
+        </div>
+      </q-linear-progress>
+    </div>
     <q-separator color="grey" />
 
     <div class="row q-px-xl q-py-md justify-center">
@@ -197,7 +216,7 @@
 </template>
 
 <script>
-import { api } from 'src/boot/axios'
+import { api, download } from 'src/boot/axios'
 import { defineComponent, ref } from 'vue'
 
 export default defineComponent({
@@ -206,6 +225,8 @@ export default defineComponent({
     const items = ref([{}, {}, {}])
 
     return {
+      downloadProgress: ref(0),
+      downloadProgressLabel: ref(0),
       productId: ref(''),
       clientId: ref(''),
       languageOptions: ref([]),
@@ -225,7 +246,7 @@ export default defineComponent({
       ratingModel: ref(0),
       ratingQtd: ref(0),
       imgs: ref([]),
-      imgUrl: ref(process.env.API + '/storage/'),
+      imgUrl: ref(process.env.API + '/storage'),
       items,
       onLoad (index, done) {
         setTimeout(() => {
@@ -345,13 +366,28 @@ export default defineComponent({
         })
     },
     downloadProduct () {
-      api.post(`product/download/${this.productId}`, { clientId: this.clientId })
+      this.downloadProgress = parseInt(5 / 100)
+      download.get(`product/download/${this.productId}`, {
+        onDownloadProgress: progressEvent => {
+          const percentCompleted = (parseInt((progressEvent.loaded / progressEvent.total) * 100) / 100)
+          this.downloadProgress = percentCompleted
+          this.downloadProgressLabel = parseInt(percentCompleted * 100)
+          console.log('completed: ', percentCompleted)
+        }
+      })
         .then((response) => {
-          if (response.data.success === true) {
-            window.open(response.data.downloadUrl)
+          console.log('FINALIZADO')
+          const url = window.URL.createObjectURL(new Blob([response.data]))
+          const link = document.createElement('a')
+          link.href = url
+          link.setAttribute('download', 'file.sql') // or any other extension
+          document.body.appendChild(link)
+          link.click()
+          /*           if (response.data.success === true) {
+            // window.open(response.data.downloadUrl)
           } else {
             this.showMessage('Download falhou', 'negative', 'error')
-          }
+          } */
         })
         .catch((error) => {
           console.error('message ' + error.message + ' code ' + error.code)
