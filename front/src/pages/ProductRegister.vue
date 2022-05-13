@@ -65,6 +65,7 @@
             hide-upload-btn
             :form-fields="[{name: 'productId', value: productId}]"
             style="max-width: 280px"
+            @uploaded="uploadFiles()"
           />
         </div>
         <div class="col-xs-12 col-sm-5">
@@ -297,9 +298,11 @@ export default defineComponent({
         .finally(() => {
           if (this.productId) {
             this.$refs.imageUploader.upload()
-            this.$refs.fileUploader.upload()
           }
         })
+    },
+    uploadFiles () {
+      this.$refs.fileUploader.upload()
     },
     showMessage (msg, color, icon) {
       this.$q.notify({
