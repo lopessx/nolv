@@ -64,7 +64,10 @@ $router->get('/product/image/{id}', 'ProductImageController@getOne');
 
 // Product Ratings
 $router->get('/ratings/product/{id}', 'RatingController@getProductRatings');
+$router->get('/rating/product/{pid}/client/{cid}', 'RatingController@getClientRating');
 $router->post('/rating', 'RatingController@store');
+$router->put('/rating/{id}', 'RatingController@update');
+$router->delete('/rating/{id}', 'RatingController@delete');
 
 // Payment Methods
 $router->get('/payment/list', 'PaymethodController@get');

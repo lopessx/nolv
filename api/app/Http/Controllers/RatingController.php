@@ -38,6 +38,20 @@ class RatingController extends Controller {
 		}
 	}
 
+	public function getClientRating($pid, $cid) {
+		try {
+			$rating = Rating::where([
+				['client_id', '=', $cid],
+				['product_id', '=', $pid],
+			])->first();
+			$rating->client;
+
+			return response(['success' => true, 'rating' => $rating]);
+		} catch (Exception $e) {
+			return response(['message' => $e->getMessage(), 'code' => $e->getCode()], 404);
+		}
+	}
+
 	public function getOne(Request $request) {
 		try {
 			return response(['success' => true]);
@@ -51,9 +65,9 @@ class RatingController extends Controller {
 
 		try {
 			$rating = new Rating();
-			$rating->product_id = $request->product_id;
+			$rating->product_id = $request->productId;
 			$rating->rating = $request->rating;
-			$rating->client_id = $request->client_id;
+			$rating->client_id = $request->clientId;
 			$rating->comment = $request->comment;
 			$rating->save();
 
@@ -67,18 +81,38 @@ class RatingController extends Controller {
 		}
 	}
 
-	public function update(Request $request) {
+	public function update(Request $request, $id) {
+		DB::beginTransaction();
+
 		try {
+			$rating = Rating::where('id', $id)->first();
+			$rating->rating = $request->rating;
+			$rating->comment = $request->comment;
+			$rating->save();
+
+			DB::commit();
+
 			return response(['success' => true]);
 		} catch (Exception $e) {
+			DB::rollBack();
+
 			return response(['message' => $e->getMessage(), 'code' => $e->getCode()], 404);
 		}
 	}
 
-	public function delete(Request $request) {
+	public function delete($id) {
+		DB::beginTransaction();
+
 		try {
+			$rating = Rating::where('id', $id)->first();
+			$rating->delete();
+
+			DB::commit();
+
 			return response(['success' => true]);
 		} catch (Exception $e) {
+			DB::rollBack();
+
 			return response(['message' => $e->getMessage(), 'code' => $e->getCode()], 404);
 		}
 	}

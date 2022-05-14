@@ -131,86 +131,13 @@
 
     <q-separator color="grey" />
 
-    <div class="row q-px-xl q-py-md">
-      <div class="text-h6">
-        Comentários
-      </div>
-      <div class="row col-12 q-py-md">
-        <div class="col-12">
-          <q-input
-            v-model="comment"
-            type="textarea"
-            outlined
-            label="Insira seu comentário"
-            required
-          />
-        </div>
-        <div class="col-6 q-py-md">
-          <q-rating
-            v-model="ratingModelClient"
-            size="2em"
-            :max="5"
-            color="accent"
-          />
-        </div>
-        <div class="row col-6 q-py-md justify-end">
-          <q-btn
-            color="primary"
-            label="Enviar"
-            @click="sendRating()"
-          />
-        </div>
-      </div>
-
-      <q-list class="col-12">
-        <q-infinite-scroll
-          :offset="250"
-          @load="onLoad"
-        >
-          <div
-            v-for="(item, index) in items"
-            :key="index"
-          >
-            <q-item>
-              <q-item-section>
-                <q-item-label>Nome do cliente</q-item-label>
-                <q-item-label caption>
-                  Comentário completo. Lorem ipsum dolor sit amet, consectetur adipiscit elit.
-                </q-item-label>
-              </q-item-section>
-
-              <q-item-section
-                side
-                top
-              >
-                <q-item-label caption>
-                  12/10/2020
-                </q-item-label>
-                <div class="text-orange">
-                  <q-rating
-                    v-model="ratingModel"
-                    color="accent"
-                    readonly
-                  />
-                </div>
-              </q-item-section>
-            </q-item>
-
-            <q-separator
-              spaced
-              inset
-            />
-          </div>
-          <template #loading>
-            <div class="row justify-center q-my-md">
-              <q-spinner-dots
-                color="primary"
-                size="40px"
-              />
-            </div>
-          </template>
-        </q-infinite-scroll>
-      </q-list>
+    <div class="q-px-xl q-py-md">
+      <Comments
+        :enable-comment="true"
+        :product-id="productId"
+        :client-id="clientId.toString()"
+        @update="updateRating"
+      />
     </div>
   </q-page>
 </template>
@@ -218,12 +145,12 @@
 <script>
 import { api, download } from 'src/boot/axios'
 import { defineComponent, ref } from 'vue'
+import Comments from 'src/components/Comments.vue'
 
 export default defineComponent({
   name: 'ProductDownload',
+  components: { Comments },
   setup () {
-    const items = ref([{}, {}, {}])
-
     return {
       downloadProgress: ref(0),
       downloadProgressLabel: ref(0),
@@ -233,7 +160,8 @@ export default defineComponent({
       categoryOptions: ref([]),
       osOptions: ref([]),
       ratingModelClient: ref(0),
-      comment: ref(''),
+      commentInput: ref(''),
+      comments: ref([]),
       description: ref(''),
       productName: ref(''),
       language: ref(''),
@@ -247,14 +175,7 @@ export default defineComponent({
       ratingQtd: ref(0),
       imgs: ref([]),
       imgUrl: ref(process.env.API + '/storage'),
-      file: ref(null),
-      items,
-      onLoad (index, done) {
-        setTimeout(() => {
-          items.value.push({}, {}, {}, {})
-          done()
-        }, 2000)
-      }
+      file: ref(null)
     }
   },
   created () {
@@ -270,7 +191,7 @@ export default defineComponent({
 
     console.log('category options: ' + JSON.stringify(this.categoryOptions) + ' category ' + this.category)
 
-    this.getRatings()
+    // this.getRatings()
   },
   methods: {
     async getProductDetails () {
@@ -304,18 +225,6 @@ export default defineComponent({
           this.getLanguages()
           this.getOs()
           this.getCategories()
-        })
-    },
-    getRatings () {
-      api.get(`ratings/product/${this.productId}`)
-        .then((response) => {
-          console.log('response: ' + JSON.stringify(response.data))
-          if (response.data.success === true) {
-            this.ratingQtd = response.data.ratings.length
-          }
-        })
-        .catch((error) => {
-          console.error('erro encontrado: ' + error.message)
         })
     },
     getLanguages () {
@@ -390,29 +299,17 @@ export default defineComponent({
           link.setAttribute('download', this.file.completeName) // or any other extension
           document.body.appendChild(link)
           link.click()
-          /*           if (response.data.success === true) {
-            // window.open(response.data.downloadUrl)
-          } else {
-            this.showMessage('Download falhou', 'negative', 'error')
-          } */
+          this.showMessage('Download realizado com sucesso', 'positive', 'check_circle')
         })
         .catch((error) => {
           console.error('message ' + error.message + ' code ' + error.code)
           this.showMessage('Download falhou', 'negative', 'error')
         })
     },
-    sendRating () {
-      api.post('rating', { clientId: this.clientId, rating: this.ratingModelClient, comment: this.comment })
-        .then((response) => {
-          if (response.data.success === true) {
-            this.comment = ''
-            this.ratingModelClient = 0
-          }
-        })
-        .catch((error) => {
-          console.error('message ' + error.message + ' code ' + error.code)
-          this.showMessage('Download falhou', 'negative', 'error')
-        })
+    updateRating (newRating) {
+      console.log('atualizar rating ' + newRating)
+      this.ratingModel = newRating.ratingAvg
+      this.ratingQtd = newRating.ratingQtd
     },
     showMessage (msg, color, icon) {
       this.$q.notify({
