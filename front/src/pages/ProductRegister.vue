@@ -65,7 +65,7 @@
             hide-upload-btn
             :form-fields="[{name: 'productId', value: productId}]"
             style="max-width: 280px"
-            @uploaded="uploadFiles()"
+            @finish="uploadFiles()"
           />
         </div>
         <div class="col-xs-12 col-sm-5">

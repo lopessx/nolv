@@ -247,6 +247,7 @@ export default defineComponent({
       ratingQtd: ref(0),
       imgs: ref([]),
       imgUrl: ref(process.env.API + '/storage'),
+      file: ref(null),
       items,
       onLoad (index, done) {
         setTimeout(() => {
@@ -285,6 +286,12 @@ export default defineComponent({
           this.os = response.data.product.operational_system_id
           this.description = response.data.product.description
           this.imgs = response.data.product.images
+          const fileName = response.data.product.file_path
+
+          const fileNameSplit = fileName.split('.')
+
+          this.file = { name: fileNameSplit[0], ext: fileNameSplit[1], completeName: fileName }
+
           for (let c = 0; c < this.imgs.length; c++) {
             this.imgs[c].order = c + 1
           }
@@ -380,7 +387,7 @@ export default defineComponent({
           const url = window.URL.createObjectURL(new Blob([response.data]))
           const link = document.createElement('a')
           link.href = url
-          link.setAttribute('download', 'file.sql') // or any other extension
+          link.setAttribute('download', this.file.completeName) // or any other extension
           document.body.appendChild(link)
           link.click()
           /*           if (response.data.success === true) {

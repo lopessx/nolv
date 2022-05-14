@@ -117,19 +117,20 @@ class ProductController extends Controller {
 		try {
 			$product = Product::where('id', $request->productId)->first();
 			$files = $request->allFiles();
+			$file = $files[0];
 			$paths = [];
 
 			if (!empty($product->file_path)) {
 				Storage::disk('private')->delete($product->file_path);
 			}
 
-			foreach ($files as $file) {
-				$filename = preg_replace('/\s/', '-', $file->getClientOriginalName());
-				Storage::disk('private')->putFileAs('/files/' . $request->productId . '/', $file, $filename);
-				$paths[] = '/files/' . $request->productId . '/' . $filename;
 
-				$product->file_path = $filename;
-			}
+			$filename = preg_replace('/\s/', '-', $file->getClientOriginalName());
+			Storage::disk('private')->putFileAs('/files/' . $request->productId . '/', $file, $filename);
+			$paths[] = '/files/' . $request->productId . '/' . $filename;
+
+			$product->file_path = $filename;
+
 
 			$product->save();
 
@@ -216,7 +217,7 @@ class ProductController extends Controller {
 
 		try {
 			$productImage = ProductImage::findOrFail($imgId);
-			Storage::disk('public')->delete('/imgs/' . $productImage->product_id . '/' . $productImage->path);
+			Storage::disk('public')->delete($productImage->path);
 			$productImage->delete();
 
 			DB::commit();
@@ -232,10 +233,10 @@ class ProductController extends Controller {
 	public function downloadProduct(Request $request, $id) {
 		try {
 			$product = Product::where('id', $id)->first();
-			$file = Storage::disk('private')->get(`files/$id/$product->file_path`);
-			$size = Storage::disk('private')->size(`files/$id/$product->file_path`);
+			$file = Storage::disk('private')->get('files/' . $id . '/' . $product->file_path);
+			$size = Storage::disk('private')->size('files/' . $id . '/' . $product->file_path);
 
-			return response($file, 200, ['Content-Length' => $size, 'Content-Disposition' => 'attachment', 'Content-Transfer-Encoding' => 'binary', 'Content-Type' => 'text/plain', 'Content-Disposition' => 'attachment; filename="' . 'irpf.bin' . '"', ]);
+			return response($file, 200, ['Content-Length' => $size, 'Content-Disposition' => 'attachment', 'Content-Transfer-Encoding' => 'binary']);
 		} catch (Exception $e) {
 			return response(['message' => $e->getMessage(), 'code' => $e->getCode()], 404);
 		}
