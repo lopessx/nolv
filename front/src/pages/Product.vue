@@ -117,14 +117,9 @@
 
     <q-separator color="grey" />
 
-    <!-- //TODO Verify if user is logged in and has bought a product to comment -->
-    <div class="row q-px-xl q-py-md justify-end">
+    <div class="q-px-xl q-py-md">
       <Comments
-        :enable-comment="false"
-        :readonly="loading"
-        :ratings="ratings"
         :product-id="productId"
-        @save="storeComment"
       />
     </div>
   </q-page>
