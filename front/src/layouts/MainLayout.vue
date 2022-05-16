@@ -316,7 +316,7 @@ export default defineComponent({
     logout () {
       console.log('logout clicado')
       const client = this.$q.localStorage.getItem('client')
-      api.post('logout', { email: client.email })
+      api.post('/logout', { email: client.email })
         .then((response) => {
           if (response.data.success === true) {
             this.$q.localStorage.clear()

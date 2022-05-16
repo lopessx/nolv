@@ -124,7 +124,7 @@ export default defineComponent({
       if (this.$refs.emailInput.hasError) {
         this.showMessage('Preencha todos os campos', 'warning', 'warning')
       } else {
-        api.post('client/auth', { email: this.email })
+        api.post('/client/auth', { email: this.email })
           .then((response) => {
             console.log('solicitação de autenticação feita ' + JSON.stringify(response.data))
             if (response.data.success === true) {
@@ -141,7 +141,7 @@ export default defineComponent({
       if (this.$refs.codeInput.hasError) {
         this.showMessage('Preencha todos os campos', 'warning', 'warning')
       } else {
-        api.post('client/login', { email: this.email, code: this.otp })
+        api.post('/client/login', { email: this.email, code: this.otp })
           .then((response) => {
             console.log('login efetuado ' + JSON.stringify(response.data))
             if (response.data.success === true) {

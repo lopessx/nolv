@@ -186,7 +186,7 @@ export default defineComponent({
         })
 
       if (queryRatings === true) {
-        api.get(`rating/product/${this.productId}/client/${this.clientId}`)
+        api.get(`/rating/product/${this.productId}/client/${this.clientId}`)
           .then((response) => {
             if (response.data.success === true) {
               const rating = response.data.rating
@@ -211,7 +211,7 @@ export default defineComponent({
     sendRating () {
       this.loading = true
 
-      api.post('rating', { clientId: this.clientId, rating: this.ratingModelClient, comment: this.commentInput, productId: this.productId })
+      api.post('/rating', { clientId: this.clientId, rating: this.ratingModelClient, comment: this.commentInput, productId: this.productId })
         .then((response) => {
           console.log('response send rating: ' + JSON.stringify(response.data))
           if (response.data.success === true) {
@@ -232,7 +232,7 @@ export default defineComponent({
     updateRating () {
       this.loading = true
 
-      api.put(`rating/${this.ratingId}`, { rating: this.ratingModelClient, comment: this.commentInput })
+      api.put(`/rating/${this.ratingId}`, { rating: this.ratingModelClient, comment: this.commentInput })
         .then((response) => {
           if (response.data.success === true) {
             this.comments = []
@@ -256,7 +256,7 @@ export default defineComponent({
         persistent: true
       }).onOk(() => {
         this.loading = true
-        api.delete(`rating/${this.ratingId}`)
+        api.delete(`/rating/${this.ratingId}`)
           .then((response) => {
             if (response.data.success === true) {
               this.hasComment = false

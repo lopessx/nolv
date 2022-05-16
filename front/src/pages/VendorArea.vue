@@ -236,7 +236,7 @@ export default defineComponent({
 
   methods: {
     async getClientStore () {
-      api.get(`store/client/${this.clientId}`)
+      api.get(`/store/client/${this.clientId}`)
         .then((response) => {
           if (response.data.success === true) {
             const products = response.data.products
@@ -272,7 +272,7 @@ export default defineComponent({
       if (this.$refs.storeNameInput.hasError) {
         this.showMessage('Preencha todos os campos', 'warning', 'warning')
       } else {
-        api.post('store', { clientId: this.clientId, name: this.storeName })
+        api.post('/store', { clientId: this.clientId, name: this.storeName })
           .then((response) => {
             console.log('resposta ' + JSON.stringify(response.data))
             if (response.data.success === true) {
@@ -306,7 +306,7 @@ export default defineComponent({
       if (this.$refs.storeNameInput.hasError) {
         this.showMessage('Preencha todos os campos', 'warning', 'warning')
       } else {
-        api.put(`store/${this.storeId}`, { clientId: this.clientId, name: this.storeName })
+        api.put(`/store/${this.storeId}`, { clientId: this.clientId, name: this.storeName })
           .then((response) => {
             console.log('resposta ' + JSON.stringify(response.data))
             if (response.data.success === true) {
@@ -337,7 +337,7 @@ export default defineComponent({
         persistent: true
       }).onOk(() => {
         console.log('loja a ser deletada: ' + this.storeId)
-        api.delete(`store/${this.storeId}`)
+        api.delete(`/store/${this.storeId}`)
           .then((response) => {
             if (response.data.success === true) {
               this.hasStore = false

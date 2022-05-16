@@ -234,7 +234,7 @@ export default defineComponent({
         })
     },
     getLanguages () {
-      api.get('languages')
+      api.get('/languages')
         .then((response) => {
           if (response.data.success) {
             response.data.languages.forEach(language => {
@@ -250,7 +250,7 @@ export default defineComponent({
         })
     },
     getOs () {
-      api.get('os')
+      api.get('/os')
         .then((response) => {
           if (response.data.success) {
             response.data.operational_systems.forEach(os => {
@@ -266,7 +266,7 @@ export default defineComponent({
         })
     },
     getCategories () {
-      api.get('categories')
+      api.get('/categories')
         .then((response) => {
           if (response.data.success) {
             response.data.categories.forEach(category => {

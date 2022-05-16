@@ -307,13 +307,13 @@ export default defineComponent({
       if (this.$refs.emailInput.hasError || this.$refs.phoneInput.hasError) {
         this.showMessage('Preencha todos os campos', 'warning', 'warning')
       } else {
-        api.post('client/auth', { email: this.paymentData.email })
+        api.post('/client/auth', { email: this.paymentData.email })
           .then((response) => {
             console.log('solicitação de autenticação feita ' + JSON.stringify(response.data))
             if (response.data.success === true) {
               this.step = 2
             } else {
-              api.post('client/register', { email: this.paymentData.email, phone: this.phone })
+              api.post('/client/register', { email: this.paymentData.email, phone: this.phone })
                 .then((response) => {
                   if (response.data.success === true) {
                     this.step = 2
@@ -331,7 +331,7 @@ export default defineComponent({
       if (this.$refs.codeInput.hasError) {
         this.showMessage('Preencha todos os campos', 'warning', 'warning')
       } else {
-        api.post('client/login', { email: this.paymentData.email, code: this.otp })
+        api.post('/client/login', { email: this.paymentData.email, code: this.otp })
           .then((response) => {
             console.log('login efetuado ' + JSON.stringify(response.data))
             if (response.data.success === true) {
@@ -352,7 +352,7 @@ export default defineComponent({
       }
     },
     placeOrder () {
-      api.post('order', { total: this.totalPrice, paymethodId: this.paymentMethod.value, clientId: this.clientId, products: this.products })
+      api.post('/order', { total: this.totalPrice, paymethodId: this.paymentMethod.value, clientId: this.clientId, products: this.products })
         .then((response) => {
           console.log('novo pedido ' + JSON.stringify(response.data))
           if (response.data.success === true) {
@@ -368,7 +368,7 @@ export default defineComponent({
         })
     },
     async capturePayment () {
-      api.post('payment/capture/' + this.order.id, { paymentData: this.paymentData })
+      api.post('/payment/capture/' + this.order.id, { paymentData: this.paymentData })
         .then((response) => {
           if (response.data.success === true) {
             console.log('caputura dados: ' + response.data)
@@ -412,7 +412,7 @@ export default defineComponent({
       }
     },
     async getPaymethods () {
-      api.get('payment/list')
+      api.get('/payment/list')
         .then((response) => {
           console.log('payment methods ' + JSON.stringify(response.data.paymethods))
           const paymethods = response.data.paymethods
