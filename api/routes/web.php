@@ -40,7 +40,7 @@ $router->post('/store', 'StoreController@store');
 $router->put('/store/{storeId}', 'StoreController@update');
 
 // Tickets
-// $router->get('/category', 'CategoryController@get');
+$router->post('/ticket', 'TicketController@store');
 
 // Orders
 $router->get('/order', 'OrderController@get');
