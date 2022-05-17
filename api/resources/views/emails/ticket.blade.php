@@ -17,7 +17,7 @@
     <meta name="format-detection" content="address=no"> <!-- disable auto address linking in iOS -->
     <meta name="format-detection" content="email=no"> <!-- disable auto email linking in iOS -->
     <meta name="author" content="Simple-Pleb.com">
-    <title>Tentativa de Login | Nolv</title>
+    <title>Requisição de suporte | Nolv</title>
 
     <link href="https://fonts.googleapis.com/css2?family=Roboto+Slab:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
@@ -169,7 +169,7 @@
                                 <td class="center-text"  align="center" style="font-family:'Roboto Slab',Arial,Helvetica,sans-serif;font-size:42px;line-height:52px;font-weight:400;font-style:normal;color:#FFFFFF;text-decoration:none;letter-spacing:0px;">
 
                                     <div  >
-                                        Nova tentativa de login
+                                        Nova requisição de suporte
                                     </div>
 
                                 </td>
@@ -181,7 +181,7 @@
                                 <td class="center-text"  align="center" style="font-family:'Poppins',Arial,Helvetica,sans-serif;font-size:16px;line-height:26px;font-weight:300;font-style:normal;color:#FFFFFF;text-decoration:none;letter-spacing:0px;">
 
                                     <div  >
-                                        Para acessar sua conta insira o código abaixo. Caso não tenha solicitado o acesso ignore o e-mail recebido. <b>Nunca informe seu código de acesso a terceiros!</b>
+                                        Um cliente enviou uma requisição para suporte, veja a mensagem abaixo:</b>
                                     </div>
 
                                 </td>
@@ -203,7 +203,7 @@
                                                 <![endif]-->
 
                                                 <div>
-                                                    MENSAGEM GENÉRICA
+                                                    {{ $content }}
                                                 </div>
                                                 
                                                 <!--[if (gte mso 9)|(IE)]>

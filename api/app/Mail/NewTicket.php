@@ -15,24 +15,23 @@ class NewTicket extends Mailable {
 	 *
 	 * @var string
 	 */
-	// public $clientName;
+	public $clientName;
 
 	/**
 	 * The ticket message
 	 *
 	 * @var string
 	 */
-	// public $message;
+	public $content;
 
 	/**
 	 * Create a new message instance.
 	 *
 	 * @return void
 	 */
-	public function __construct() {
-		//
-		$this->clientName = 'John Doe';
-		$this->message = 'aspidapsojd';
+	public function __construct($clientName, $content) {
+		$this->clientName = $clientName;
+		$this->content = $content;
 	}
 
 	/**
@@ -41,8 +40,7 @@ class NewTicket extends Mailable {
 	 * @return $this
 	 */
 	public function build() {
-		// FIXME bug related to type
-		return $this->subject('Suporte requisitado')
+		return $this->subject('Suporte requisitado por ' . $this->clientName)
 		->view('emails.ticket');
 	}
 }

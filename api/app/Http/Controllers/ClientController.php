@@ -100,7 +100,7 @@ class ClientController extends Controller {
 			$client = Client::where('email', $request->email)
 				->first();
 
-			if (empty($client)) {
+			if (!isset($client->email)) {
 				$accessCode = random_int(100000, 999999);
 				// $expirationDate = date('Y-m-d H:i:s');
 				$client = new Client();
