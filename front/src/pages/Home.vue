@@ -2,7 +2,10 @@
   <q-page>
     <div class="row justify-center">
       <!-- Filters -->
-      <div class="col-4 q-pt-xl">
+      <div
+        v-if="$q.screen.gt.xs"
+        class="col-4 q-pt-xl"
+      >
         <div class="text-subtitle1">
           Preço
         </div>
@@ -13,7 +16,7 @@
               label="Mínimo"
               debounce="500"
               outlined
-              @update:model-value="changePage(1)"
+              @update:model-value="filterProducts(1)"
             />
           </div>
           <div class="col-6 q-pa-xs">
@@ -22,7 +25,7 @@
               label="Máximo"
               debounce="500"
               outlined
-              @update:model-value="changePage(1)"
+              @update:model-value="filterProducts(1)"
             />
           </div>
         </div>
@@ -34,23 +37,107 @@
             v-model="categorySearch"
             label="Selecione uma categoria"
             :options="categoryOptions"
-            @update:model-value="changePage(1)"
+            @update:model-value="filterProducts(1)"
           />
         </div>
-        <!--
         <div class="text-subtitle1">
           Sistema operacional
         </div>
         <div class="q-pa-md">
-          <q-checkbox label="Linux" />
-          <q-checkbox label="Windows" />
-          <q-checkbox label="MacOS" />
+          <q-select
+            v-model="osSearch"
+            label="Selecione um sistema operacional"
+            :options="osOptions"
+            @update:model-value="filterProducts(1)"
+          />
         </div>
-        -->
+        <div class="text-subtitle1">
+          Idiomas
+        </div>
+        <div class="q-pa-md">
+          <q-select
+            v-model="languageSearch"
+            label="Selecione um idioma"
+            :options="languageOptions"
+            @update:model-value="filterProducts(1)"
+          />
+        </div>
+      </div>
+      <!-- Modal filters for phone -->
+      <div v-else>
+        <q-dialog v-model="filtersDialog">
+          <div class="bg-white q-pa-md">
+            <div class="text-subtitle1">
+              Preço
+            </div>
+            <div class="row q-py-md justify-center">
+              <div class="col-6 q-pa-xs">
+                <q-input
+                  v-model="minPrice"
+                  label="Mínimo"
+                  debounce="500"
+                  outlined
+                  @update:model-value="filterProducts(1)"
+                />
+              </div>
+              <div class="col-6 q-pa-xs">
+                <q-input
+                  v-model="maxPrice"
+                  label="Máximo"
+                  debounce="500"
+                  outlined
+                  @update:model-value="filterProducts(1)"
+                />
+              </div>
+            </div>
+            <div class="text-subtitle1">
+              Categoria
+            </div>
+            <div class="q-pa-md">
+              <q-select
+                v-model="categorySearch"
+                label="Selecione uma categoria"
+                :options="categoryOptions"
+                @update:model-value="filterProducts(1)"
+              />
+            </div>
+            <div class="text-subtitle1">
+              Sistema operacional
+            </div>
+            <div class="q-pa-md">
+              <q-select
+                v-model="osSearch"
+                label="Selecione um sistema operacional"
+                :options="osOptions"
+                @update:model-value="filterProducts(1)"
+              />
+            </div>
+            <div class="text-subtitle1">
+              Idiomas
+            </div>
+            <div class="q-pa-md">
+              <q-select
+                v-model="languageSearch"
+                label="Selecione um idioma"
+                :options="languageOptions"
+                @update:model-value="filterProducts(1)"
+              />
+            </div>
+            <div class="row justify-end">
+              <div class="col-6">
+                <q-btn
+                  v-close-popup
+                  color="accent"
+                  label="OK"
+                />
+              </div>
+            </div>
+          </div>
+        </q-dialog>
       </div>
 
       <!-- Product display -->
-      <div class="col-7">
+      <div class="col-xs-11 col-sm-7">
         <q-table
           ref="tableProduct"
           color="grey-8"
@@ -65,6 +152,15 @@
           hide-header
           hide-pagination
         >
+          <template #top-left>
+            <q-btn
+              v-if="$q.screen.lt.sm"
+              color="accent"
+              label="filtros"
+              @click="filtersDialog = true"
+            />
+          </template>
+
           <template #top-right>
             <q-input
               v-model="filter"
@@ -81,7 +177,7 @@
               emit-value
               label="Ordernar"
               style="min-width: 100px;"
-              @update:model-value="changePage(1)"
+              @update:model-value="filterProducts(1)"
             />
           </template>
 
@@ -133,7 +229,7 @@
             </div>
           </template>
         </q-table>
-        <div class="row justify-center q-mt-md">
+        <div class="row justify-center q-py-md">
           <q-pagination
             v-model="page"
             color="grey-8"
@@ -170,6 +266,11 @@ export default defineComponent({
   name: 'Home',
   setup () {
     return {
+      filtersDialog: ref(false),
+      osSearch: ref(null),
+      osOptions: ref([]),
+      languageSearch: ref(null),
+      languageOptions: ref([]),
       filter: ref(''),
       columns,
       productList: ref([]),
@@ -188,10 +289,14 @@ export default defineComponent({
   },
   created () {
     console.log('ex query param: ' + this.$route.query.s)
-    this.filter = this.$route.query.s
+    if (this.$route.query.s) {
+      this.filter = this.$route.query.s
+    }
     console.log('nova página renderizada')
     this.getProducts()
     this.getCategories()
+    this.getOs()
+    this.getLanguages()
   },
   mounted () {
     console.log('página montada')
@@ -238,18 +343,92 @@ export default defineComponent({
           console.error('erro identificado ' + error.message + ' code ' + error.code)
         })
     },
+    async getOs () {
+      api.get('/os')
+        .then((response) => {
+          console.log('resposta: ' + JSON.stringify(response.data))
+          this.osOptions = response.data.operational_systems
+        })
+        .catch((error) => {
+          console.error('erro identificado ' + error.message + ' code ' + error.code)
+        })
+    },
+    async getLanguages () {
+      api.get('/languages')
+        .then((response) => {
+          console.log('resposta: ' + JSON.stringify(response.data))
+          this.languageOptions = response.data.languages
+        })
+        .catch((error) => {
+          console.error('erro identificado ' + error.message + ' code ' + error.code)
+        })
+    },
     changePage (page) {
       let category = ''
+      let os = ''
+      let language = ''
+
       if (this.categorySearch) {
         category = this.categorySearch.value
       }
 
+      if (this.languageSearch) {
+        language = this.languageSearch.value
+      }
+
+      if (this.osSearch) {
+        os = this.osSearch.value
+      }
+
       api.get(process.env.API + '/products?page=' + page + '&category=' + category +
         '&minPrice=' + this.minPrice + '&maxPrice=' + this.maxPrice +
-        '&search=' + this.filter + '&order=' + this.ordenation)
+        '&search=' + this.filter + '&order=' + this.ordenation +
+        '&os=' + os + '&language=' + language)
         .then((response) => {
           this.productList = []
           this.pagesNumber = response.data.pagination.last_page
+
+          for (let c = 0; c < response.data.pagination.data.length; c++) {
+            const product = {}
+            product.id = response.data.pagination.data[c].id
+            product.name = response.data.pagination.data[c].name
+            product.language = response.data.pagination.data[c].language_id
+            product.category = response.data.pagination.data[c].category_id
+            product.os = response.data.pagination.data[c].operational_system_id
+            product.price = response.data.pagination.data[c].price
+            product.image = response.data.pagination.data[c].main_image_path
+            this.productList.push(product)
+          }
+        })
+        .catch((error) => {
+          console.error('erro identificado ' + error.message + ' code ' + error.code)
+        })
+    },
+    filterProducts (page) {
+      let category = ''
+      let os = ''
+      let language = ''
+
+      if (this.categorySearch) {
+        category = this.categorySearch.value
+      }
+
+      if (this.languageSearch) {
+        language = this.languageSearch.value
+      }
+
+      if (this.osSearch) {
+        os = this.osSearch.value
+      }
+
+      api.get(process.env.API + '/products?page=' + page + '&category=' + category +
+        '&minPrice=' + this.minPrice + '&maxPrice=' + this.maxPrice +
+        '&search=' + this.filter + '&order=' + this.ordenation +
+        '&os=' + os + '&language=' + language)
+        .then((response) => {
+          this.productList = []
+          this.pagesNumber = response.data.pagination.last_page
+          this.page = 1
 
           for (let c = 0; c < response.data.pagination.data.length; c++) {
             const product = {}

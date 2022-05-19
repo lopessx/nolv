@@ -23,6 +23,14 @@ class ProductController extends Controller {
 		try {
 			$query = Product::query();
 
+			if ($request->exists('os') && !empty($request->os)) {
+				$query->where('operational_system_id', $request->os);
+			}
+
+			if ($request->exists('language') && !empty($request->language)) {
+				$query->where('language_id', $request->language);
+			}
+
 			if ($request->exists('category') && !empty($request->category)) {
 				$query->where('category_id', $request->category);
 			}
@@ -46,7 +54,7 @@ class ProductController extends Controller {
 				);
 			}
 
-			$pagination = $query->paginate(1);
+			$pagination = $query->paginate(5);
 
 			return response(['success' => true, 'pagination' => $pagination]);
 		} catch (Exception $e) {
