@@ -21,9 +21,34 @@ class ProductController extends Controller {
 
 	public function get(Request $request) {
 		try {
-			$products = Product::all();
+			$query = Product::query();
 
-			return response(['success' => true, 'products' => $products]);
+			if ($request->exists('category') && !empty($request->category)) {
+				$query->where('category_id', $request->category);
+			}
+
+			if ($request->exists('minPrice') && $request->minPrice > 0) {
+				$query->where('price', '>', $request->minPrice);
+			}
+
+			if ($request->exists('maxPrice') && $request->maxPrice > 0) {
+				$query->where('price', '<', $request->maxPrice);
+			}
+
+			if ($request->exists('search') && !empty($request->search)) {
+				$query->where('name', 'like', '%' . $request->search . '%');
+			}
+
+			if ($request->exists('order') && !empty($request->order)) {
+				$query->orderBy(
+					$request->get('sortBy', 'price'),
+					$request->get('sortOrder', ($request->order == 2) ? 'desc' : 'asc')
+				);
+			}
+
+			$pagination = $query->paginate(1);
+
+			return response(['success' => true, 'pagination' => $pagination]);
 		} catch (Exception $e) {
 			return response(['message' => $e->getMessage(), 'code' => $e->getCode()], 404);
 		}

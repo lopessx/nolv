@@ -13,7 +13,7 @@
               label="Mínimo"
               debounce="500"
               outlined
-              @update:model-value="filterPriceMin()"
+              @update:model-value="changePage(1)"
             />
           </div>
           <div class="col-6 q-pa-xs">
@@ -22,7 +22,7 @@
               label="Máximo"
               debounce="500"
               outlined
-              @update:model-value="filterPriceMax()"
+              @update:model-value="changePage(1)"
             />
           </div>
         </div>
@@ -34,7 +34,7 @@
             v-model="categorySearch"
             label="Selecione uma categoria"
             :options="categoryOptions"
-            @update:model-value="filterCategory()"
+            @update:model-value="changePage(1)"
           />
         </div>
         <!--
@@ -52,15 +52,18 @@
       <!-- Product display -->
       <div class="col-7">
         <q-table
+          ref="tableProduct"
           color="grey-8"
           grid
           :rows="productList"
           :columns="columns"
-          row-key="name"
+          row-key="id"
           :filter="filter"
           :rows-per-page-options="productsPerPage"
+          :loading="loading"
           no-data-label="Nenhum produto encontrado"
           hide-header
+          hide-pagination
         >
           <template #top-right>
             <q-input
@@ -74,8 +77,11 @@
             <q-select
               v-model="ordenation"
               :options="orderOptions"
+              map-options
+              emit-value
               label="Ordernar"
               style="min-width: 100px;"
+              @update:model-value="changePage(1)"
             />
           </template>
 
@@ -92,7 +98,7 @@
                 >
                   <div class="col-5 q-pa-sm">
                     <q-img
-                      :src="imgUrl + props.cols[4].value"
+                      :src="imgUrl + props.cols[7].value"
                       spinner-color="black"
                       style="height: 150px; max-width: auto"
                     >
@@ -103,14 +109,14 @@
                   </div>
                   <q-card-section class="col-7">
                     <div class="row justify-start items-start">
-                      <div class="text-body2 col-auto">
-                        {{ props.row.name }}
+                      <div class="text-body1 col-auto">
+                        {{ props.cols[1].value }}
                       </div>
                     </div>
 
                     <div class="row justify-end items-end">
                       <div class="text-body1 text-weight-bold col-auto">
-                        {{ props.cols[2].value }}
+                        {{ props.cols[3].value }}
                       </div>
                     </div>
 
@@ -120,13 +126,24 @@
                         {{ props.cols[3].value }}
                       </div>
                     </div>
--->
+                    -->
                   </q-card-section>
                 </q-card-section>
               </q-card>
             </div>
           </template>
         </q-table>
+        <div class="row justify-center q-mt-md">
+          <q-pagination
+            v-model="page"
+            color="grey-8"
+            :max="pagesNumber"
+            :max-pages="5"
+            size="1rem"
+            direction-links
+            @update:model-value="changePage"
+          />
+        </div>
       </div>
     </div>
   </q-page>
@@ -140,11 +157,12 @@ import { api } from 'src/boot/axios'
 
 const columns = [
   { name: 'id', required: true, label: 'Identificador', field: 'id', format: val => `${val}` },
+  { name: 'name', required: true, label: 'Nome', field: 'name', format: val => `${val}` },
   { name: 'desc', required: true, label: 'Produto', align: 'left', field: row => row.name, format: val => `${val}`, sortable: true },
   { name: 'price', label: 'Preço (R$)', field: 'price', format: val => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(val), sortable: true },
-  // { name: 'language', required: true, label: 'Idioma', field: 'language', format: val => `${val}`, sortable: true },
+  { name: 'language', required: true, label: 'Idioma', field: 'language', format: val => `${val}`, sortable: true },
   { name: 'category', required: true, label: 'Categoria', field: 'category', format: val => `${val}`, sortable: true },
-  // { name: 'os', required: true, label: 'Sistema operacional', field: 'os', format: val => `${val}`, sortable: true }
+  { name: 'os', required: true, label: 'Sistema operacional', field: 'os', format: val => `${val}`, sortable: true },
   { name: 'image', required: false, label: 'Imagem', field: 'image', format: val => `${val}`, sortable: false }
 ]
 
@@ -156,19 +174,32 @@ export default defineComponent({
       columns,
       productList: ref([]),
       ordenation: ref(),
-      orderOptions: ref(['Nome', 'Preço']),
+      orderOptions: ref([{ label: 'Menor preço', value: 1 }, { label: 'Maior preço', value: 2 }]),
       minPrice: ref(null),
       maxPrice: ref(null),
       categorySearch: ref(null),
       categoryOptions: ref([]),
       productsPerPage: ref([6, 9, 15, 0]),
-      imgUrl: ref(process.env.API + '/storage')
+      imgUrl: ref(process.env.API + '/storage'),
+      pagesNumber: ref(1),
+      page: ref(1),
+      loading: ref(false)
     }
   },
   created () {
+    console.log('ex query param: ' + this.$route.query.s)
+    this.filter = this.$route.query.s
     console.log('nova página renderizada')
     this.getProducts()
     this.getCategories()
+  },
+  mounted () {
+    console.log('página montada')
+    window.dispatchEvent(new CustomEvent('search-products', {
+      detail: {
+        searchText: this.filter
+      }
+    }))
   },
   methods: {
     selectProduct (val) {
@@ -176,18 +207,20 @@ export default defineComponent({
       this.$router.push(`/produto/${val}`)
     },
     async getProducts () {
-      api.get('/products')
+      api.get('/products?search=' + this.filter)
         .then((response) => {
           console.log('RESPOSTA COMPLETA: ' + JSON.stringify(response.data))
-          for (let c = 0; c < response.data.products.length; c++) {
+          this.pagesNumber = response.data.pagination.last_page
+          console.log('length ' + response.data.pagination.data.length)
+          for (let c = 0; c < response.data.pagination.data.length; c++) {
             const product = {}
-            product.id = response.data.products[c].id
-            product.name = response.data.products[c].name
-            product.language = response.data.products[c].language_id
-            product.category = response.data.products[c].category_id
-            product.os = response.data.products[c].operational_system_id
-            product.price = response.data.products[c].price
-            product.image = response.data.products[c].main_image_path
+            product.id = response.data.pagination.data[c].id
+            product.name = response.data.pagination.data[c].name
+            product.language = response.data.pagination.data[c].language_id
+            product.category = response.data.pagination.data[c].category_id
+            product.os = response.data.pagination.data[c].operational_system_id
+            product.price = response.data.pagination.data[c].price
+            product.image = response.data.pagination.data[c].main_image_path
             this.productList.push(product)
           }
         })
@@ -199,21 +232,40 @@ export default defineComponent({
       api.get('/categories')
         .then((response) => {
           console.log('resposta: ' + JSON.stringify(response.data))
-          this.categoryOptions = response.data.category
+          this.categoryOptions = response.data.categories
         })
         .catch((error) => {
           console.error('erro identificado ' + error.message + ' code ' + error.code)
         })
     },
-    filterCategory () {
-      // TODO implement filter
-      console.log('categoria procurar: ' + this.categorySearch.label)
-    },
-    filterPriceMin () {
-      console.log('preço min a ser filtrado ' + this.minPrice)
-    },
-    filterPriceMax () {
-      console.log('preço max a ser filtrado ' + this.maxPrice)
+    changePage (page) {
+      let category = ''
+      if (this.categorySearch) {
+        category = this.categorySearch.value
+      }
+
+      api.get(process.env.API + '/products?page=' + page + '&category=' + category +
+        '&minPrice=' + this.minPrice + '&maxPrice=' + this.maxPrice +
+        '&search=' + this.filter + '&order=' + this.ordenation)
+        .then((response) => {
+          this.productList = []
+          this.pagesNumber = response.data.pagination.last_page
+
+          for (let c = 0; c < response.data.pagination.data.length; c++) {
+            const product = {}
+            product.id = response.data.pagination.data[c].id
+            product.name = response.data.pagination.data[c].name
+            product.language = response.data.pagination.data[c].language_id
+            product.category = response.data.pagination.data[c].category_id
+            product.os = response.data.pagination.data[c].operational_system_id
+            product.price = response.data.pagination.data[c].price
+            product.image = response.data.pagination.data[c].main_image_path
+            this.productList.push(product)
+          }
+        })
+        .catch((error) => {
+          console.error('erro identificado ' + error.message + ' code ' + error.code)
+        })
     }
   }
 })

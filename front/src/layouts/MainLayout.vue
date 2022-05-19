@@ -8,7 +8,7 @@
       :mini="miniState"
       mini-to-overlay
       :width="200"
-      :breakpoint="500"
+      :breakpoint="200"
 
       bordered
       class="bg-primary text-secondary"
@@ -81,7 +81,6 @@
             v-ripple
             clickable
             class="text-secondary"
-
             to="/suporte"
           >
             <q-item-section avatar>
@@ -116,10 +115,12 @@
           <!-- Search bar -->
           <q-input
             v-model="searchText"
+            autofocus
             filled
-            class="col-7 q-py-xs q-pl-md"
+            class="col-grow q-py-xs q-pl-md"
             bg-color="white"
             label="Pesquisar..."
+            @keypress.enter="searchProduct(searchText)"
           >
             <template #append>
               <q-icon
@@ -212,9 +213,10 @@
         <q-input
           v-model="searchText"
           filled
-          class="col-6"
+          class="col-5"
           bg-color="white"
           label="Pesquisar..."
+          @keypress.enter="searchProduct(searchText)"
         >
           <template #append>
             <q-icon
@@ -225,13 +227,53 @@
           </template>
         </q-input>
 
+        <!-- Botão de login e perfil -->
+        <q-btn-dropdown
+          v-if="clientName !== ''"
+          color="primary"
+          unelevated
+          icon="person"
+          class="col-4"
+          :label="clientName"
+        >
+          <q-list>
+            <q-item
+              v-close-popup
+              clickable
+              @click="$router.push('/cliente')"
+            >
+              <q-item-section>
+                <q-item-label>Compras</q-item-label>
+              </q-item-section>
+            </q-item>
+
+            <q-item
+              v-close-popup
+              clickable
+              @click="$router.push('/perfil')"
+            >
+              <q-item-section>
+                <q-item-label>Meu perfil</q-item-label>
+              </q-item-section>
+            </q-item>
+
+            <q-item
+              v-close-popup
+              clickable
+              @click="logout()"
+            >
+              <q-item-section>
+                <q-item-label>Sair</q-item-label>
+              </q-item-section>
+            </q-item>
+          </q-list>
+        </q-btn-dropdown>
         <q-btn
-          class="col-2"
+          v-else
           color="primary"
           unelevated
           icon="person"
           label="Entrar"
-          size="10px"
           @click="$router.push('/login')"
         />
         <q-btn
@@ -293,9 +335,15 @@ export default defineComponent({
     console.log('nova sessão criada')
     console.log('carrinho: ' + JSON.stringify(this.$q.localStorage.getItem('cart')))
     console.log('cliente ' + JSON.stringify(this.clientName))
+
+    window.addEventListener('search-products', (event) => {
+      this.searchText = event.detail.searchText
+      console.log('evento de busca: ' + this.filter)
+    }, false)
   },
 
   mounted () {
+    console.log('layout montado')
     window.addEventListener('modify-cart', (event) => {
       this.cartItems = event.detail.productQtd
     })
@@ -310,8 +358,8 @@ export default defineComponent({
 
   methods: {
     searchProduct (searchText) {
-      // TODO generate search method and return
       console.log('procurar produto: ' + JSON.stringify(searchText))
+      window.location.href = '/?s=' + searchText
     },
     logout () {
       console.log('logout clicado')
@@ -323,6 +371,7 @@ export default defineComponent({
             this.clientName = ''
             this.cartItems = 0
             this.$router.push('/')
+            this.sessionStarted = false
           } else {
             this.showMessage('Logout falhou', 'negative', 'error')
           }
