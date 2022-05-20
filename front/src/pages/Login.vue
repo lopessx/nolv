@@ -7,6 +7,7 @@
           animated
           :contracted="$q.screen.lt.sm"
         >
+          <!-- Email verification -->
           <q-step
             :name="1"
             :done="step > 1"
@@ -26,10 +27,12 @@
                 type="email"
                 required
                 lazy-rules
+                :readonly="loading"
                 :rules="[required, emailValidation]"
               />
             </div>
           </q-step>
+          <!-- Code authentication -->
           <q-step
             :name="2"
             :done="step > 2"
@@ -52,12 +55,14 @@
                 type="tel"
                 mask="######"
                 lazy-rules
-                :rules="[codeValidation, required]"
                 required
+                :disable="loading"
+                :rules="[codeValidation, required]"
               />
             </div>
           </q-step>
 
+          <!-- Buttons -->
           <template #navigation>
             <q-stepper-navigation>
               <div class="row justify-end q-gutter-xs">
@@ -66,12 +71,14 @@
                   v-if="step === 1"
                   color="accent"
                   label="Cadastrar"
+                  :disable="loading"
                   @click="$router.push('/registro')"
                 />
                 <q-btn
                   v-if="step === 1"
                   color="primary"
                   label="Continuar"
+                  :loading="loading"
                   @click="auth()"
                 />
                 <!-- Login validation -->
@@ -81,12 +88,14 @@
                   color="primary"
                   label="Voltar"
                   class="q-ml-sm"
+                  :disable="loading"
                   @click="step--"
                 />
                 <q-btn
                   v-if="step === 2"
                   color="primary"
                   label="Confirmar"
+                  :loading="loading"
                   @click="login()"
                 />
               </div>
@@ -107,21 +116,29 @@ export default defineComponent({
   name: 'Login',
   setup () {
     return {
-      step: ref(1),
+      step: ref(2),
       email: ref(''),
-      otp: ref('')
+      otp: ref(''),
+      loading: ref(false),
+      count: ref(0)
     }
   },
 
   mounted () {
-    console.log('carregado')
+    const client = this.$q.localStorage.getItem('client')
+
+    if (client) {
+      this.$router.push('/cliente')
+    }
   },
 
   methods: {
     auth () {
+      this.loading = true
       this.$refs.emailInput.validate()
 
       if (this.$refs.emailInput.hasError) {
+        this.loading = false
         this.showMessage('Preencha todos os campos', 'warning', 'warning')
       } else {
         api.post('/client/auth', { email: this.email })
@@ -133,12 +150,28 @@ export default defineComponent({
               this.showMessage('E-mail inválido ou não cadastrado', 'negative', 'error')
             }
           })
+          .catch((error) => {
+            this.showMessage('E-mail inválido ou não cadastrado', 'negative', 'error')
+            console.error('erro identificado ' + error.message + ' code ' + error.code)
+          })
+          .finally(() => {
+            this.loading = false
+          })
       }
     },
     login () {
+      this.loading = true
       this.$refs.codeInput.validate()
 
+      if (this.count > 2) {
+        this.step = 1
+        this.email = ''
+        this.count = 0
+      }
+
       if (this.$refs.codeInput.hasError) {
+        this.count++
+        this.loading = false
         this.showMessage('Preencha todos os campos', 'warning', 'warning')
       } else {
         api.post('/client/login', { email: this.email, code: this.otp })
@@ -156,8 +189,17 @@ export default defineComponent({
 
               this.$router.push('/cliente')
             } else {
+              this.count++
               this.showMessage('Código inválido', 'negative', 'error')
             }
+          })
+          .catch((error) => {
+            this.count++
+            this.showMessage('Código inválido', 'negative', 'error')
+            console.error('erro identificado ' + error.message + ' code ' + error.code)
+          })
+          .finally(() => {
+            this.loading = false
           })
       }
     },
