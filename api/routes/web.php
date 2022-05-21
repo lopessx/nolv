@@ -26,10 +26,21 @@ $router->get('/products/client/{id}', 'OrderController@getProductsClient');
 $router->get('/product/download/{id}', 'ProductController@downloadProduct');
 
 // Clients
-$router->post('/client/register', 'ClientController@register');
-$router->post('/client/login', 'ClientController@login');
-$router->post('/client/auth', 'ClientController@auth');
-$router->post('/logout', 'ClientController@logout');
+$router->group(['middleware' => 'throttle:global'], function () use ($router) {
+	$router->post('/client/login', 'ClientController@login');
+	$router->post('/client/auth', 'ClientController@auth');
+	$router->post('/client/register', 'ClientController@register');
+});
+
+$router->group(['middleware' => 'auth'], function () use ($router) {
+	$router->get('/', function () {
+		return 1;
+	});
+
+	$router->post('/logout', 'ClientController@logout');
+});
+
+
 $router->delete('/client/delete/{id}', 'ClientController@delete');
 $router->put('/client/update/{id}', 'ClientController@update');
 

@@ -80,6 +80,7 @@ $app->configure('filesystems');
 
 $app->routeMiddleware([
 	'auth' => App\Http\Middleware\Authenticate::class,
+	'throttle' => \LumenRateLimiting\ThrottleRequests::class,
 ]);
 
 $app->middleware([
@@ -97,8 +98,9 @@ $app->middleware([
 |
 */
 
-// $app->register(App\Providers\AppServiceProvider::class);
+$app->register(App\Providers\AppServiceProvider::class);
 $app->register(App\Providers\AuthServiceProvider::class);
+$app->register(App\Providers\CatchAllOptionsRequestsProvider::class);
 // $app->register(App\Providers\EventServiceProvider::class);
 
 /*
@@ -152,10 +154,6 @@ $app->router->group([
  */
 $app->register(Flipbox\LumenGenerator\LumenGeneratorServiceProvider::class);
 
-/**
- * Cors http option request catch
- */
-$app->register(App\Providers\CatchAllOptionsRequestsProvider::class);
 
 // Load the filesystems component
 $app->loadComponent('filesystems', 'Illuminate\Filesystem\FilesystemServiceProvider', 'filesystem');

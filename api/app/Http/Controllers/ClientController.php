@@ -4,8 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Mail\NewLogin;
 use App\Models\Client;
-use DateInterval;
-use DateTime;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -131,22 +129,31 @@ class ClientController extends Controller {
 	}
 
 	public function login(Request $request) {
+		DB::beginTransaction();
+
 		try {
 			$client = Client::where('email', $request->email)->first();
-			/*
-			$expirationDate = new DateTime($expirationDate);
-			$expirationDate->add(new DateInterval('PT' . 5 . 'M'));
-			*/
 
-			if (Hash::check($request->code, $client->password)) {
-				$client->password = Hash::make(uniqid('', true));
-				$client->save();
+			$expDate = strtotime($client->updated_at);
+			$today = (time()-(60*10));
 
-				return response(['success' => true, 'client' => $client, 'key' => $client->password], 200);
+			if ($expDate > $today) {
+				if (Hash::check($request->code, $client->password)) {
+					$client->password = Hash::make(uniqid('', true));
+					$client->save();
+
+					DB::commit();
+
+					return response(['success' => true, 'client' => $client, 'key' => $client->password], 200);
+				} else {
+					return response(['success' => false], 200);
+				}
 			} else {
-				return response(['success' => false], 200);
+				throw new Exception('Autenthication code timeout');
 			}
 		} catch (Exception $e) {
+			DB::rollBack();
+
 			return response(['message' => $e->getMessage(), 'code' => $e->getCode()], 500);
 		}
 	}
@@ -164,20 +171,20 @@ class ClientController extends Controller {
 				return response(['success' => false], 200);
 			} else {
 				$accessCode = random_int(100000, 999999);
-				// $expirationDate = date('Y-m-d H:i:s');
 				$client->password = Hash::make($accessCode);
-				// $client->expiration_time = $expirationDate;
 
 				$client->save();
 
-				Mail::to($request->email)
-					->send(new NewLogin((string) $accessCode));
-
 				DB::commit();
+
+				Mail::to($request->email)
+				->send(new NewLogin((string) $accessCode));
 
 				return response(['success' => true], 200);
 			}
 		} catch (Exception $e) {
+			DB::rollBack();
+
 			return response(['message' => $e->getMessage(), 'code' => $e->getCode()], 500);
 		}
 	}
@@ -194,10 +201,7 @@ class ClientController extends Controller {
 
 				return response(['success' => false], 200);
 			} else {
-				$accessCode = md5(random_int(100000000, 999999999));
-				// $expirationDate = date('Y-m-d H:i:s');
-				$client->password = Hash::make($accessCode);
-				// $client->expiration_time = $expirationDate;
+				$client->password = Hash::make(uniqid('logout_', true));
 
 				$client->save();
 

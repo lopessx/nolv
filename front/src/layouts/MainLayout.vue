@@ -368,6 +368,7 @@ export default defineComponent({
         .then((response) => {
           if (response.data.success === true) {
             this.$q.localStorage.clear()
+            this.$q.cookies.remove('authKey')
             this.clientName = ''
             this.cartItems = 0
             this.$router.push('/')

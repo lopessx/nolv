@@ -1,4 +1,5 @@
 import { boot } from 'quasar/wrappers'
+import { Cookies } from 'quasar'
 import axios from 'axios'
 
 // Be careful when using SSR for cross-request state pollution
@@ -10,7 +11,8 @@ import axios from 'axios'
 const api = axios.create({
   baseURL: process.env.API,
   headers: {
-    'Access-Control-Allow-Origin': '*'
+    'Access-Control-Allow-Origin': '*',
+    Authorization: 'bearer ' + Cookies.get('authKey')
   }
 })
 
@@ -18,7 +20,8 @@ const download = axios.create({
   baseURL: process.env.API,
   responseType: 'blob',
   headers: {
-    'Access-Control-Allow-Origin': '*'
+    'Access-Control-Allow-Origin': '*',
+    Authorization: 'bearer ' + Cookies.get('authKey')
   }
 })
 

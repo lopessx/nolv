@@ -29,12 +29,12 @@ class Client extends Model implements AuthenticatableContract, AuthorizableContr
 	 *
 	 * @var array
 	 */
-	protected $fillable = ['name', 'email', 'password', 'expiration_time', 'phone'];
+	protected $fillable = ['name', 'email', 'password', 'phone'];
 
 	/**
 	 * The columns that are hidden from front-end view
 	 *
 	 * @var array
 	 */
-	protected $hidden = ['password', 'expiration_time'];
+	protected $hidden = ['password', 'created_at', 'updated_at'];
 }

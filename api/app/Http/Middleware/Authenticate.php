@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\Client;
 use Closure;
 use Illuminate\Contracts\Auth\Factory as Auth;
 
@@ -32,10 +33,18 @@ class Authenticate {
 	 * @return mixed
 	 */
 	public function handle($request, Closure $next, $guard = null) {
-		if ($this->auth->guard($guard)->guest()) {
-			return response('Unauthorized.', 401);
-		}
+		if ($request->header('Authorization')) {
+			$key = explode(' ', $request->header('Authorization'));
+			$user = Client::where('password', $key[1])->first();
+			if (!empty($user)) {
+				$request->request->add(['clientId' => $user->id]);
 
-		return $next($request);
+				return $next($request);
+			} else {
+				return response('Unauthorized', 401);
+			}
+		} else {
+			return response('Unauthorized', 401);
+		}
 	}
 }

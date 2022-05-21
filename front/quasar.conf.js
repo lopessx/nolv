@@ -113,7 +113,8 @@ module.exports = configure(function (ctx) {
         'Loading',
         'LoadingBar',
         'Notify',
-        'Dialog'
+        'Dialog',
+        'Cookies'
       ]
     },
 

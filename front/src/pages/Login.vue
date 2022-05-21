@@ -44,7 +44,8 @@
             </div>
             <q-separator />
             <div class="q-pa-md text-grey-7">
-              Código de acesso enviado ao e-mail <b>{{ email }}</b>
+              Código de acesso enviado ao e-mail <b>{{ email }}</b>.<br>
+              Seu código de acesso irá expirar em 10 minutos.
             </div>
             <div class="q-px-sm q-py-lg">
               <q-input
@@ -116,7 +117,7 @@ export default defineComponent({
   name: 'Login',
   setup () {
     return {
-      step: ref(2),
+      step: ref(1),
       email: ref(''),
       otp: ref(''),
       loading: ref(false),
@@ -179,7 +180,7 @@ export default defineComponent({
             console.log('login efetuado ' + JSON.stringify(response.data))
             if (response.data.success === true) {
               this.$q.localStorage.set('client', response.data.client)
-              this.$q.localStorage.set('authKey', response.data.key)
+              this.$q.cookies.set('authKey', response.data.key)
 
               window.dispatchEvent(new CustomEvent('client-localstorage-changed', {
                 detail: {
