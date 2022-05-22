@@ -1,6 +1,9 @@
 <template>
   <q-page>
-    <q-form class="row q-py-xl justify-center align center">
+    <q-form
+      class="row q-py-xl q-px-md justify-center align center"
+      @submit.prevent
+    >
       <div class="col-xs-12 col-sm-8">
         <q-stepper
           v-model="step"
@@ -44,8 +47,8 @@
             </div>
             <q-separator />
             <div class="q-pa-md text-grey-7">
-              Código de acesso enviado ao e-mail <b>{{ email }}</b>.<br>
               Seu código de acesso irá expirar em 10 minutos.
+              Código de acesso enviado ao e-mail <b>{{ email }}</b>.<br>
             </div>
             <div class="q-px-sm q-py-lg">
               <q-input
@@ -110,8 +113,8 @@
 
 <script>
 import { defineComponent, ref } from 'vue'
-import { api } from 'src/boot/axios'
 import { required, emailValidation, phoneValidation, codeValidation } from 'src/utils/validations'
+import { api } from 'src/boot/axios'
 
 export default defineComponent({
   name: 'Login',
@@ -181,6 +184,8 @@ export default defineComponent({
             if (response.data.success === true) {
               this.$q.localStorage.set('client', response.data.client)
               this.$q.cookies.set('authKey', response.data.key)
+
+              console.log('cookie ' + this.$q.cookies.get('authKey'))
 
               window.dispatchEvent(new CustomEvent('client-localstorage-changed', {
                 detail: {

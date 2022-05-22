@@ -34,8 +34,8 @@ class Authenticate {
 	 */
 	public function handle($request, Closure $next, $guard = null) {
 		if ($request->header('Authorization')) {
-			$key = explode(' ', $request->header('Authorization'));
-			$user = Client::where('password', $key[1])->first();
+			$key = base64_decode(explode(' ', $request->header('Authorization'))[1]);
+			$user = Client::where('password', $key)->first();
 			if (!empty($user)) {
 				$request->request->add(['clientId' => $user->id]);
 

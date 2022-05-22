@@ -11,8 +11,7 @@ import axios from 'axios'
 const api = axios.create({
   baseURL: process.env.API,
   headers: {
-    'Access-Control-Allow-Origin': '*',
-    Authorization: 'bearer ' + Cookies.get('authKey')
+    'Access-Control-Allow-Origin': '*'
   }
 })
 
@@ -20,12 +19,30 @@ const download = axios.create({
   baseURL: process.env.API,
   responseType: 'blob',
   headers: {
-    'Access-Control-Allow-Origin': '*',
-    Authorization: 'bearer ' + Cookies.get('authKey')
+    'Access-Control-Allow-Origin': '*'
   }
 })
 
 export default boot(({ app }) => {
+  api.interceptors.request.use(config => {
+    const cookie = Cookies.get('authKey')
+    if (cookie) {
+      config.headers.Authorization = `bearer ${cookie}`
+    }
+    return config
+  }, error => {
+    return Promise.reject(error)
+  })
+
+  download.interceptors.request.use(config => {
+    const cookie = Cookies.get('authKey')
+    if (cookie) {
+      config.headers.Authorization = `bearer ${cookie}`
+    }
+    return config
+  }, error => {
+    return Promise.reject(error)
+  })
   // for use inside Vue files (Options API) through this.$axios and this.$api
 
   app.config.globalProperties.$axios = axios
@@ -35,6 +52,8 @@ export default boot(({ app }) => {
   app.config.globalProperties.$api = api
   // ^ ^ ^ this will allow you to use this.$api (for Vue Options API form)
   //       so you can easily perform requests against your app's API
+
+  app.config.globalProperties.$download = download
 })
 
 export { api, download }

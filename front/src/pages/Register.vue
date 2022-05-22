@@ -1,6 +1,9 @@
 <template>
   <q-page>
-    <q-form class="row q-py-xl justify-center align center">
+    <q-form
+      class="row q-py-xl q-px-md justify-center align center"
+      @submit.prevent
+    >
       <q-stepper
         v-model="step"
         class="col-xs-12 col-sm-8"
@@ -26,6 +29,7 @@
               required
               lazy-rules
               :rules="[required]"
+              :readonly="loading"
             />
           </div>
           <div class="q-px-sm q-pb-sm q-pt-sm">
@@ -38,6 +42,7 @@
               required
               lazy-rules
               :rules="[required, emailValidation]"
+              :readonly="loading"
             />
           </div>
           <div class="q-px-sm q-pt-sm q-pb-lg">
@@ -51,6 +56,7 @@
               required
               lazy-rules
               :rules="[required, phoneValidation]"
+              :readonly="loading"
             />
           </div>
         </q-step>
@@ -65,8 +71,8 @@
           </div>
           <q-separator />
           <div class="q-pa-md text-grey-7">
-            Código de acesso enviado ao e-mail <b>{{ email }}</b>.<br>
-            Seu código de acesso irá expirar em 10 minutos.
+            Seu código de acesso irá expirar em 10 minutos.<br>
+            Código de acesso enviado ao e-mail <b>{{ email }}</b>.
           </div>
           <div class="q-px-sm q-py-lg">
             <q-input
@@ -79,6 +85,7 @@
               hint="Código de 6 dígitos"
               lazy-rules
               :rules="[codeValidation, required]"
+              :readonly="loading"
               required
             />
           </div>
@@ -90,12 +97,14 @@
               v-if="step > 1"
               color="primary"
               label="Confirmar"
+              :loading="loading"
               @click="login()"
             />
             <q-btn
               v-if="step === 1"
               color="primary"
               label="Cadastrar"
+              :loading="loading"
               @click="register()"
             />
           </q-stepper-navigation>
@@ -107,29 +116,32 @@
 
 <script>
 import { defineComponent, ref } from 'vue'
-// eslint-disable-next-line no-unused-vars
-import { api } from 'src/boot/axios'
 import { required, emailValidation, phoneValidation, codeValidation } from 'src/utils/validations'
+import { api } from 'src/boot/axios'
 
 export default defineComponent({
   name: 'Register',
   setup () {
     return {
       step: ref(1),
+      count: ref(0),
       email: ref(''),
       phone: ref(''),
       name: ref(''),
-      otp: ref('')
+      otp: ref(''),
+      loading: ref(false)
     }
   },
   methods: {
     register () {
+      this.loading = true
       console.log('api call to register')
       this.$refs.nameInput.validate()
       this.$refs.emailInput.validate()
       this.$refs.phoneInput.validate()
 
       if (this.$refs.nameInput.hasError || this.$refs.emailInput.hasError || this.$refs.phoneInput.hasError) {
+        this.loading = false
         this.showMessage('Preencha todos os campos', 'warning', 'warning')
       } else {
         api.post('/client/register', { email: this.email, name: this.name, phone: this.phone })
@@ -145,12 +157,25 @@ export default defineComponent({
             console.log('erro ' + error.message)
             this.showMessage('Erro ao registrar novo cliente', 'negative', 'error')
           })
+          .finally(() => {
+            this.loading = false
+          })
       }
     },
     login () {
+      this.loading = true
       this.$refs.codeInput.validate()
 
+      if (this.count > 2) {
+        this.step = 1
+        this.email = ''
+        this.count = 0
+        this.$router.push('/login')
+      }
+
       if (this.$refs.codeInput.hasError) {
+        this.count++
+        this.loading = false
         this.showMessage('Preencha todos os campos', 'warning', 'warning')
       } else {
         api.post('/client/login', { email: this.email, code: this.otp })
@@ -168,8 +193,17 @@ export default defineComponent({
 
               this.$router.push('/cliente')
             } else {
+              this.count++
               this.showMessage('Código inválido', 'negative', 'error')
             }
+          })
+          .catch((error) => {
+            this.count++
+            this.showMessage('Erro ao autenticar código', 'negative', 'error')
+            console.error('erro identificado ' + error.message + ' code ' + error.code)
+          })
+          .finally(() => {
+            this.loading = false
           })
       }
     },

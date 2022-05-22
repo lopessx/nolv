@@ -100,20 +100,18 @@ class ClientController extends Controller {
 
 			if (!isset($client->email)) {
 				$accessCode = random_int(100000, 999999);
-				// $expirationDate = date('Y-m-d H:i:s');
 				$client = new Client();
 				$client->name = $request->name;
 				$client->email = $request->email;
 				$client->phone = $request->phone;
 				$client->password = Hash::make($accessCode);
-				// $client->expiration_time = $expirationDate;
 
 				$client->save();
 
-				Mail::to($request->email)
-					->send(new NewLogin((string) $accessCode));
-
 				DB::commit();
+
+				Mail::to($request->email)
+				->send(new NewLogin((string) $accessCode));
 
 				return response(['success' => true], 200);
 			} else {
@@ -137,6 +135,7 @@ class ClientController extends Controller {
 			$expDate = strtotime($client->updated_at);
 			$today = (time()-(60*10));
 
+			// TODO idea maybe add user ip to the authentication proccess verification
 			if ($expDate > $today) {
 				if (Hash::check($request->code, $client->password)) {
 					$client->password = Hash::make(uniqid('', true));
@@ -144,7 +143,7 @@ class ClientController extends Controller {
 
 					DB::commit();
 
-					return response(['success' => true, 'client' => $client, 'key' => $client->password], 200);
+					return response(['success' => true, 'client' => $client, 'key' => base64_encode($client->password)], 200);
 				} else {
 					return response(['success' => false], 200);
 				}

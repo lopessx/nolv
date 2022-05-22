@@ -202,7 +202,7 @@
       <q-toolbar class="q-gutter-xs lt-sm">
         <!-- // TODO logo reduzida -->
         <q-btn
-          class="col-2"
+          class="col-1"
           color="primary"
           unelevated
           label="SN"
@@ -213,7 +213,7 @@
         <q-input
           v-model="searchText"
           filled
-          class="col-5"
+          class="col-6"
           bg-color="white"
           label="Pesquisar..."
           @keypress.enter="searchProduct(searchText)"
@@ -233,8 +233,7 @@
           color="primary"
           unelevated
           icon="person"
-          class="col-4"
-          :label="clientName"
+          class="col"
         >
           <q-list>
             <q-item
@@ -270,6 +269,7 @@
         </q-btn-dropdown>
         <q-btn
           v-else
+          class="col"
           color="primary"
           unelevated
           icon="person"
