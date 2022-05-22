@@ -2,7 +2,7 @@
   <q-page>
     <div class="row align-center justify-start q-gutter-xs q-px-md q-pt-lg q-pb-md">
       <q-icon
-        name="person"
+        name="badge"
         color="accent"
         size="sm"
       />
@@ -11,11 +11,11 @@
       </div>
     </div>
     <q-separator />
-    <div class="row q-px-md q-py-md">
-      <div class="col-6">
+    <div class="row q-px-md q-py-md justify-center">
+      <div class="col-11">
         <div class="row justify-start q-pa-md">
           <q-icon
-            name="person"
+            name="description"
             color="accent"
             size="sm"
           />
@@ -24,80 +24,50 @@
           </div>
         </div>
         <q-input
+          ref="nameInput"
           v-model="name"
           outlined
           label="Nome completo"
           class="q-py-md q-px-sm"
+          lazy-rules
+          :rules="[required]"
+          :loading="loading"
         />
         <q-input
+          ref="emailInput"
           v-model="email"
           outlined
           label="E-mail"
           type="email"
           class="q-py-md q-px-sm"
+          lazy-rules
+          :rules="[required, emailValidation]"
+          :loading="loading"
         />
         <q-input
+          ref="phoneInput"
           v-model="phone"
           outlined
           label="Número de telefone"
           type="tel"
-          mask="(##) #####-####"
+          mask="(##) ##### - ####"
           class="q-py-md q-px-sm"
+          lazy-rules
+          :rules="[required, phoneValidation]"
+          :loading="loading"
         />
-      </div>
-      <q-separator vertical />
-      <div class="col-5">
-        <div class="row justify-start q-pa-md">
-          <q-icon
-            name="credit_card"
-            color="accent"
-            size="sm"
-          />
-          <div class="text-subtitle1">
-            Cartões cadastrados
-          </div>
-        </div>
-        <q-list bordered>
-          <div v-if="cards.length < 1">
-            <q-item
-              v-ripple
-              clickable
-              class="q-pa-lg"
-            >
-              <q-item-section>Nenhum cartão cadastrado.</q-item-section>
-            </q-item>
-          </div>
-          <div
-            v-for="card in cards"
-            :key="card.id"
-          >
-            <q-item
-              v-ripple
-              clickable
-              class="q-pa-lg"
-            >
-              <q-item-section>{{ card.number }} - {{ card.brand }}</q-item-section>
-              <q-item-section avatar>
-                <q-icon
-                  color="accent"
-                  name="delete"
-                  @click="deleteCard(card.id)"
-                />
-              </q-item-section>
-            </q-item>
-            <q-separator inset />
-          </div>
-        </q-list>
       </div>
       <div class="row col-12 justify-center q-pa-xl q-gutter-sm">
         <q-btn
           color="negative"
           label="Deletar"
+          :loading="loading"
           @click="deleteProfile()"
         />
         <q-btn
           color="accent"
           label="Confirmar"
+          :loading="loading"
           @click="updateProfile()"
         />
       </div>
@@ -119,7 +89,7 @@ export default defineComponent({
       name: ref(''),
       phone: ref(''),
       clientId: ref(''),
-      cards: ref([])
+      loading: ref(false)
     }
   },
 
@@ -133,23 +103,33 @@ export default defineComponent({
   },
 
   methods: {
-    deleteCard (val) {
-      console.log('cartão deletado ' + val)
-    },
     updateProfile () {
-      console.log('alterações salvas')
-      api.put(`/client/update/${this.clientId}`, { name: this.name, email: this.email, phone: this.phone })
-        .then((response) => {
-          if (response.data.success === true) {
-            this.showMessage('Informações atualizadas com sucesso', 'positive', 'check_circle')
-          } else {
+      this.loading = true
+      this.$refs.nameInput.validate()
+      this.$refs.emailInput.validate()
+      this.$refs.phoneInput.validate()
+
+      if (this.$refs.nameInput.hasError || this.$refs.emailInput.hasError || this.$refs.phoneInput.hasError) {
+        this.loading = false
+        this.showMessage('Preencha todos os campos', 'warning', 'warning')
+      } else {
+        console.log('alterações salvas')
+        api.put(`/client/update/${this.clientId}`, { name: this.name, email: this.email, phone: this.phone })
+          .then((response) => {
+            if (response.data.success === true) {
+              this.showMessage('Informações atualizadas com sucesso', 'positive', 'check_circle')
+            } else {
+              this.showMessage('Erro ao atualizar as informações', 'negative', 'error')
+            }
+          })
+          .catch((error) => {
+            console.error('message ' + error.message + ' code ' + error.code)
             this.showMessage('Erro ao atualizar as informações', 'negative', 'error')
-          }
-        })
-        .catch((error) => {
-          console.error('message ' + error.message + ' code ' + error.code)
-          this.showMessage('Erro ao atualizar as informações', 'negative', 'error')
-        })
+          })
+          .finally(() => {
+            this.loading = false
+          })
+      }
     },
     deleteProfile () {
       console.log('deletar perfil')
@@ -166,6 +146,8 @@ export default defineComponent({
         },
         persistent: true
       }).onOk(() => {
+        this.loading = true
+
         api.delete(`/client/delete/${this.clientId}`)
           .then((response) => {
             if (response.data.success === true) {
@@ -178,6 +160,9 @@ export default defineComponent({
           .catch((error) => {
             console.error('message ' + error.message + ' code ' + error.code)
             this.showMessage('Erro ao deletar o perfil', 'negative', 'error')
+          })
+          .finally(() => {
+            this.loading = false
           })
       })
     },
