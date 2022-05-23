@@ -1,20 +1,58 @@
 <template>
   <q-page>
-    <q-form>
+    <q-form
+      ref="formProduct"
+      @submit.prevent
+    >
       <div class="row q-px-xl q-py-lg q-gutter-sm justify-start">
-        <div class="col-6 text-h5">
+        <div class="col-xs-12 col-sm-6 text-h5">
           Cadastrar novo produto
         </div>
       </div>
 
-      <div class="row col-12 q-px-xl q-py-md">
-        <div class="col-6 q-pr-md">
+      <div class="row justify-center q-py-md q-gutter-sm">
+        <!-- // TODO maybe add better validation -->
+        <q-uploader
+          ref="imageUploader"
+          :url="urlUpload + '/product/image/upload'"
+          label="Upload de imagens"
+          multiple
+          hide-upload-btn
+          :form-fields="[{name: 'productId', value: productId}]"
+          accept=".jpg, image/*"
+          style="max-width: 280px"
+          required
+          :headers="[{name: 'Authorization', value: 'bearer ' + $q.cookies.get('authKey')}]"
+          @added="imgs => validateImages(imgs)"
+          @finish="showSuccessMessage()"
+        />
+        <q-uploader
+          ref="fileUploader"
+          :url="urlUpload + '/product/upload'"
+          label="Upload do produto"
+          multiple
+          hide-upload-btn
+          :form-fields="[{name: 'productId', value: productId}, {name: 'productName', value: productName}]"
+          style="max-width: 280px"
+          max-file-size="2048000000"
+          accept=".zip"
+          :headers="[{name: 'Authorization', value: 'bearer ' + $q.cookies.get('authKey')}]"
+          @added="files => validateFiles(files)"
+          @finish="uploadImages()"
+        />
+      </div>
+
+      <q-separator color="grey" />
+
+      <div class="row col-12 q-pa-md q-gutter-md justify-center">
+        <div class="col-xs-11 col-sm-5">
           <q-input
             v-model="productName"
             label="Nome do produto"
             required
             lazy-rules
             :rules="[required]"
+            :readonly="loading"
           />
           <q-input
             v-model="version"
@@ -23,24 +61,27 @@
             required
             lazy-rules
             :rules="[required]"
+            :readonly="loading"
           />
         </div>
-        <div class="row col-6 justify-start">
+
+        <div class="col-xs-11 col-sm-4">
           <q-input
             v-model="price"
-            class="col-6"
             prefix="R$"
             label="Preço"
+            type="tel"
             mask="#,##"
             fill-mask="0"
             reverse-fill-mask
             input-class="text-right"
             required
             lazy-rules
-            :rules="[required]"
+            :rules="[required, priceValidation]"
+            :readonly="loading"
           />
         </div>
-        <div class="col-12 q-py-md">
+        <div class="col-xs-12 col-sm-11 q-py-md">
           <q-input
             v-model="description"
             filled
@@ -49,41 +90,14 @@
             required
             lazy-rules
             :rules="[required]"
+            :readonly="loading"
           />
         </div>
       </div>
 
       <q-separator color="grey" />
 
-      <div class="row justify-center q-py-md">
-        <div class="col-xs-12 col-sm-5">
-          <q-uploader
-            ref="imageUploader"
-            :url="urlUpload + '/product/image/upload'"
-            label="Upload de imagens"
-            multiple
-            hide-upload-btn
-            :form-fields="[{name: 'productId', value: productId}]"
-            style="max-width: 280px"
-            @finish="uploadFiles()"
-          />
-        </div>
-        <div class="col-xs-12 col-sm-5">
-          <q-uploader
-            ref="fileUploader"
-            :url="urlUpload + '/product/upload'"
-            label="Upload do produto"
-            multiple
-            hide-upload-btn
-            :form-fields="[{name: 'productId', value: productId}, {name: 'productName', value: productName}]"
-            style="max-width: 280px"
-          />
-        </div>
-      </div>
-
-      <q-separator color="grey" />
-
-      <div class="row q-px-lg q-py-md justify-center">
+      <div class="row q-pa-md justify-center">
         <q-list class="col-12">
           <q-item>
             <q-item-section>
@@ -101,6 +115,9 @@
                     :options="languageOptions"
                     label="Idioma"
                     required
+                    :readonly="loading"
+                    lazy-rules
+                    :rules="[required]"
                   />
                 </div>
               </q-item-label>
@@ -127,6 +144,9 @@
                   :options="categoryOptions"
                   label="Categoria"
                   required
+                  :readonly="loading"
+                  lazy-rules
+                  :rules="[required]"
                 />
               </q-item-label>
             </q-item-section>
@@ -151,6 +171,9 @@
                 :options="osOptions"
                 label="Sistema operacional"
                 required
+                :readonly="loading"
+                lazy-rules
+                :rules="[required]"
               />
             </q-item-section>
           </q-item>
@@ -169,6 +192,7 @@
         <q-btn
           color="accent"
           label="Salvar"
+          :loading="loading"
           @click="newProduct()"
         />
       </div>
@@ -179,12 +203,13 @@
 <script>
 import { api } from 'src/boot/axios'
 import { defineComponent, ref } from 'vue'
-import { required } from 'src/utils/validations'
+import { required, priceValidation } from 'src/utils/validations'
 
 export default defineComponent({
   name: 'ProductRegister',
   setup () {
     return {
+      loading: ref(false),
       productName: ref(''),
       languageOptions: ref([]),
       drawer: ref(false),
@@ -200,10 +225,13 @@ export default defineComponent({
       storeId: ref(''),
       clientId: ref(''),
       productId: ref(''),
-      urlUpload: ref(process.env.API)
+      urlUpload: ref(process.env.API),
+      hasImg: ref(false),
+      hasFile: ref(false)
     }
   },
   mounted () {
+    this.loading = true
     const client = this.$q.localStorage.getItem('client')
 
     if (client) {
@@ -231,6 +259,9 @@ export default defineComponent({
         .catch((error) => {
           console.error('message ' + error.message + ' code ' + error.code)
           this.showMessage('Nenhuma loja encontrada', 'negative', 'error')
+        })
+        .finally(() => {
+          this.loading = false
         })
     },
     getLanguages () {
@@ -282,27 +313,36 @@ export default defineComponent({
         })
     },
     newProduct () {
-      api.post('/product', { categoryId: this.category.value, storeId: this.storeId, languageId: this.language.value, osId: this.os.value, name: this.productName, description: this.description, version: this.version, price: this.price })
-        .then((response) => {
-          if (response.data.success === true) {
-            console.log('sucesso ' + JSON.stringify(response.data))
-            this.productId = response.data.product.id
-          } else {
-            this.showMessage('Erro ao salvar novo produto', 'negative', 'error')
-          }
-        })
-        .catch((error) => {
-          console.error('message ' + error.message + ' code ' + error.code)
-          this.showMessage('Erro ao salvar novo produto', 'negative', 'error')
-        })
-        .finally(() => {
-          if (this.productId) {
-            this.$refs.imageUploader.upload()
-          }
-        })
+      this.loading = true
+      this.$refs.formProduct.validate(false).then(outcome => {
+        if (outcome === true && this.hasImg === true && this.hasFile === true) {
+          api.post('/product', { categoryId: this.category.value, storeId: this.storeId, languageId: this.language.value, osId: this.os.value, name: this.productName, description: this.description, version: this.version, price: this.price })
+            .then((response) => {
+              if (response.data.success === true) {
+                console.log('sucesso ' + JSON.stringify(response.data))
+                this.productId = response.data.product.id
+              } else {
+                this.showMessage('Erro ao salvar novo produto', 'negative', 'error')
+              }
+            })
+            .catch((error) => {
+              this.loading = false
+              console.error('message ' + error.message + ' code ' + error.code)
+              this.showMessage('Erro ao salvar novo produto', 'negative', 'error')
+            })
+            .finally(() => {
+              if (this.productId) {
+                this.$refs.fileUploader.upload()
+              }
+            })
+        } else {
+          this.loading = false
+          this.showMessage('Preencha todos os campos', 'warning', 'warning')
+        }
+      })
     },
-    uploadFiles () {
-      this.$refs.fileUploader.upload()
+    uploadImages () {
+      this.$refs.imageUploader.upload()
     },
     showMessage (msg, color, icon) {
       this.$q.notify({
@@ -311,7 +351,35 @@ export default defineComponent({
         icon: icon
       })
     },
-    required
+    validateFiles (files) {
+      console.log('files ' + JSON.stringify(files))
+      if (files.length > 0) {
+        this.hasFile = true
+      }
+    },
+    validateImages (imgs) {
+      console.log('imgs ' + JSON.stringify(imgs))
+      if (imgs.length > 0) {
+        this.hasImg = true
+      }
+    },
+    showSuccessMessage () {
+      this.productId = ''
+      this.productName = ''
+      this.price = 0
+      this.version = ''
+      this.description = ''
+      this.language = null
+      this.os = null
+      this.category = null
+      this.$refs.imageUploader.removeUploadedFiles()
+      this.$refs.fileUploader.removeUploadedFiles()
+      this.$refs.formProduct.resetValidation()
+      this.loading = false
+      this.showMessage('Produto criado com sucesso', 'positive', 'check_circle')
+    },
+    required,
+    priceValidation
   }
 })
 </script>

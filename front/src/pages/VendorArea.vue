@@ -1,8 +1,11 @@
 <template>
   <q-page>
     <q-form class="row q-px-md q-pt-xl q-pb-md justify-start align-center">
-      <div class="col-6 text-center">
-        <q-card style="max-width: 500px;">
+      <div class="row col-12 justify-center text-center">
+        <q-card
+          class="col-xs-12 col-sm-10"
+          style="max-width: 500px;"
+        >
           <q-card-section>
             <div class="text-body1 text-weight-bold q-px-md">
               <q-input
@@ -74,20 +77,18 @@
       </div>
       <div
         v-if="hasStore"
-        class="row col-6 justify-center align-center content-center"
+        class="row col-12 justify-center align-center content-center"
       >
-        <div class="col-8 q-pa-md">
-          <q-btn
-            color="accent"
-            label="Editar nome da loja"
-            @click="unlockInputs()"
-          />
-        </div>
-        <div class="col-8 q-pa-md">
+        <div class="row justify-center align-center q-pa-md q-gutter-md">
           <q-btn
             color="negative"
             label="Deletar loja"
             @click="deleteStore()"
+          />
+          <q-btn
+            color="accent"
+            label="Editar nome da loja"
+            @click="unlockInputs()"
           />
         </div>
       </div>
@@ -98,33 +99,34 @@
         <div class="col-12 q-pa-md q-gutter-sm">
           <q-table
             color="grey-8"
-            :grid="$q.screen.gt.xs"
+            grid
             :rows="productsList"
             :columns="columns"
-            row-key="name"
+            row-key="id"
             :filter="filter"
             :rows-per-page-options="productsPerPage"
             no-data-label="Nenhum produto encontrado"
             hide-header
           >
             <template #top-right>
-              <q-input
-                v-model="filter"
-                class="q-pr-sm"
-                filled
-                dense
-                debounce="300"
-                placeholder="Pesquisar..."
-              />
-              <q-btn
-                color="accent"
-                label="Adicionar Produto"
-                to="/produto/cadastro"
-              />
+              <div class="row q-gutter-md justify-center align-center">
+                <q-input
+                  v-model="filter"
+                  filled
+                  dense
+                  debounce="300"
+                  placeholder="Pesquisar..."
+                />
+                <q-btn
+                  color="accent"
+                  label="Adicionar Produto"
+                  to="/produto/cadastro"
+                />
+              </div>
             </template>
 
             <template #top-left>
-              <div class="row align-center justify-center q-gutter-xs">
+              <div class="row align-center justify-center q-gutter-sm q-py-sm">
                 <q-icon
                   name="shopping_basket"
                   color="accent"
@@ -145,7 +147,7 @@
                 >
                   <q-card-section>
                     <q-img
-                      :src="imgUrl + props.cols[4].value"
+                      :src="imgUrl + props.cols[7].value"
                       spinner-color="black"
                       style="height: 150px; max-width: auto;"
                     >
@@ -163,12 +165,12 @@
                   <q-separator />
                   <q-card-section>
                     <div class="text-body1 text-weight-bold">
-                      {{ props.cols[2].value }}
+                      {{ props.cols[1].value }}
                     </div>
                   </q-card-section>
                   <q-separator />
                   <div class="subtitle-1 text-weight-bold q-pa-md text-grey-7">
-                    {{ props.row.name }}
+                    {{ props.cols[3].value }}
                   </div>
                 </q-card>
               </div>
@@ -192,11 +194,12 @@ import { required } from 'src/utils/validations'
 
 const columns = [
   { name: 'id', required: true, label: 'Identificador', field: 'id', format: val => `${val}` },
+  { name: 'name', required: true, label: 'Nome', field: 'name', format: val => `${val}` },
   { name: 'desc', required: true, label: 'Produto', align: 'left', field: row => row.name, format: val => `${val}`, sortable: true },
   { name: 'price', label: 'Preço (R$)', field: 'price', format: val => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(val), sortable: true },
-  // { name: 'language', required: true, label: 'Idioma', field: 'language', format: val => `${val}`, sortable: true },
+  { name: 'language', required: true, label: 'Idioma', field: 'language', format: val => `${val}`, sortable: true },
   { name: 'category', required: true, label: 'Categoria', field: 'category', format: val => `${val}`, sortable: true },
-  // { name: 'os', required: true, label: 'Sistema operacional', field: 'os', format: val => `${val}`, sortable: true }
+  { name: 'os', required: true, label: 'Sistema operacional', field: 'os', format: val => `${val}`, sortable: true },
   { name: 'image', required: false, label: 'Imagem', field: 'image', format: val => `${val}`, sortable: false }
 ]
 
@@ -290,6 +293,7 @@ export default defineComponent({
     },
     withdraw () {
       console.log('saque ' + this.balance)
+      this.$router.push('/perfil')
     },
     unlockInputs () {
       this.hasStore = false

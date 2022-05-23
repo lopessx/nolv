@@ -150,20 +150,19 @@ class ProductController extends Controller {
 		try {
 			$product = Product::where('id', $request->productId)->first();
 			$files = $request->allFiles();
-			$file = $files[0];
 			$paths = [];
 
 			if (!empty($product->file_path)) {
 				Storage::disk('private')->delete($product->file_path);
 			}
 
+			foreach ($files as $file) {
+				$filename = preg_replace('/\s/', '-', $file->getClientOriginalName());
+				Storage::disk('private')->putFileAs('/files/' . $request->productId . '/', $file, $filename);
+				$paths[] = '/files/' . $request->productId . '/' . $filename;
 
-			$filename = preg_replace('/\s/', '-', $file->getClientOriginalName());
-			Storage::disk('private')->putFileAs('/files/' . $request->productId . '/', $file, $filename);
-			$paths[] = '/files/' . $request->productId . '/' . $filename;
-
-			$product->file_path = $filename;
-
+				$product->file_path = $filename;
+			}
 
 			$product->save();
 

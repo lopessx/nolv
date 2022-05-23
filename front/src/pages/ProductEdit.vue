@@ -1,56 +1,59 @@
 <template>
   <q-page>
-    <div class="row q-px-xl q-pt-lg q-pb-md q-gutter-sm">
-      <div class="col-6">
-        <q-carousel
-          v-model="slide"
-          control-type="push"
-          control-color="accent"
-          animated
-          navigation
-          infinite
-          arrows
-          transition-prev="slide-right"
-          transition-next="slide-left"
-        >
-          <q-carousel-slide
-            v-for="(image, id) in imgs"
-            :key="id"
-            :name="id + 1"
-            :img-src="imgUrl + image.path"
+    <q-form
+      ref="formProduct"
+      @submit.prevent
+    >
+      <div class="row q-px-xl q-pt-lg q-pb-md q-gutter-sm">
+        <div class="col-6">
+          <q-carousel
+            v-model="slide"
+            control-type="push"
+            control-color="accent"
+            animated
+            navigation
+            infinite
+            arrows
+            transition-prev="slide-right"
+            transition-next="slide-left"
+          >
+            <q-carousel-slide
+              v-for="(image, id) in imgs"
+              :key="id"
+              :name="id + 1"
+              :img-src="imgUrl + image.path"
+            />
+
+            <template #control>
+              <q-carousel-control
+                position="top-right"
+                :offset="[18, 18]"
+                class="text-white rounded-borders"
+                style="background: rgba(0, 0, 0, .3); padding: 4px 8px;"
+              >
+                <q-btn
+                  color="accent"
+                  icon="close"
+                  round
+                  @click="deleteImage()"
+                />
+              </q-carousel-control>
+            </template>
+          </q-carousel>
+        </div>
+        <div class="col-5">
+          <q-input
+            v-model="description"
+            filled
+            type="textarea"
+            label="Descrição do produto"
           />
-
-          <template #control>
-            <q-carousel-control
-              position="top-right"
-              :offset="[18, 18]"
-              class="text-white rounded-borders"
-              style="background: rgba(0, 0, 0, .3); padding: 4px 8px;"
-            >
-              <q-btn
-                color="accent"
-                icon="close"
-                round
-                @click="deleteImage()"
-              />
-            </q-carousel-control>
-          </template>
-        </q-carousel>
+        </div>
       </div>
-      <div class="col-5">
-        <q-input
-          v-model="description"
-          filled
-          type="textarea"
-          label="Descrição do produto"
-        />
-      </div>
-    </div>
 
-    <q-separator color="grey" />
+      <q-separator color="grey" />
 
-    <div class="row justify-center q-py-md">
-      <div class="col-xs-12 col-sm-5">
+      <div class="row justify-center q-py-md q-gutter-sm">
         <q-uploader
           ref="imageUploader"
           :url="urlUpload + '/product/image/upload'"
@@ -59,9 +62,12 @@
           hide-upload-btn
           :form-fields="[{name: 'productId', value: productId}]"
           style="max-width: 280px"
+          accept=".jpg, image/*"
+          :headers="[{name: 'Authorization', value: 'bearer ' + $q.cookies.get('authKey')}]"
+          @added="imgs => validateImages(imgs)"
+          @finish="showSuccessMessage()"
         />
-      </div>
-      <div class="col-xs-12 col-sm-5">
+
         <q-uploader
           ref="fileUploader"
           :url="urlUpload + '/product/upload'"
@@ -70,146 +76,173 @@
           hide-upload-btn
           :form-fields="[{name: 'productId', value: productId}, {name: 'productName', value: productName}]"
           style="max-width: 280px"
+          max-file-size="2048000000"
+          accept=".zip"
+          :headers="[{name: 'Authorization', value: 'bearer ' + $q.cookies.get('authKey')}]"
+          @added="files => validateFiles(files)"
+          @finish="uploadImages()"
         />
       </div>
-    </div>
 
-    <q-separator color="grey" />
+      <q-separator color="grey" />
 
-    <div class="row col-12 q-px-xl q-py-md">
-      <div class="col-6">
-        <q-input
-          v-model="productName"
-          label="Nome do produto"
-        />
-        <q-input
-          v-model="version"
-          prefix="v"
-          label="Versão"
-        />
+      <div class="row col-12 q-px-xl q-py-md">
+        <div class="col-xs-12 col-sm-6">
+          <q-input
+            v-model="productName"
+            label="Nome do produto"
+            required
+            lazy-rules
+            :rules="[required]"
+            :readonly="loading"
+          />
+          <q-input
+            v-model="version"
+            prefix="v"
+            label="Versão"
+            required
+            lazy-rules
+            :rules="[required]"
+            :readonly="loading"
+          />
+        </div>
+        <div class="row col-xs-12 col-sm-6 justify-center">
+          <q-input
+            v-model="price"
+            class="col-6"
+            prefix="R$"
+            label="Preço"
+            mask="#,##"
+            fill-mask="0"
+            reverse-fill-mask
+            input-class="text-right"
+            required
+            lazy-rules
+            :rules="[required, priceValidation]"
+            :readonly="loading"
+          />
+        </div>
       </div>
-      <div class="row col-6 justify-center">
-        <q-input
-          v-model="price"
-          class="col-6"
-          prefix="R$"
-          label="Preço"
-          mask="#,##"
-          fill-mask="0"
-          reverse-fill-mask
-          input-class="text-right"
-        />
-      </div>
-    </div>
 
-    <q-separator color="grey" />
+      <q-separator color="grey" />
 
-    <div class="row q-px-lg q-py-md justify-center">
-      <q-list class="col-12">
-        <q-item>
-          <q-item-section>
-            <q-item-label>Idioma</q-item-label>
-          </q-item-section>
+      <div class="row q-px-lg q-py-md justify-center">
+        <q-list class="col-12">
+          <q-item>
+            <q-item-section>
+              <q-item-label>Idioma</q-item-label>
+            </q-item-section>
 
-          <q-item-section side>
-            <q-item-label>
-              <div class="row">
+            <q-item-section side>
+              <q-item-label>
+                <div class="row">
+                  <q-select
+                    v-model="language"
+                    style="min-width: 150px;"
+                    class="col-12"
+                    filled
+                    :options="languageOptions"
+                    label="Idioma"
+                    required
+                    emit-value
+                    map-options
+                    :readonly="loading"
+                    lazy-rules
+                    :rules="[required]"
+                  />
+                </div>
+              </q-item-label>
+            </q-item-section>
+          </q-item>
+
+          <q-separator
+            spaced
+            inset
+            color="grey"
+          />
+
+          <q-item>
+            <q-item-section>
+              <q-item-label>Categoria</q-item-label>
+            </q-item-section>
+
+            <q-item-section side>
+              <q-item-label>
                 <q-select
-                  v-model="language"
-                  style="min-width: 150px;"
-                  class="col-12"
+                  v-model="category"
                   filled
-                  :options="languageOptions"
-                  label="Idioma"
+                  style="min-width: 150px;"
+                  :options="categoryOptions"
+                  label="Categoria"
                   required
                   emit-value
                   map-options
+                  :readonly="loading"
+                  lazy-rules
+                  :rules="[required]"
                 />
-              </div>
-            </q-item-label>
-          </q-item-section>
-        </q-item>
+              </q-item-label>
+            </q-item-section>
+          </q-item>
 
-        <q-separator
-          spaced
-          inset
-          color="grey"
-        />
+          <q-separator
+            spaced
+            inset
+            color="grey"
+          />
 
-        <q-item>
-          <q-item-section>
-            <q-item-label>Categoria</q-item-label>
-          </q-item-section>
+          <q-item>
+            <q-item-section>
+              <q-item-label>Sistema operacional</q-item-label>
+            </q-item-section>
 
-          <q-item-section side>
-            <q-item-label>
+            <q-item-section side>
               <q-select
-                v-model="category"
-                filled
+                v-model="os"
                 style="min-width: 150px;"
-                :options="categoryOptions"
-                label="Categoria"
+                filled
+                :options="osOptions"
+                label="Sistema operacional"
                 required
                 emit-value
                 map-options
+                :readonly="loading"
+                lazy-rules
+                :rules="[required]"
               />
-            </q-item-label>
-          </q-item-section>
-        </q-item>
+            </q-item-section>
+          </q-item>
 
-        <q-separator
-          spaced
-          inset
-          color="grey"
+          <q-separator
+            spaced
+            inset
+            color="grey"
+          />
+        </q-list>
+      </div>
+
+      <q-separator color="grey" />
+
+      <div class="row q-px-xl q-py-lg justify-center items-center q-gutter-sm">
+        <q-btn
+          color="negative"
+          label="Deletar"
+          @click="deleteProduct"
         />
-
-        <q-item>
-          <q-item-section>
-            <q-item-label>Sistema operacional</q-item-label>
-          </q-item-section>
-
-          <q-item-section side>
-            <q-select
-              v-model="os"
-              style="min-width: 150px;"
-              filled
-              :options="osOptions"
-              label="Sistema operacional"
-              required
-              emit-value
-              map-options
-            />
-          </q-item-section>
-        </q-item>
-
-        <q-separator
-          spaced
-          inset
-          color="grey"
+        <q-btn
+          color="accent"
+          label="Salvar"
+          @click="editProduct"
         />
-      </q-list>
-    </div>
-
-    <q-separator color="grey" />
-
-    <div class="row q-px-xl q-py-lg justify-center items-center q-gutter-sm">
-      <q-btn
-        color="negative"
-        label="Deletar"
-        @click="deleteProduct"
-      />
-      <q-btn
-        color="accent"
-        label="Salvar"
-        @click="editProduct"
-      />
-    </div>
+      </div>
+    </q-form>
   </q-page>
 </template>
 
 <script>
 import { api } from 'src/boot/axios'
 import { defineComponent, ref } from 'vue'
+import { required, priceValidation } from 'src/utils/validations'
 
 export default defineComponent({
   name: 'ProductEdit',
@@ -231,11 +264,16 @@ export default defineComponent({
       store: ref(null),
       imgs: ref([]),
       imgUrl: ref(process.env.API + '/storage'),
-      description: ref('')
+      description: ref(''),
+      hasFile: ref(false),
+      hasImg: ref(false),
+      loading: ref(false)
     }
   },
   mounted () {
+    this.loading = true
     this.productId = this.$route.params.id
+    // TODO maybe async loading
     this.getLanguages()
     this.getOs()
     this.getCategories()
@@ -345,24 +383,31 @@ export default defineComponent({
       })
     },
     editProduct () {
-      api.put(`/product/${this.productId}`, { categoryId: this.category, storeId: this.storeId, languageId: this.language, osId: this.os, name: this.productName, description: this.description, version: this.version, price: this.price })
-        .then((response) => {
-          if (response.data.success === true) {
-            this.showMessage('Produto editado com sucesso', 'positive', 'check_circle')
-          } else {
-            this.showMessage('Erro ao editar produto', 'negative', 'error')
-          }
-        })
-        .catch((error) => {
-          console.error('erro message: ' + error.message + ' code ' + error.code)
-          this.showMessage('Erro ao editar produto', 'negative', 'error')
-        })
-        .finally(() => {
-          if (this.productId) {
-            this.$refs.imageUploader.upload()
-            this.$refs.fileUploader.upload()
-          }
-        })
+      this.loading = true
+      this.$refs.formProduct.validate(false).then(outcome => {
+        if (outcome === true && this.hasImg === true && this.hasFile === true) {
+          api.put(`/product/${this.productId}`, { categoryId: this.category, storeId: this.storeId, languageId: this.language, osId: this.os, name: this.productName, description: this.description, version: this.version, price: this.price })
+            .then((response) => {
+              if (response.data.success === true) {
+                this.showMessage('Produto editado com sucesso', 'positive', 'check_circle')
+              } else {
+                this.showMessage('Erro ao editar produto', 'negative', 'error')
+              }
+            })
+            .catch((error) => {
+              console.error('erro message: ' + error.message + ' code ' + error.code)
+              this.showMessage('Erro ao editar produto', 'negative', 'error')
+            })
+            .finally(() => {
+              if (this.productId) {
+                this.$refs.fileUploader.upload()
+              }
+            })
+        } else {
+          this.loading = false
+          this.showMessage('Preencha todos os campos', 'warning', 'warning')
+        }
+      })
     },
     deleteProduct () {
       this.$q.dialog({
@@ -394,13 +439,37 @@ export default defineComponent({
           })
       })
     },
+    uploadImages () {
+      this.$refs.imageUploader.upload()
+    },
+    validateFiles (files) {
+      console.log('files ' + JSON.stringify(files))
+      if (files.length > 0) {
+        this.hasFile = true
+      }
+    },
+    validateImages (imgs) {
+      console.log('imgs ' + JSON.stringify(imgs))
+      if (imgs.length > 0) {
+        this.hasImg = true
+      }
+    },
+    showSuccessMessage () {
+      this.$refs.imageUploader.removeUploadedFiles()
+      this.$refs.fileUploader.removeUploadedFiles()
+      this.$refs.formProduct.resetValidation()
+      this.loading = false
+      this.showMessage('Produto criado com sucesso', 'positive', 'check_circle')
+    },
     showMessage (msg, color, icon) {
       this.$q.notify({
         message: msg,
         color: color,
         icon: icon
       })
-    }
+    },
+    required,
+    priceValidation
   }
 })
 </script>

@@ -6,6 +6,7 @@ export const codeValidation = val => (!!val && val.length === 6 && (/\d/g).test(
 export const expDate = val => (validateExpDate(val)) || 'Insira uma data de expiração válida'
 export const cvv = val => (!!val && val.length >= 3) || 'Insira um CVV válido'
 export const cardValidation = val => (!!val && val.length >= 16) || 'Insira um número de cartão válido'
+export const priceValidation = val => (parseFloat(val) > 0) || 'Insira um valor maior que 0'
 
 function validateEmail (email) {
   const re = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
