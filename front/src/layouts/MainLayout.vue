@@ -320,16 +320,22 @@ export default defineComponent({
   },
 
   created () {
-    const client = this.$q.localStorage.getItem('client')
+    const hasSession = this.$q.cookies.has('authKey')
 
-    if (client) {
-      this.clientName = client.name.split(' ')[0]
-      this.sessionStarted = true
-    }
+    if (hasSession === true) {
+      const client = this.$q.localStorage.getItem('client')
 
-    const cartItems = this.$q.localStorage.getItem('cart')
-    if (cartItems) {
-      this.cartItems = cartItems.length
+      if (client) {
+        this.clientName = client.name.split(' ')[0]
+        this.sessionStarted = true
+      }
+
+      const cartItems = this.$q.localStorage.getItem('cart')
+      if (cartItems) {
+        this.cartItems = cartItems.length
+      }
+    } else {
+      this.logout()
     }
 
     console.log('nova sessão criada')
