@@ -1,9 +1,9 @@
 <template>
   <q-page>
-    <q-form class="row q-px-md q-py-xl">
+    <q-form class="row q-px-md q-py-xl q-gutter-sm">
       <div
         id="col-end"
-        class="col-xs-12 col-sm-8"
+        class="col-xs-12 col-sm-7"
       >
         <q-stepper
           v-model="step"
@@ -30,6 +30,7 @@
                 required
                 lazy-rules
                 :rules="[required, emailValidation]"
+                :readonly="loading"
               />
             </div>
             <div class="q-px-sm q-pt-sm q-pb-lg">
@@ -43,6 +44,7 @@
                 required
                 lazy-rules
                 :rules="[required, phoneValidation]"
+                :readonly="loading"
               />
             </div>
           </q-step>
@@ -67,6 +69,7 @@
                 required
                 lazy-rules
                 :rules="[required, codeValidation]"
+                :readonly="loading"
               />
             </div>
           </q-step>
@@ -76,93 +79,190 @@
             title="Pagamento"
             icon="payments"
           >
-            <div class="text-h4 q-pa-md text-grey-7">
-              Pagamento
-            </div>
-            <q-separator />
-            <div class="q-px-sm q-py-lg">
-              <q-select
-                v-model="paymentMethod"
-                outlined
-                :options="paymentOptions"
-                label="Escolha uma forma de pagamento"
-                required
-              />
-            </div>
-            <div
-              v-if="paymentMethod && paymentMethod.type === 'card'"
-              class="row q-pa-sm q-gutter-md"
+            <q-form
+              ref="formCheckout"
+              @submit.prevent
             >
-              <q-input
-                v-model="paymentData.card.name"
-                class="col-xs-12 col-sm-7"
-                outlined
-                label="Nome do titular do cartão"
-                required
-                lazy-rules
-                :rules="[required]"
-              />
-              <q-input
-                v-model="paymentData.card.expDate"
-                class="col-xs-12 col-sm-4"
-                outlined
-                label="Data de expiração"
-                mask="##/##"
-                required
-                lazy-rules
-                :rules="[required, expDate]"
-              />
-              <q-input
-                v-model="paymentData.card.number"
-                class="col-xs-12 col-sm-7"
-                outlined
-                label="Número do cartão"
-                mask="#### #### #### #### ####"
-                required
-                lazy-rules
-                :rules="[required]"
-              />
-              <q-input
-                v-model="paymentData.card.cvv"
-                class="col-xs-12 col-sm-4"
-                outlined
-                label="CVV"
-                mask="####"
-                required
-                lazy-rules
-                :rules="[required, cvv]"
-              />
-            </div>
-            <div
-              v-if="paymentMethod && (paymentMethod.type === 'pix' || paymentMethod.type === 'boleto')"
-              class="row q-pa-sm q-gutter-md justify-center"
-            >
-              <q-input
-                v-model="paymentData.name"
-                class="col-xs-12 col-sm-7"
-                outlined
-                label="Nome completo"
-                required
-              />
-              <q-input
-                v-model="paymentData.cpf"
-                class="col-xs-12 col-sm-4"
-                outlined
-                label="CPF"
-                mask="###.###.###-##"
-                required
-              />
-              <q-input
-                v-model="paymentData.email"
-                class="col-11"
-                outlined
-                label="E-mail"
-                type="email"
-                required
-                lazy-rules
-                :rules="[required, emailValidation]"
-              />
-            </div>
+              <div class="text-h4 q-pa-md text-grey-7">
+                Pagamento
+              </div>
+              <q-separator />
+              <div class="q-px-sm q-py-lg">
+                <q-select
+                  v-model="paymentMethod"
+                  outlined
+                  :options="paymentOptions"
+                  label="Escolha uma forma de pagamento"
+                  required
+                  :readonly="loading"
+                />
+              </div>
+              <div
+                v-if="paymentMethod && paymentMethod.type === 'card'"
+                class="row q-pa-sm q-gutter-md"
+              >
+                <q-input
+                  v-model="paymentData.card.name"
+                  class="col-xs-12 col-sm-7"
+                  outlined
+                  label="Nome do titular do cartão"
+                  required
+                  lazy-rules
+                  :rules="[required]"
+                  :readonly="loading"
+                />
+                <q-input
+                  v-model="paymentData.card.expDate"
+                  class="col-xs-12 col-sm-4"
+                  outlined
+                  label="Data de expiração"
+                  mask="##/##"
+                  required
+                  lazy-rules
+                  :rules="[required, expDate]"
+                  :readonly="loading"
+                />
+                <q-input
+                  v-model="paymentData.card.number"
+                  class="col-xs-12 col-sm-7"
+                  outlined
+                  label="Número do cartão"
+                  mask="#### #### #### #### ####"
+                  required
+                  lazy-rules
+                  :rules="[required]"
+                  :readonly="loading"
+                />
+                <q-input
+                  v-model="paymentData.card.cvv"
+                  class="col-xs-12 col-sm-4"
+                  outlined
+                  label="CVV"
+                  mask="####"
+                  required
+                  lazy-rules
+                  :rules="[required, cvv]"
+                  :readonly="loading"
+                />
+              </div>
+              <div
+                v-if="paymentMethod && paymentMethod.type === 'boleto'"
+                class="row q-pa-sm q-gutter-md justify-center"
+              >
+                <q-input
+                  v-model="paymentData.name"
+                  class="col-xs-11 col-sm-7"
+                  outlined
+                  label="Nome completo"
+                  required
+                  lazy-rules
+                  :rules="[required]"
+                  :readonly="loading"
+                />
+                <q-input
+                  v-model="paymentData.cpf"
+                  class="col-xs-11 col-sm-4"
+                  outlined
+                  label="CPF"
+                  mask="###.###.###-##"
+                  required
+                  lazy-rules
+                  :rules="[required, cpfValidation]"
+                  :readonly="loading"
+                />
+                <q-input
+                  v-model="paymentData.email"
+                  class="col-11"
+                  outlined
+                  label="E-mail"
+                  type="email"
+                  required
+                  lazy-rules
+                  :rules="[required, emailValidation]"
+                  :readonly="loading"
+                />
+                <q-input
+                  v-model="paymentData.slip.zipCode"
+                  :disable="loading"
+                  debounce="1000"
+                  outlined
+                  required
+                  lazy-rules
+                  :rules="[required,cepValidation]"
+                  label="CEP"
+                  mask="#####-###"
+                  class="col-xs-11 col-sm-11"
+                  :readonly="loading"
+                  @update:model-value="getCep"
+                />
+                <div class="row col-xs-11 col-sm-12 q-gutter-md justify-center">
+                  <q-select
+                    v-model="paymentData.slip.state"
+                    :disable="loading"
+                    outlined
+                    required
+                    lazy-rules
+                    :rules="[required]"
+                    :options="states"
+                    label="Estado"
+                    class="col-xs-12 col-sm-6"
+                    :readonly="loading"
+                  />
+                  <q-input
+                    v-model="paymentData.slip.city"
+                    :disable="loading"
+                    outlined
+                    required
+                    lazy-rules
+                    :rules="[required]"
+                    label="Cidade"
+                    class="col-xs-12 col-sm-5"
+                    :readonly="loading"
+                  />
+                  <q-input
+                    v-model="paymentData.slip.district"
+                    :disable="loading"
+                    outlined
+                    required
+                    lazy-rules
+                    :rules="[required]"
+                    label="Bairro"
+                    class="col-xs-12 col-sm-6"
+                    :readonly="loading"
+                  />
+                  <q-input
+                    v-model="paymentData.slip.street"
+                    :disable="loading"
+                    outlined
+                    required
+                    lazy-rules
+                    :rules="[required]"
+                    label="Logradouro"
+                    class="col-xs-12 col-sm-5"
+                    :readonly="loading"
+                  />
+                  <q-input
+                    v-model="paymentData.slip.number"
+                    :disable="loading"
+                    outlined
+                    required
+                    lazy-rules
+                    :rules="[required]"
+                    label="Número"
+                    class="col-xs-12 col-sm-6"
+                    :readonly="loading"
+                  />
+                  <q-input
+                    v-model="paymentData.slip.complement"
+                    :disable="loading"
+                    outlined
+                    label="Complemento"
+                    class="col-xs-12 col-sm-5"
+                    :readonly="loading"
+                  />
+                </div>
+              </div>
+            </q-form>
           </q-step>
 
           <template #navigation>
@@ -171,18 +271,21 @@
                 v-if="step === 1"
                 color="primary"
                 label="Continuar"
+                :loading="loading"
                 @click="auth()"
               />
               <q-btn
                 v-if="step === 2"
                 color="primary"
                 label="Continuar"
+                :loading="loading"
                 @click="login()"
               />
               <q-btn
                 v-if="step === 3"
                 color="primary"
                 label="Confirmar"
+                :loading="loading"
                 @click="placeOrder()"
               />
             </q-stepper-navigation>
@@ -193,7 +296,13 @@
         id="col-start"
         class="col-xs-12 col-sm-4"
       >
-        <q-list>
+        <q-card>
+          <div class="row q-pa-md text-h6">
+            Produtos
+          </div>
+
+          <q-separator />
+
           <div
             v-for="product in products"
             :key="product.id"
@@ -211,6 +320,7 @@
                     color="red"
                     icon="remove_circle"
                     size="xs"
+                    :disable="loading"
                     @click="deleteFromCheckout(product.id)"
                   />
                 </q-item-label>
@@ -238,7 +348,7 @@
             spaced
             inset
           />
-        </q-list>
+        </q-card>
       </div>
     </q-form>
   </q-page>
@@ -246,13 +356,14 @@
 
 <script>
 import { defineComponent, ref } from 'vue'
-import { required, emailValidation, codeValidation, expDate, cvv, phoneValidation, cardValidation } from 'src/utils/validations'
-import { api } from 'src/boot/axios'
+import { required, emailValidation, codeValidation, expDate, cvv, phoneValidation, cardValidation, cpfValidation, cepValidation } from 'src/utils/validations'
+import { api, request } from 'src/boot/axios'
 
 export default defineComponent({
   name: 'Checkout',
   setup () {
     return {
+      loading: ref(false),
       step: ref(1),
       otp: ref(''),
       products: ref([]),
@@ -271,8 +382,47 @@ export default defineComponent({
           number: '',
           cvv: '',
           expDate: ''
+        },
+        slip: {
+          zipCode: '',
+          state: '',
+          street: '',
+          district: '',
+          complement: '',
+          number: '',
+          city: '',
+          country: ''
         }
-      })
+      }),
+      states: ref([
+        { label: 'Acre', value: 'AC' },
+        { label: 'Alagoas', value: 'AL' },
+        { label: 'Amapá', value: 'AP' },
+        { label: 'Amazonas', value: 'AM' },
+        { label: 'Bahia', value: 'BA' },
+        { label: 'Ceará', value: 'CE' },
+        { label: 'Distrito Federal', value: 'DF' },
+        { label: 'Espírito Santo', value: 'ES' },
+        { label: 'Goiás', value: 'GO' },
+        { label: 'Maranhão', value: 'MA' },
+        { label: 'Mato Grosso', value: 'MT' },
+        { label: 'Mato Grosso do Sul', value: 'MS' },
+        { label: 'Minas Gerais', value: 'MG' },
+        { label: 'Pará', value: 'PA' },
+        { label: 'Paraíba', value: 'PB' },
+        { label: 'Paraná', value: 'PR' },
+        { label: 'Pernambuco', value: 'PE' },
+        { label: 'Piauí', value: 'PI' },
+        { label: 'Rio de Janeiro', value: 'RJ' },
+        { label: 'Rio Grande do Norte', value: 'RN' },
+        { label: 'Rio Grande do Sul', value: 'RS' },
+        { label: 'Rondônia', value: 'RO' },
+        { label: 'Roraima', value: 'RR' },
+        { label: 'Santa Catarina', value: 'SC' },
+        { label: 'São Paulo', value: 'SP' },
+        { label: 'Sergipe', value: 'SE' },
+        { label: 'Tocantins', value: 'TO' }
+      ])
     }
   },
 
@@ -301,10 +451,13 @@ export default defineComponent({
 
   methods: {
     auth () {
+      this.loading = true
       this.$refs.emailInput.validate()
       this.$refs.phoneInput.validate()
 
       if (this.$refs.emailInput.hasError || this.$refs.phoneInput.hasError) {
+        this.loading = false
+
         this.showMessage('Preencha todos os campos', 'warning', 'warning')
       } else {
         api.post('/client/auth', { email: this.paymentData.email })
@@ -321,14 +474,29 @@ export default defineComponent({
                     this.showMessage('E-mail inválido', 'negative', 'error')
                   }
                 })
+                .finally(() => {
+                  this.loading = false
+                })
             }
+          })
+          .finally(() => {
+            this.loading = false
           })
       }
     },
     login () {
+      this.loading = true
       this.$refs.codeInput.validate()
 
+      if (this.count > 2) {
+        this.step = 1
+        this.email = ''
+        this.count = 0
+      }
+
       if (this.$refs.codeInput.hasError) {
+        this.count++
+        this.loading = false
         this.showMessage('Preencha todos os campos', 'warning', 'warning')
       } else {
         api.post('/client/login', { email: this.paymentData.email, code: this.otp })
@@ -349,6 +517,14 @@ export default defineComponent({
               this.showMessage('Código inválido', 'negative', 'error')
             }
           })
+          .catch((error) => {
+            this.count++
+            this.showMessage('Código inválido', 'negative', 'error')
+            console.error('erro identificado ' + error.message + ' code ' + error.code)
+          })
+          .finally(() => {
+            this.loading = false
+          })
       }
     },
     placeOrder () {
@@ -368,23 +544,29 @@ export default defineComponent({
         })
     },
     async capturePayment () {
-      api.post('/payment/capture/' + this.order.id, { paymentData: this.paymentData })
-        .then((response) => {
-          if (response.data.success === true) {
-            console.log('caputura dados: ' + response.data)
+      this.$refs.formCheckout.validate(false).then(outcome => {
+        if (outcome === true) {
+          api.post('/payment/capture/' + this.order.id, { paymentData: this.paymentData })
+            .then((response) => {
+              if (response.data.success === true) {
+                console.log('caputura dados: ' + response.data)
 
-            window.dispatchEvent(new CustomEvent('modify-cart', {
-              detail: {
-                productQtd: 0
+                window.dispatchEvent(new CustomEvent('modify-cart', {
+                  detail: {
+                    productQtd: 0
+                  }
+                }))
+
+                this.$q.localStorage.remove('cart')
+                this.$router.push('/cliente')
+              } else {
+                this.showMessage('Falha ao realizar pagamento', 'negative', 'error')
               }
-            }))
-
-            this.$q.localStorage.remove('cart')
-            this.$router.push('/cliente')
-          } else {
-            this.showMessage('Falha ao realizar pagamento', 'negative', 'error')
-          }
-        })
+            })
+        } else {
+          this.showMessage('Preencha todos os campos', 'warning', 'warning')
+        }
+      })
     },
     deleteFromCheckout (id) {
       console.log('produto a ser deletado: ' + id)
@@ -423,6 +605,26 @@ export default defineComponent({
           })
         })
     },
+    async getCep (zipCode) {
+      console.log('get cep ' + zipCode)
+
+      request.get('https://viacep.com.br/ws/' + zipCode + '/json')
+        .then((response) => {
+          console.log('response ' + JSON.stringify(response))
+          if (response.data.uf) {
+            this.paymentData.slip.city = response.data.localidade
+            this.paymentData.slip.district = response.data.bairro
+            this.paymentData.slip.street = response.data.logradouro
+            this.paymentData.slip.state = response.data.uf
+            return true
+          } else {
+            return false
+          }
+        })
+        .catch(() => {
+          return false
+        })
+    },
     showMessage (msg, color, icon) {
       this.$q.notify({
         message: msg,
@@ -436,7 +638,9 @@ export default defineComponent({
     expDate,
     phoneValidation,
     cvv,
-    cardValidation
+    cardValidation,
+    cpfValidation,
+    cepValidation
   }
 })
 </script>
