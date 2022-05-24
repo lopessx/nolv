@@ -26,7 +26,15 @@
             input-debounce="0"
             use-input
             @filter="filterFn"
-          />
+          >
+            <template #no-option>
+              <q-item>
+                <q-item-section class="text-grey">
+                  Sem resultados
+                </q-item-section>
+              </q-item>
+            </template>
+          </q-select>
         </div>
       </div>
       <div class="row justify-center align-center">
@@ -59,33 +67,17 @@ import { api } from 'src/boot/axios'
 import { required } from 'src/utils/validations'
 import { defineComponent, ref } from 'vue'
 
-const stringOptions = [
-  'Google', 'Facebook', 'Twitter', 'Apple', 'Oracle'
-]
-
 export default defineComponent({
   name: 'Suport',
   setup () {
-    const options = ref(stringOptions)
     return {
       clientId: ref(''),
-      model: ref(null),
       message: ref(''),
       loading: ref(false),
-      options,
       productOptions: ref([]),
       allProductOptions: ref([]),
       storeId: ref(''),
-      storeName: ref('Minha loja'),
-      email: ref('anymail@gmas.com'),
-      products: ref([{ id: 0, name: 'Abacaxi', price: 21.00 }, { id: 1, name: 'Banana', price: 10.00 }, { id: 2, name: 'Batata', price: 34.23 }]),
-      balance: ref(19.23),
-      drawer: ref(false),
-      miniState: ref(true),
-      username: ref('João'),
-      filter: ref(''),
-      productsPerPage: ref([6, 9, 15, 21, 27, 30, 42, 0]),
-      lorem: ref('Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.')
+      filter: ref('')
     }
   },
 

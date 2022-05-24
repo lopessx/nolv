@@ -185,7 +185,7 @@ export default defineComponent({
           return false
         })
 
-      if (queryRatings === true) {
+      if (queryRatings === true && this.clientId !== '') {
         api.get(`/rating/product/${this.productId}/client/${this.clientId}`)
           .then((response) => {
             if (response.data.success === true) {
