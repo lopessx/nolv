@@ -23,6 +23,8 @@ const download = axios.create({
   }
 })
 
+const request = axios.create()
+
 export default boot(({ app }) => {
   api.interceptors.request.use(config => {
     const cookie = Cookies.get('authKey')
@@ -56,4 +58,4 @@ export default boot(({ app }) => {
   app.config.globalProperties.$download = download
 })
 
-export { api, download }
+export { api, download, request }
