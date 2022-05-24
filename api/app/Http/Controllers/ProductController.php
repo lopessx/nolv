@@ -66,10 +66,10 @@ class ProductController extends Controller {
 		try {
 			$id = filter_var($id, FILTER_SANITIZE_NUMBER_INT);
 			$product = Product::findOrFail($id);
-			// $product->category_id = $product->category->id;
-			// $product->language_id = $product->language->id;
-			$product->store_name = $product->store->name;
-			// $product->os_id = $product->os->id;
+			$product->category;
+			$product->language;
+			$product->store;
+			$product->os;
 			$product->images;
 
 			return response(['success' => true, 'product' => $product]);
@@ -244,13 +244,28 @@ class ProductController extends Controller {
 	}
 
 	public function deleteProductImage($imgId) {
-		// TODO needs to change main_image of product if it's deleted
 		DB::beginTransaction();
 
 		try {
 			$productImage = ProductImage::findOrFail($imgId);
+			$product = Product::findOrFail($productImage->product_id);
+
+			$mainImagePath = $product->main_image_path;
+			$productImagePath = $productImage->path;
+
 			Storage::disk('public')->delete($productImage->path);
 			$productImage->delete();
+
+			if ($mainImagePath == $productImagePath) {
+				$newMainImage = ProductImage::where('product_id', $product->id)->first();
+				if (isset($newMainImage->path) && !empty($newMainImage->path)) {
+					$product->main_image_path = $newMainImage->path;
+				} else {
+					$product->main_image_path = '';
+				}
+
+				$product->save();
+			}
 
 			DB::commit();
 

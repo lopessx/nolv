@@ -1,8 +1,9 @@
 <template>
   <q-page>
-    <div class="row q-px-xl q-pt-lg q-gutter-sm">
-      <div class="col-6">
+    <div class="row q-px-lg q-pt-lg q-pb-md q-gutter-xs justify-center">
+      <div class="col-xs-12 col-sm-8">
         <q-carousel
+          v-if="imgs.length > 0"
           v-model="slide"
           control-type="push"
           control-color="accent"
@@ -14,42 +15,67 @@
           transition-next="slide-left"
         >
           <q-carousel-slide
-            v-for="(image, id) in imgs"
-            :key="id"
-            :name="id + 1"
-            :img-src="imgUrl + image.path"
+            v-for="img in imgs"
+            :key="img.order"
+            :name="img.order"
+            :img-src="imgUrl + img.path"
           />
         </q-carousel>
-      </div>
-      <div class="col-5">
-        <div class="text-body2">
-          {{ description }}
-        </div>
+        <q-carousel
+          v-else
+          v-model="slide"
+          control-type="push"
+          control-color="accent"
+          animated
+          navigation
+          infinite
+          arrows
+          transition-prev="slide-right"
+          transition-next="slide-left"
+        >
+          <q-carousel-slide
+            :key="0"
+            :name="1"
+          >
+            <q-img
+              src="../assets/placeholder.png"
+              spinner-color="black"
+              style="height: 325px; max-width: auto;"
+            />
+          </q-carousel-slide>
+        </q-carousel>
       </div>
     </div>
 
-    <div class="row col-12 q-px-xl q-py-md">
-      <div class="col-6">
-        <div class="text-h5">
-          {{ productName }}
+    <q-separator color="grey" />
+
+    <div class="row col-12 q-px-lg q-py-md">
+      <div class="row col-xs-12 col-sm-6 q-pb-md justify-start">
+        <div class="col-8 ">
+          <div class="text-h5">
+            {{ productName }}
+          </div>
+          <div class="text-subtitle1 text-grey text-weight-bold q-pb-sm">
+            v {{ version }}
+          </div>
         </div>
-        <div class="text-subtitle1">
-          v {{ version }}
-        </div>
-        <q-rating
-          v-model="ratingModel"
-          readonly
-          size="2em"
-          :max="5"
-          color="accent"
-        />
-        {{ ratingQtd }}
-      </div>
-      <div class="row col-6 justify-center items-center">
-        <div class="col-6 justify-center">
-          <q-btn
+        <div class="col-8">
+          <q-rating
+            v-model="ratingModel"
+            readonly
+            size="2em"
+            :max="5"
             color="accent"
-            label="Baixar"
+          />
+          {{ ratingQtd }}
+        </div>
+      </div>
+      <div class="row col-xs-12 col-sm-6 q-pb-md justify-end">
+        <div class="row col-xs-12 col-sm-8 q-py-lg">
+          <q-btn
+            class="col-xs-12 col-sm-8"
+            color="accent"
+            label="Download"
             @click="downloadProduct()"
           />
         </div>
@@ -75,10 +101,26 @@
         </div>
       </q-linear-progress>
     </div>
+
     <q-separator color="grey" />
 
-    <div class="row q-px-xl q-py-md justify-center">
-      <q-list class="col-7">
+    <div class="row q-px-lg q-pt-md justify-start">
+      <div class="q-pb-md text-h6 col-6">
+        Detalhes do produto
+      </div>
+    </div>
+
+    <div class="row q-px-lg q-py-md justify-center q-gutter-sm">
+      <q-card
+        class="bg-grey-3 q-pa-sm col-xs-12 col-sm-5"
+        flat
+      >
+        <div class="text-body2">
+          {{ description }}
+        </div>
+      </q-card>
+
+      <q-card class="col-xs-12 col-sm-6">
         <q-item>
           <q-item-section>
             <q-item-label>Idioma</q-item-label>
@@ -126,12 +168,12 @@
           inset
           color="grey"
         />
-      </q-list>
+      </q-card>
     </div>
 
     <q-separator color="grey" />
 
-    <div class="q-px-xl q-py-md">
+    <div class="q-px-lg q-py-md">
       <Comments
         :enable-comment="true"
         :product-id="productId"
@@ -199,12 +241,12 @@ export default defineComponent({
         .then((response) => {
           console.log('resposta: ' + JSON.stringify(response.data))
           this.productName = response.data.product.name
-          this.language = response.data.product.language_id
+          this.language = response.data.product.language.id
           this.version = response.data.product.version
           this.price = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(response.data.product.price)
-          this.category = response.data.product.category_id
-          this.store = response.data.product.store_name
-          this.os = response.data.product.operational_system_id
+          this.category = response.data.product.category.id
+          this.store = response.data.product.store.name
+          this.os = response.data.product.os.id
           this.description = response.data.product.description
           this.imgs = response.data.product.images
           const fileName = response.data.product.file_path

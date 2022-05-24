@@ -4,9 +4,10 @@
       ref="formProduct"
       @submit.prevent
     >
-      <div class="row q-px-xl q-pt-lg q-pb-md q-gutter-sm">
-        <div class="col-6">
+      <div class="row q-px-lg q-pt-lg q-pb-md q-gutter-sm justify-center">
+        <div class="col-xs-12 col-sm-8">
           <q-carousel
+            v-if="imgs.length > 0"
             v-model="slide"
             control-type="push"
             control-color="accent"
@@ -40,14 +41,29 @@
               </q-carousel-control>
             </template>
           </q-carousel>
-        </div>
-        <div class="col-5">
-          <q-input
-            v-model="description"
-            filled
-            type="textarea"
-            label="Descrição do produto"
-          />
+          <q-carousel
+            v-else
+            v-model="slide"
+            control-type="push"
+            control-color="accent"
+            animated
+            navigation
+            infinite
+            arrows
+            transition-prev="slide-right"
+            transition-next="slide-left"
+          >
+            <q-carousel-slide
+              :key="0"
+              :name="1"
+            >
+              <q-img
+                src="../assets/placeholder.png"
+                spinner-color="black"
+                style="height: 325px; max-width: auto;"
+              />
+            </q-carousel-slide>
+          </q-carousel>
         </div>
       </div>
 
@@ -64,8 +80,7 @@
           style="max-width: 280px"
           accept=".jpg, image/*"
           :headers="[{name: 'Authorization', value: 'bearer ' + $q.cookies.get('authKey')}]"
-          @added="imgs => validateImages(imgs)"
-          @finish="showSuccessMessage()"
+          @finish="reloadImages()"
         />
 
         <q-uploader
@@ -79,15 +94,14 @@
           max-file-size="2048000000"
           accept=".zip"
           :headers="[{name: 'Authorization', value: 'bearer ' + $q.cookies.get('authKey')}]"
-          @added="files => validateFiles(files)"
-          @finish="uploadImages()"
+          @finish="resetValidations()"
         />
       </div>
 
       <q-separator color="grey" />
 
-      <div class="row col-12 q-px-xl q-py-md">
-        <div class="col-xs-12 col-sm-6">
+      <div class="row col-12 q-pa-md q-gutter-md justify-center">
+        <div class="col-xs-11 col-sm-5">
           <q-input
             v-model="productName"
             label="Nome do produto"
@@ -106,12 +120,13 @@
             :readonly="loading"
           />
         </div>
-        <div class="row col-xs-12 col-sm-6 justify-center">
+
+        <div class="col-xs-11 col-sm-4">
           <q-input
             v-model="price"
-            class="col-6"
             prefix="R$"
             label="Preço"
+            type="tel"
             mask="#,##"
             fill-mask="0"
             reverse-fill-mask
@@ -119,6 +134,18 @@
             required
             lazy-rules
             :rules="[required, priceValidation]"
+            :readonly="loading"
+          />
+        </div>
+        <div class="col-xs-12 col-sm-11 q-py-md">
+          <q-input
+            v-model="description"
+            filled
+            type="textarea"
+            label="Descrição do produto"
+            required
+            lazy-rules
+            :rules="[required]"
             :readonly="loading"
           />
         </div>
@@ -270,35 +297,38 @@ export default defineComponent({
       loading: ref(false)
     }
   },
-  mounted () {
+  async mounted () {
     this.loading = true
     this.productId = this.$route.params.id
-    // TODO maybe async loading
-    this.getLanguages()
-    this.getOs()
-    this.getCategories()
-    this.getProductDetails()
+
+    const langResult = await this.getLanguages()
+    const osResult = await this.getOs()
+    const categoryResult = await this.getCategories()
+
+    if (langResult === true && osResult === true && categoryResult === true) {
+      this.getProductDetails()
+    }
+
     this.price = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(this.price)
     this.price = this.price.replace(/R\$/gm, '')
     this.price = this.price.replace(/\s/gm, '')
   },
   methods: {
     async getProductDetails () {
+      this.loading = true
+
       api.get(`/product/${this.productId}`)
         .then((response) => {
           console.log('resposta: ' + JSON.stringify(response.data))
           this.productName = response.data.product.name
-          this.language = response.data.product.language_id
+          this.language = response.data.product.language.id
           this.version = response.data.product.version
           this.price = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(response.data.product.price)
-          this.category = response.data.product.category_id
-          this.store = response.data.product.store_name
-          this.os = response.data.product.operational_system_id
+          this.category = response.data.product.category.id
+          this.store = response.data.product.store.name
+          this.os = response.data.product.os.id
           this.description = response.data.product.description
           this.imgs = response.data.product.images
-          for (let c = 0; c < this.imgs.length; c++) {
-            this.imgs[c].order = c + 1
-          }
         })
         .catch((error) => {
           console.error('erro encontrado: ' + error.message)
@@ -307,53 +337,95 @@ export default defineComponent({
           this.loading = false
         })
     },
-    getLanguages () {
-      api.get('/languages')
+    async getLanguages () {
+      const result = await api.get('/languages')
         .then((response) => {
-          if (response.data.success) {
+          if (response.data.success === true) {
             response.data.languages.forEach(language => {
               this.languageOptions.push(language)
             })
+
+            return true
           } else {
             this.showMessage('Nenhum idioma encontrado', 'negative', 'error')
+
+            return false
           }
         })
         .catch((error) => {
           console.error('message ' + error.message + ' code ' + error.code)
           this.showMessage('Nenhum idioma encontrado', 'negative', 'error')
+
+          return false
         })
+
+      return new Promise(function (resolve, reject) {
+        if (result === true) {
+          resolve(true)
+        } else {
+          resolve(false)
+        }
+      })
     },
-    getOs () {
-      api.get('/os')
+    async getOs () {
+      const result = await api.get('/os')
         .then((response) => {
           if (response.data.success) {
             response.data.operational_systems.forEach(os => {
               this.osOptions.push(os)
             })
+
+            return true
           } else {
             this.showMessage('Nenhum sistema operacional encontrado', 'negative', 'error')
+
+            return false
           }
         })
         .catch((error) => {
           console.error('message ' + error.message + ' code ' + error.code)
           this.showMessage('Nenhum sistema operacional encontrado', 'negative', 'error')
+
+          return false
         })
+
+      return new Promise(function (resolve, reject) {
+        if (result === true) {
+          resolve(true)
+        } else {
+          resolve(false)
+        }
+      })
     },
-    getCategories () {
-      api.get('/categories')
+    async getCategories () {
+      const result = await api.get('/categories')
         .then((response) => {
           if (response.data.success) {
             response.data.categories.forEach(category => {
               this.categoryOptions.push(category)
             })
+
+            return true
           } else {
             this.showMessage('Nenhuma categoria encontrada', 'negative', 'error')
+
+            return false
           }
         })
         .catch((error) => {
           console.error('message ' + error.message + ' code ' + error.code)
           this.showMessage('Nenhuma categoria encontrada', 'negative', 'error')
+
+          return false
         })
+
+      return new Promise(function (resolve, reject) {
+        if (result === true) {
+          resolve(true)
+        } else {
+          resolve(false)
+        }
+      })
     },
     deleteImage () {
       console.log('deletar imagem: ' + this.slide + ' imagem: ' + JSON.stringify(this.imgs[this.slide - 1]))
@@ -374,7 +446,8 @@ export default defineComponent({
         api.delete(`/product/image/delete/${imgId}`)
           .then((response) => {
             console.log('resposta exclusão: ' + JSON.stringify(response.data))
-            this.showMessage('Falha na exclusão da imagem', 'positive', 'check_circle')
+            this.showMessage('Imagem excluída com sucesso', 'positive', 'check_circle')
+            this.getProductDetails()
           })
           .catch((error) => {
             console.error('message ' + error.message + ' code ' + error.code)
@@ -385,7 +458,7 @@ export default defineComponent({
     editProduct () {
       this.loading = true
       this.$refs.formProduct.validate(false).then(outcome => {
-        if (outcome === true && this.hasImg === true && this.hasFile === true) {
+        if (outcome === true) {
           api.put(`/product/${this.productId}`, { categoryId: this.category, storeId: this.storeId, languageId: this.language, osId: this.os, name: this.productName, description: this.description, version: this.version, price: this.price })
             .then((response) => {
               if (response.data.success === true) {
@@ -401,6 +474,7 @@ export default defineComponent({
             .finally(() => {
               if (this.productId) {
                 this.$refs.fileUploader.upload()
+                this.$refs.imageUploader.upload()
               }
             })
         } else {
@@ -439,9 +513,6 @@ export default defineComponent({
           })
       })
     },
-    uploadImages () {
-      this.$refs.imageUploader.upload()
-    },
     validateFiles (files) {
       console.log('files ' + JSON.stringify(files))
       if (files.length > 0) {
@@ -454,12 +525,17 @@ export default defineComponent({
         this.hasImg = true
       }
     },
-    showSuccessMessage () {
+    resetValidations () {
       this.$refs.imageUploader.removeUploadedFiles()
       this.$refs.fileUploader.removeUploadedFiles()
       this.$refs.formProduct.resetValidation()
       this.loading = false
-      this.showMessage('Produto criado com sucesso', 'positive', 'check_circle')
+    },
+    reloadImages () {
+      this.$refs.imageUploader.removeUploadedFiles()
+      this.$refs.fileUploader.removeUploadedFiles()
+      this.$refs.formProduct.resetValidation()
+      this.getProductDetails()
     },
     showMessage (msg, color, icon) {
       this.$q.notify({

@@ -11,7 +11,6 @@
       </div>
 
       <div class="row justify-center q-py-md q-gutter-sm">
-        <!-- // TODO maybe add better validation -->
         <q-uploader
           ref="imageUploader"
           :url="urlUpload + '/product/image/upload'"
@@ -21,7 +20,6 @@
           :form-fields="[{name: 'productId', value: productId}]"
           accept=".jpg, image/*"
           style="max-width: 280px"
-          required
           :headers="[{name: 'Authorization', value: 'bearer ' + $q.cookies.get('authKey')}]"
           @added="imgs => validateImages(imgs)"
           @finish="showSuccessMessage()"
@@ -241,6 +239,7 @@ export default defineComponent({
     this.price = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(this.price)
     this.price = this.price.replace(/R\$/gm, '')
     this.price = this.price.replace(/\s/gm, '')
+
     this.getLanguages()
     this.getOs()
     this.getCategories()
