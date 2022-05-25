@@ -25,17 +25,15 @@
             v-if="hasStore"
             class="row justify-center align-center"
           >
+            <div class="col-6 q-pa-md">
+              <span class="text-h5 text-accent text-weight-bold">
+                Saldo
+              </span>
+            </div>
             <div class="col-6 subtitle-1 text-weight-bold q-pa-md text-grey-7">
               <div class="text-h5 text-accent text-weight-bold">
                 {{ new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(balance) }}
               </div>
-            </div>
-            <div class="col-6 q-pa-md">
-              <q-btn
-                color="accent"
-                label="Saque"
-                @click="withdraw()"
-              />
             </div>
           </div>
           <div
@@ -290,10 +288,6 @@ export default defineComponent({
             this.showMessage('Erro ao cadastrar loja', 'negative', 'error')
           })
       }
-    },
-    withdraw () {
-      console.log('saque ' + this.balance)
-      this.$router.push('/perfil')
     },
     unlockInputs () {
       this.hasStore = false

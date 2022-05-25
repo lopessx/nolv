@@ -7,6 +7,9 @@ use App\Models\Gateways\GetnetPaymethod;
 use App\Models\Gateways\PaghiperPaymethod;
 use App\Models\Paymethod;
 use App\Models\Order;
+use App\Models\Product;
+use App\Models\ProductOrder;
+use App\Models\Store;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -78,6 +81,13 @@ class PaymethodController extends Controller {
 
 					if ($result === 1 || $result === 2) {
 						$order->status_id = 4;
+						$productsSold = ProductOrder::where('order_id', $order->id)->get(['product_id']);
+						foreach ($productsSold as $key => $product) {
+							$tempProduct = Product::where('id', $product->product_id)->first(['store_id', 'price']);
+							$store = Store::find($tempProduct->store_id)->first();
+							$store->balance += $tempProduct->price;
+							$store->save();
+						}
 					} else {
 						$order->status_id = 2;
 					}
