@@ -6,11 +6,16 @@ class CieloPaymethod {
 	public static function payCreditCard($cardData, $amount) {
 		$queryUrl = 'https://apiquerysandbox.cieloecommerce.cielo.com.br/';
 		$postUrl = 'https://apisandbox.cieloecommerce.cielo.com.br/';
+		$cardNum = preg_replace('/\D/', '', $cardData['number']);
+		$splitExp = explode('/', $cardData['expDate']);
+		$expDate = $splitExp[0] . '/' . '20' . $splitExp[1];
+		$cvv = preg_replace('/\D/', '', $cardData['cvv']);
+		$name = strip_tags($cardData['name']);
 
-		$merchantId = config('MERCHANT_ID');
-		$merchantSecret = config('MERCHANT_SECRET');
+		$merchantId = config('auth.merchantId');
+		$merchantSecret = config('auth.merchantSecret');
 		$orderId = uniqid('nlv_');
-		$bin = substr($cardData->number, 0, 6);
+		$bin = substr($cardNum, 0, 6);
 		$amount = number_format($amount, 2, '', '');
 
 		$header = [
@@ -23,7 +28,7 @@ class CieloPaymethod {
 
 		curl_setopt_array($ch, [
 			CURLOPT_CUSTOMREQUEST => 'GET',
-			CURLOPT_URL => $queryUrl . '1/card/' . $bin,
+			CURLOPT_URL => $queryUrl . '1/cardBin/' . $bin,
 			CURLOPT_HTTPHEADER => $header,
 			CURLOPT_RETURNTRANSFER => true,
 		]);
@@ -35,6 +40,10 @@ class CieloPaymethod {
 
 		$provider = $response->Provider;
 
+		if ($provider === 'MASTERCARD') {
+			$provider = 'MASTER';
+		}
+
 		$body = [
 			'MerchantOrderId' => $orderId,
 			'Payment' => [
@@ -43,10 +52,10 @@ class CieloPaymethod {
 				'Installments' => 1,
 				'SoftDescriptor' => 'Nolv_Sale',
 				'CreditCard' => [
-					'CardNumber' => $cardData->number,
-					'Holder' => $cardData->name,
-					'ExpirationDate' => $cardData->expDate,
-					'SecurityCode' => $cardData->cvv,
+					'CardNumber' => $cardNum,
+					'Holder' => $name,
+					'ExpirationDate' => $expDate,
+					'SecurityCode' => $cvv,
 					'Brand' => $provider,
 				],
 			],
@@ -69,10 +78,12 @@ class CieloPaymethod {
 		$result = json_decode(curl_exec($ch));
 		$info = curl_getinfo($ch);
 
-		if (isset($result->Payment) && ($result->Payment->Status === 1 || $result->Payment->Status === 2)) {
-			return true;
+		curl_close($ch);
+
+		if (isset($result->Payment->Status)) {
+			return $result->Payment->Status;
 		} else {
-			return false;
+			return $result->message;
 		}
 	}
 }

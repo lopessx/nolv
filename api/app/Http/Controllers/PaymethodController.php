@@ -69,10 +69,11 @@ class PaymethodController extends Controller {
 		try {
 			$order = Order::find($orderId);
 			$paymethod = Paymethod::find($order->paymethod_id);
+			$result = null;
 
 			switch ($paymethod->type) {
 				case 'card':
-					$result = CieloPaymethod::payCreditCard($request->paymentData->card, $request->amount);
+					$result = CieloPaymethod::payCreditCard($request->paymentData['card'], $request->amount);
 
 					break;
 				case 'pix':
@@ -95,7 +96,7 @@ class PaymethodController extends Controller {
 		} catch (Exception $e) {
 			DB::rollBack();
 
-			return response(['message' => $e->getMessage(), 'code' => $e->getCode()], 404);
+			return response(['message' => $e->getMessage(), 'code' => $e->getCode(), 'trace' => $e->getTrace()], 404);
 		}
 	}
 }

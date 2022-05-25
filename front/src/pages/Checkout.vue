@@ -58,6 +58,11 @@
               Código de acesso
             </div>
             <q-separator />
+            <div class="q-pa-md text-grey-7">
+              Seu código de acesso irá expirar em 10 minutos.
+              Código de acesso enviado ao e-mail <b>{{ paymentData.email }}</b>.<br>
+            </div>
+            <q-separator />
             <div class="q-px-sm q-py-lg">
               <q-input
                 ref="codeInput"
@@ -363,6 +368,7 @@ export default defineComponent({
   name: 'Checkout',
   setup () {
     return {
+      count: ref(0),
       loading: ref(false),
       step: ref(1),
       otp: ref(''),
@@ -439,6 +445,7 @@ export default defineComponent({
       this.clientId = client.id
       this.paymentData.email = client.email
       this.paymentData.name = client.name
+      this.paymentData.card.name = client.name
       this.phone = client.phone
       this.step = 3
     }
@@ -503,8 +510,15 @@ export default defineComponent({
           .then((response) => {
             console.log('login efetuado ' + JSON.stringify(response.data))
             if (response.data.success === true) {
+              const client = response.data.client
               this.$q.localStorage.set('client', response.data.client)
-              this.$q.localStorage.set('authKey', response.data.key)
+              this.$q.cookies.set('authKey', response.data.key, { expires: 30 })
+
+              this.clientId = client.id
+              this.paymentData.email = client.email
+              this.paymentData.name = client.name
+              this.paymentData.card.name = client.name
+              this.phone = client.phone
 
               window.dispatchEvent(new CustomEvent('client-localstorage-changed', {
                 detail: {
@@ -528,28 +542,38 @@ export default defineComponent({
       }
     },
     placeOrder () {
-      api.post('/order', { total: this.totalPrice, paymethodId: this.paymentMethod.value, clientId: this.clientId, products: this.products })
-        .then((response) => {
-          console.log('novo pedido ' + JSON.stringify(response.data))
-          if (response.data.success === true) {
-            this.order = response.data.order
-            this.capturePayment()
-          } else {
+      if (this.order) {
+        this.capturePayment()
+      } else {
+        this.loading = true
+
+        api.post('/order', { total: this.totalPrice, paymethodId: this.paymentMethod.value, clientId: this.clientId, products: this.products })
+          .then((response) => {
+            console.log('novo pedido ' + JSON.stringify(response.data))
+            if (response.data.success === true) {
+              this.order = response.data.order
+              this.capturePayment()
+            } else {
+              this.showMessage('Falha ao realizar novo pedido', 'negative', 'error')
+            }
+          })
+          .catch((error) => {
+            console.error('erro mensagem: ' + error.message)
             this.showMessage('Falha ao realizar novo pedido', 'negative', 'error')
-          }
-        })
-        .catch((error) => {
-          console.error('erro mensagem: ' + error.message)
-          this.showMessage('Falha ao realizar novo pedido', 'negative', 'error')
-        })
+            this.loading = false
+          })
+      }
     },
     async capturePayment () {
       this.$refs.formCheckout.validate(false).then(outcome => {
         if (outcome === true) {
+          this.loading = true
+
           api.post('/payment/capture/' + this.order.id, { paymentData: this.paymentData })
             .then((response) => {
-              if (response.data.success === true) {
-                console.log('caputura dados: ' + response.data)
+              console.log('response ' + JSON.stringify(response.data))
+              if (response.data.result === 1 || response.data.result === 2) {
+                console.log('caputura dados: ' + response.data.result)
 
                 window.dispatchEvent(new CustomEvent('modify-cart', {
                   detail: {
@@ -562,6 +586,13 @@ export default defineComponent({
               } else {
                 this.showMessage('Falha ao realizar pagamento', 'negative', 'error')
               }
+            })
+            .catch((error) => {
+              console.error('erro encontrado ' + error.message + ' code ' + error.code)
+              this.showMessage('Falha ao realizar pagamento', 'negative', 'error')
+            })
+            .finally(() => {
+              this.loading = false
             })
         } else {
           this.showMessage('Preencha todos os campos', 'warning', 'warning')
