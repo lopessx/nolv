@@ -183,7 +183,7 @@ export default defineComponent({
             console.log('login efetuado ' + JSON.stringify(response.data))
             if (response.data.success === true) {
               this.$q.localStorage.set('client', response.data.client)
-              this.$q.cookies.set('authKey', response.data.key, { expires: 30, httpOnly: true })
+              this.$q.cookies.set('authKey', response.data.key, { expires: 30 })
 
               console.log('cookie ' + this.$q.cookies.get('authKey'))
 

@@ -370,23 +370,21 @@ export default defineComponent({
     logout () {
       console.log('logout clicado')
       const client = this.$q.localStorage.getItem('client')
-      api.post('/logout', { email: client.email })
-        .then((response) => {
-          if (response.data.success === true) {
+      if (client) {
+        api.post('/logout', { email: client.email })
+          .then((response) => {
             this.$q.localStorage.clear()
             this.$q.cookies.remove('authKey')
             this.clientName = ''
             this.cartItems = 0
             this.$router.push('/')
             this.sessionStarted = false
-          } else {
+          })
+          .catch((error) => {
+            console.error('erro: ' + error.message)
             this.showMessage('Logout falhou', 'negative', 'error')
-          }
-        })
-        .catch((error) => {
-          console.error('erro: ' + error.message)
-          this.showMessage('Logout falhou', 'negative', 'error')
-        })
+          })
+      }
     },
     showMessage (msg, color, icon) {
       this.$q.notify({
