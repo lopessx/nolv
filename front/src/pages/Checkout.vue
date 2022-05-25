@@ -104,7 +104,7 @@
               </div>
               <div
                 v-if="paymentMethod && paymentMethod.type === 'card'"
-                class="row q-pa-sm q-gutter-md"
+                class="row q-pa-sm q-gutter-sm"
               >
                 <q-input
                   v-model="paymentData.card.name"
@@ -152,7 +152,7 @@
               </div>
               <div
                 v-if="paymentMethod && paymentMethod.type === 'boleto'"
-                class="row q-pa-sm q-gutter-md justify-center"
+                class="row q-pa-sm q-gutter-sm justify-center"
               >
                 <q-input
                   v-model="paymentData.name"
@@ -200,7 +200,7 @@
                   :readonly="loading"
                   @update:model-value="getCep"
                 />
-                <div class="row col-xs-11 col-sm-12 q-gutter-md justify-center">
+                <div class="row col-xs-11 col-sm-12 q-gutter-sm justify-center">
                   <q-select
                     v-model="paymentData.slip.state"
                     :disable="loading"
@@ -542,26 +542,30 @@ export default defineComponent({
       }
     },
     placeOrder () {
-      if (this.order) {
-        this.capturePayment()
+      if (this.totalPrice < 1) {
+        this.showMessage('Por favor adicione um produto ao carrinho para prosseguir com a compra', 'warning', 'warning')
       } else {
-        this.loading = true
+        if (this.order) {
+          this.capturePayment()
+        } else {
+          this.loading = true
 
-        api.post('/order', { total: this.totalPrice, paymethodId: this.paymentMethod.value, clientId: this.clientId, products: this.products })
-          .then((response) => {
-            console.log('novo pedido ' + JSON.stringify(response.data))
-            if (response.data.success === true) {
-              this.order = response.data.order
-              this.capturePayment()
-            } else {
+          api.post('/order', { total: this.totalPrice, paymethodId: this.paymentMethod.value, clientId: this.clientId, products: this.products })
+            .then((response) => {
+              console.log('novo pedido ' + JSON.stringify(response.data))
+              if (response.data.success === true) {
+                this.order = response.data.order
+                this.capturePayment()
+              } else {
+                this.showMessage('Falha ao realizar novo pedido', 'negative', 'error')
+              }
+            })
+            .catch((error) => {
+              console.error('erro mensagem: ' + error.message)
               this.showMessage('Falha ao realizar novo pedido', 'negative', 'error')
-            }
-          })
-          .catch((error) => {
-            console.error('erro mensagem: ' + error.message)
-            this.showMessage('Falha ao realizar novo pedido', 'negative', 'error')
-            this.loading = false
-          })
+              this.loading = false
+            })
+        }
       }
     },
     async capturePayment () {
