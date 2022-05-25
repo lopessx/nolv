@@ -96,11 +96,13 @@ class OrderController extends Controller {
 
 	public function getProductsClient(Request $request, $id) {
 		try {
-			$orders = Order::where('client_id', $id)->get(['id']);
+			$orders = Order::where('client_id', $id)->get(['id', 'status_id']);
 			$ordersArr = [];
 
 			foreach ($orders as $key => $order) {
-				$ordersArr[] = $order->id;
+				if ($order->status_id === 4) {
+					$ordersArr[] = $order->id;
+				}
 			}
 
 			$productOrders = ProductOrder::whereIn('order_id', $ordersArr)->get(['product_id']);

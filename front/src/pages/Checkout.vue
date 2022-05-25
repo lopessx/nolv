@@ -396,8 +396,7 @@ export default defineComponent({
           district: '',
           complement: '',
           number: '',
-          city: '',
-          country: ''
+          city: ''
         }
       }),
       states: ref([
@@ -585,6 +584,10 @@ export default defineComponent({
                   }
                 }))
 
+                this.$q.localStorage.remove('cart')
+                this.$router.push('/cliente')
+              } else if (response.data.result.url) {
+                window.open(response.data.result.url)
                 this.$q.localStorage.remove('cart')
                 this.$router.push('/cliente')
               } else {

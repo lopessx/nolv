@@ -8,9 +8,11 @@ class PaghiperPaymethod {
 	public static function payBoleto($bolData, $amount) {
 		$urlBol= 'https://api.paghiper.com/';
 
-		$apiKey = config('paghiperKey');
+		$apiKey = trim(config('auth.paghiperKey'));
 		$listenerUrl = '';
 		$amount = number_format($amount, 2, '', '');
+		$name = strip_tags($bolData['name']);
+		$documentId = preg_replace('/\D/', '', $bolData['cpf']);
 
 		$header = [
 			'Content-Type: application/json',
@@ -21,37 +23,40 @@ class PaghiperPaymethod {
 			'apiKey' => $apiKey,
 			'order_id' => 'bol_' . uniqid(),
 			'payer_email' => $bolData['email'],
-			'payer_name' => $bolData['name'],
-			'payer_cpf_cnpj' => $bolData['cpf'],
+			'payer_name' => $name,
+			'payer_cpf_cnpj' => $documentId,
 			'days_due_date' => 5,
 			'type_bank_slip' => 'boletoA4',
 			'notification_url' => $listenerUrl,
-			'items' => [[
-				'item_id' => '01',
-				'description' => 'Nolv Compra',
-				'quantity' => 1,
-				'price_cents' => $amount,
-			]],
+			'items' => [
+				[
+					'description' => 'Nolv compra',
+					'quantity' => '1',
+					'item_id' => '1',
+					'price_cents' => $amount,
+				],
+			],
 		];
 
 		$ch = curl_init();
 
 		curl_setopt_array($ch, [
 			CURLOPT_CUSTOMREQUEST => 'POST',
-
 			CURLOPT_URL => $urlBol . 'transaction/create/',
-
 			CURLOPT_HTTPHEADER => $header,
-
+			CURLOPT_POST => 1,
 			CURLOPT_POSTFIELDS => json_encode($body),
-
 			CURLOPT_RETURNTRANSFER => true,
 		]);
 
 		$result = json_decode(curl_exec($ch));
 		$info = curl_getinfo($ch);
 
-		return true;
+		if (isset($result->create_request->bank_slip->url_slip)) {
+			return ['result' => true, 'url' => $result->create_request->bank_slip->url_slip];
+		} else {
+			return false;
+		}
 	}
 
 	public static function payPix($pixData, $amount) {
@@ -76,7 +81,7 @@ class PaghiperPaymethod {
 			'items' => [[
 				'item_id' => '01',
 				'description' => 'Nolv Compra',
-				'quantity' => 1,
+				'quantity' => '1',
 				'price_cents' => $amount,
 			]],
 		];

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Gateways\CieloPaymethod;
+use App\Models\Gateways\GetnetPaymethod;
 use App\Models\Gateways\PaghiperPaymethod;
 use App\Models\Paymethod;
 use App\Models\Order;
@@ -73,15 +74,30 @@ class PaymethodController extends Controller {
 
 			switch ($paymethod->type) {
 				case 'card':
-					$result = CieloPaymethod::payCreditCard($request->paymentData['card'], $request->amount);
+					$result = CieloPaymethod::payCreditCard($request->paymentData['card'], $order->total);
+
+					if ($result === 1 || $result === 2) {
+						$order->status_id = 4;
+					} else {
+						$order->status_id = 2;
+					}
+
+					$order->save();
 
 					break;
 				case 'pix':
-					$result = PaghiperPaymethod::payPix($request->paymentData, $request->amount);
+					$result = PaghiperPaymethod::payPix($request->paymentData, $order->total);
 
 					break;
 				case 'boleto':
-					$result = PaghiperPaymethod::payBoleto($request->paymentData, $request->amount);
+					$result = PaghiperPaymethod::payBoleto($request->paymentData, $order->total);
+					// $result = GetnetPaymethod::payBoleto($request->paymentData, $order->total);
+
+					if (!isset($result['url']) || empty($result['url'])) {
+						$order->status_id = 2;
+					}
+
+					$order->save();
 
 					break;
 				default:

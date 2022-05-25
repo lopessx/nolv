@@ -85,3 +85,5 @@ $router->get('/ratings/product/{id}', 'RatingController@getProductRatings');
 
 // Payment Methods
 $router->get('/payment/list', 'PaymethodController@get');
+
+// TODO add listener to bank_slip
