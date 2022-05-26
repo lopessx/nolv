@@ -16,8 +16,9 @@
       expand-separator
       icon="file_download"
       label="Meus produtos"
-      caption="Meus produtos"
+      caption="Produtos adquiridos para download"
       header-class="text-primary"
+      default-opened
     >
       <div class="row">
         <div class="col-12 q-gutter-sm">
@@ -84,12 +85,14 @@
         </div>
       </div>
     </q-expansion-item>
+
+    <!--// TODO add mobile support -->
     <q-expansion-item
       class="q-px-lg q-py-md"
       expand-separator
       icon="shopping_basket"
-      label="Compras"
-      caption="Compras"
+      label="Pedidos"
+      caption="Registro dos pedidos feitos"
       header-class="text-primary"
     >
       <div class="row">
@@ -98,11 +101,10 @@
             color="grey-8"
             :rows="orders"
             :columns="orderColumns"
-            row-key="name"
+            row-key="id"
             :filter="filter"
             :rows-per-page-options="ordersPerPage"
             no-data-label="Nenhum pedido encontrado"
-            hide-header
           >
             <template #top-right>
               <q-input
@@ -117,34 +119,6 @@
                 </template>
               </q-input>
             </template>
-
-            <template #item="props">
-              <div class="q-pa-xs col-xs-12 col-sm-6 col-md-4 col-lg-3 grid-style-transition">
-                <q-card
-                  clickable
-                  class="cursor-pointer q-hoverable"
-                  @click="selectProduct(props.cols[0].value)"
-                >
-                  <q-card-section>
-                    <q-img
-                      src="../assets/placeholder.png"
-                      spinner-color="black"
-                      style="height: 150px; max-width: auto;"
-                    />
-                  </q-card-section>
-                  <q-separator />
-                  <q-card-section>
-                    <div class="text-body1 text-weight-bold">
-                      {{ props.cols[2].value }}
-                    </div>
-                  </q-card-section>
-                  <q-separator />
-                  <div class="subtitle-1 text-weight-bold q-pa-md text-grey-7">
-                    {{ props.cols[1].value }}
-                  </div>
-                </q-card>
-              </div>
-            </template>
           </q-table>
         </div>
       </div>
@@ -157,12 +131,75 @@ import { api } from 'src/boot/axios'
 import { defineComponent, ref } from 'vue'
 
 const orderColumns = [
-  { name: 'id', required: true, label: 'Identificador', field: 'id', format: val => `${val}` },
-  { name: 'desc', required: true, label: 'Produto', align: 'left', field: row => row.name, format: val => `${val}`, sortable: true },
-  { name: 'total', label: 'Preço (R$)', field: 'total', format: val => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(val), sortable: true },
-  { name: 'language', required: true, label: 'Idioma', field: 'language', format: val => `${val}`, sortable: true },
-  { name: 'category', required: true, label: 'Categoria', field: 'category', format: val => `${val}`, sortable: true },
-  { name: 'os', required: true, label: 'Sistema operacional', field: 'os', format: val => `${val}`, sortable: true }
+  {
+    name: 'id',
+    required: true,
+    label: 'Código',
+    field: 'id',
+    format: val => `${val}`,
+    sortable: true
+  },
+  {
+    name: 'paymethod',
+    required: true,
+    label: 'Método de pagamento',
+    field: 'paymethod',
+    format: (val) => {
+      switch (val) {
+        case 1:
+
+          return 'Cartão de crédito'
+        case 2:
+
+          return 'Boleto bancário'
+      }
+    },
+    sortable: true
+  },
+  {
+    name: 'status',
+    required: true,
+    label: 'Status',
+    field: 'status',
+    format: (val) => {
+      console.log('valor' + val)
+      switch (val) {
+        case 1:
+
+          return 'Pendente'
+        case 2:
+
+          return 'Cancelado'
+        case 3:
+
+          return 'Abandonado'
+        case 4:
+
+          return 'Concluído'
+      }
+    },
+    sortable: true
+  },
+  {
+    name: 'total',
+    label: 'Preço (R$)',
+    field: 'total',
+    format: val => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(val),
+    sortable: true
+  },
+  {
+    name: 'date',
+    required: true,
+    label: 'Data da compra',
+    field: 'date',
+    format: (val) => {
+      const spltDate = val.split('T')
+      let filterDate = spltDate[0].split('-')
+      filterDate = filterDate[2] + '/' + filterDate[1] + '/' + filterDate[0]
+      return filterDate
+    },
+    sortable: true
+  }
 ]
 
 const productColumns = [
@@ -239,7 +276,13 @@ export default defineComponent({
           const orders = response.data.orders
           if (orders && response.data.success === true) {
             orders.forEach(order => {
-              this.orders.push(order)
+              const orderObj = {}
+              orderObj.id = order.id
+              orderObj.status = order.status_id
+              orderObj.paymethod = order.paymethod_id
+              orderObj.total = order.total
+              orderObj.date = order.created_at
+              this.orders.push(orderObj)
             })
           }
         })
@@ -251,6 +294,22 @@ export default defineComponent({
     selectProduct (productId) {
       console.log('produto selecionado ' + JSON.stringify(productId))
       this.$router.push(`/produto/${productId}/download`)
+    },
+    formatStatus (status) {
+      switch (status) {
+        case '1':
+
+          return 'Pendente'
+        case '2':
+
+          return 'Cancelado'
+        case '3':
+
+          return 'Abandonado'
+        case '4':
+
+          return 'Concluído'
+      }
     }
   }
 })

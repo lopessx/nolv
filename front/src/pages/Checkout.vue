@@ -541,31 +541,37 @@ export default defineComponent({
       }
     },
     placeOrder () {
-      if (this.totalPrice < 1) {
-        this.showMessage('Por favor adicione um produto ao carrinho para prosseguir com a compra', 'warning', 'warning')
-      } else {
-        if (this.order) {
-          this.capturePayment()
-        } else {
-          this.loading = true
+      this.$refs.formCheckout.validate(false).then(outcome => {
+        if (outcome === true) {
+          if (this.totalPrice < 1) {
+            this.showMessage('Por favor adicione um produto ao carrinho para prosseguir com a compra', 'warning', 'warning')
+          } else {
+            if (this.order) {
+              this.capturePayment()
+            } else {
+              this.loading = true
 
-          api.post('/order', { total: this.totalPrice, paymethodId: this.paymentMethod.value, clientId: this.clientId, products: this.products })
-            .then((response) => {
-              console.log('novo pedido ' + JSON.stringify(response.data))
-              if (response.data.success === true) {
-                this.order = response.data.order
-                this.capturePayment()
-              } else {
-                this.showMessage('Falha ao realizar novo pedido', 'negative', 'error')
-              }
-            })
-            .catch((error) => {
-              console.error('erro mensagem: ' + error.message)
-              this.showMessage('Falha ao realizar novo pedido', 'negative', 'error')
-              this.loading = false
-            })
+              api.post('/order', { total: this.totalPrice, paymethodId: this.paymentMethod.value, clientId: this.clientId, products: this.products })
+                .then((response) => {
+                  console.log('novo pedido ' + JSON.stringify(response.data))
+                  if (response.data.success === true) {
+                    this.order = response.data.order
+                    this.capturePayment()
+                  } else {
+                    this.showMessage('Falha ao realizar novo pedido', 'negative', 'error')
+                  }
+                })
+                .catch((error) => {
+                  console.error('erro mensagem: ' + error.message)
+                  this.showMessage('Falha ao realizar novo pedido', 'negative', 'error')
+                  this.loading = false
+                })
+            }
+          }
+        } else {
+          this.showMessage('Preencha todos os campos', 'warning', 'warning')
         }
-      }
+      })
     },
     async capturePayment () {
       this.$refs.formCheckout.validate(false).then(outcome => {
