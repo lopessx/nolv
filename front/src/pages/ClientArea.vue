@@ -48,25 +48,25 @@
             </template>
 
             <template #item="props">
-              <div class="q-pa-xs col-xs-12 col-sm-6 col-md-4 col-lg-3 grid-style-transition">
+              <div class="q-pa-sm grid-style-transition">
                 <q-card
                   clickable
                   class="cursor-pointer q-hoverable"
-                  style="max-width: 300px;"
+                  style="max-width: 300px; width: auto;"
                   @click="selectProduct(props.cols[0].value)"
                 >
                   <q-card-section>
                     <q-img
                       :src="imgUrl + props.cols[7].value"
                       spinner-color="black"
-                      style="height: 150px; max-width: auto;"
+                      style="height: 150px; width: 230px;"
                     >
                       <template #error>
                         <div class="absolute-full flex flex-center bg-white text-white">
                           <q-img
                             src="../assets/placeholder.png"
                             spinner-color="black"
-                            style="height: 150px; max-width: auto;"
+                            style="height: 150px; width: 230px;"
                           />
                         </div>
                       </template>
@@ -86,7 +86,6 @@
       </div>
     </q-expansion-item>
 
-    <!--// TODO add mobile support -->
     <q-expansion-item
       class="q-px-lg q-py-md"
       expand-separator
@@ -105,6 +104,7 @@
             :filter="filter"
             :rows-per-page-options="ordersPerPage"
             no-data-label="Nenhum pedido encontrado"
+            :grid="$q.screen.lt.md"
           >
             <template #top-right>
               <q-input
