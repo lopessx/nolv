@@ -103,15 +103,18 @@
     >
       <!-- Toolbar desktop -->
       <q-toolbar class="q-gutter-sm gt-xs">
-        <!-- // TODO add logo? -->
         <!-- Home button -->
         <q-toolbar-title class="row">
           <q-btn
             color="primary"
-            unelevated
-            label="Nolv"
+            round
             @click="$router.push('/')"
-          />
+          >
+            <q-img
+              src="../assets/nolv-logo.png"
+              spinner-color="black"
+            />
+          </q-btn>
           <!-- Search bar -->
           <q-input
             v-model="searchText"
@@ -200,15 +203,18 @@
 
       <!-- Toolbar mobile -->
       <q-toolbar class="q-gutter-xs lt-sm">
-        <!-- // TODO logo reduzida -->
         <q-btn
           class="col-1"
           color="primary"
-          unelevated
-          label="SN"
+          round
           size="10px"
           @click="$router.push('/')"
-        />
+        >
+          <q-img
+            src="../assets/nolv-logo.png"
+            spinner-color="black"
+          />
+        </q-btn>
 
         <q-input
           v-model="searchText"
