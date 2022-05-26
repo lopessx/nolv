@@ -211,23 +211,28 @@ export default defineComponent({
     sendRating () {
       this.loading = true
 
-      api.post('/rating', { clientId: this.clientId, rating: this.ratingModelClient, comment: this.commentInput, productId: this.productId })
-        .then((response) => {
-          console.log('response send rating: ' + JSON.stringify(response.data))
-          if (response.data.success === true) {
-            this.comments = []
-            this.commentInput = ''
-            this.ratingModelClient = 0
-            this.getRatings()
-          }
-        })
-        .catch((error) => {
-          console.error('message ' + error.message + ' code ' + error.code)
-          this.showMessage('Envio de comentário falhou', 'negative', 'error')
-        })
-        .finally(() => {
-          this.loading = false
-        })
+      if (this.ratingModelClient > 0 && this.commentInput !== '') {
+        api.post('/rating', { clientId: this.clientId, rating: this.ratingModelClient, comment: this.commentInput, productId: this.productId })
+          .then((response) => {
+            console.log('response send rating: ' + JSON.stringify(response.data))
+            if (response.data.success === true) {
+              this.comments = []
+              this.commentInput = ''
+              this.ratingModelClient = 0
+              this.getRatings()
+            }
+          })
+          .catch((error) => {
+            console.error('message ' + error.message + ' code ' + error.code)
+            this.showMessage('Envio de comentário falhou', 'negative', 'error')
+          })
+          .finally(() => {
+            this.loading = false
+          })
+      } else {
+        this.loading = false
+        this.showMessage('Preencha os campos para realizar um comentário', 'warning', 'warning')
+      }
     },
     updateRating () {
       this.loading = true
