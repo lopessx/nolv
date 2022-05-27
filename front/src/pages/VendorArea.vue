@@ -92,7 +92,10 @@
       </div>
     </q-form>
     <q-separator />
-    <div class="row q-px-md q-py-md">
+    <div
+      v-if="hasStore"
+      class="row q-px-md q-py-md"
+    >
       <div class="col-12">
         <div class="col-12 q-pa-md q-gutter-sm">
           <q-table
