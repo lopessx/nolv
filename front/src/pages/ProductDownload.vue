@@ -221,7 +221,6 @@ export default defineComponent({
     }
   },
   created () {
-    // TODO make a request to img to see if exists
     const client = this.$q.localStorage.getItem('client')
 
     if (client) {
@@ -232,8 +231,6 @@ export default defineComponent({
     this.getProductDetails()
 
     console.log('category options: ' + JSON.stringify(this.categoryOptions) + ' category ' + this.category)
-
-    // this.getRatings()
   },
   methods: {
     async getProductDetails () {
