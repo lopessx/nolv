@@ -215,14 +215,6 @@
                         {{ props.cols[3].value }}
                       </div>
                     </div>
-
-                    <!-- // TODO create OS && language indicator?
-                    <div class="row justify-start items-end">
-                      <div class="text-body1 text-weight-bold col-auto">
-                        {{ props.cols[3].value }}
-                      </div>
-                    </div>
-                    -->
                   </q-card-section>
                 </q-card-section>
               </q-card>
