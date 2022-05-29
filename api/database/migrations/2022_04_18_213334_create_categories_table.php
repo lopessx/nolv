@@ -18,8 +18,11 @@ class CreateCategoriesTable extends Migration {
 		});
 
 		Category::insert([
+			['name' => 'Comunicação'],
 			['name' => 'Design'],
 			['name' => 'Entretenimento'],
+			['name' => 'Ferramentas'],
+			['name' => 'Finanças'],
 			['name' => 'Produtividade'],
 		]);
 	}
