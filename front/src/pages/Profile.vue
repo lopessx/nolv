@@ -117,6 +117,15 @@ export default defineComponent({
         api.put(`/client/update/${this.clientId}`, { name: this.name, email: this.email, phone: this.phone })
           .then((response) => {
             if (response.data.success === true) {
+              this.$q.localStorage.remove('client')
+              this.$q.localStorage.set('client', { name: this.name, phone: this.phone, email: this.email, id: this.clientId })
+
+              window.dispatchEvent(new CustomEvent('client-localstorage-changed', {
+                detail: {
+                  client: this.$q.localStorage.getItem('client')
+                }
+              }))
+
               this.showMessage('Informações atualizadas com sucesso', 'positive', 'check_circle')
             } else {
               this.showMessage('Erro ao atualizar as informações', 'negative', 'error')

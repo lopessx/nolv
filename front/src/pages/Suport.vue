@@ -15,11 +15,10 @@
       <div class="row justify-start align-center q-pt-md">
         <div class="col-6 q-pa-md">
           <q-select
-            v-model="storeId"
+            v-model="productInput"
+            clearable
             required
             outlined
-            map-options
-            emit-value
             :options="productOptions"
             :readonly="loading"
             label="Enviar para..."
@@ -76,7 +75,7 @@ export default defineComponent({
       loading: ref(false),
       productOptions: ref([]),
       allProductOptions: ref([]),
-      storeId: ref(''),
+      productInput: ref(''),
       filter: ref('')
     }
   },
@@ -128,11 +127,11 @@ export default defineComponent({
 
       this.$refs.formMessage.validate()
 
-      if (this.$refs.messageInput.hasError || this.storeId === '') {
+      if (this.$refs.messageInput.hasError || this.productInput.value === '') {
         this.showMessage('Preencha todos os campos', 'warning', 'warning')
         this.loading = false
       } else {
-        api.post('/ticket', { message: this.message, clientId: this.clientId, storeId: this.storeId })
+        api.post('/ticket', { message: this.message, clientId: this.clientId, storeId: this.productInput.value })
           .then((response) => {
             console.log('resposta: ' + JSON.stringify(response.data))
             if (response.data.success === true) {
