@@ -22,6 +22,18 @@
             <q-separator />
             <div class="q-px-sm q-pb-sm q-pt-lg">
               <q-input
+                ref="nameInput"
+                v-model="paymentData.name"
+                outlined
+                label="Nome completo"
+                required
+                lazy-rules
+                :rules="[required]"
+                :readonly="loading"
+              />
+            </div>
+            <div class="q-px-sm q-pb-sm">
+              <q-input
                 ref="emailInput"
                 v-model="paymentData.email"
                 outlined
@@ -458,10 +470,11 @@ export default defineComponent({
   methods: {
     auth () {
       this.loading = true
+      this.$refs.nameInput.validate()
       this.$refs.emailInput.validate()
       this.$refs.phoneInput.validate()
 
-      if (this.$refs.emailInput.hasError || this.$refs.phoneInput.hasError) {
+      if (this.$refs.emailInput.hasError || this.$refs.phoneInput.hasError || this.$refs.nameInput.hasError) {
         this.loading = false
 
         this.showMessage('Preencha todos os campos', 'warning', 'warning')
@@ -472,7 +485,7 @@ export default defineComponent({
             if (response.data.success === true) {
               this.step = 2
             } else {
-              api.post('/client/register', { email: this.paymentData.email, phone: this.phone })
+              api.post('/client/register', { email: this.paymentData.email, phone: this.phone, name: this.paymentData.name })
                 .then((response) => {
                   if (response.data.success === true) {
                     this.step = 2
