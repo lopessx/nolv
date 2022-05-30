@@ -104,7 +104,7 @@ class ClientController extends Controller {
 				$client->name = $request->name;
 				$client->email = $request->email;
 				$client->phone = $request->phone;
-				$client->password = Hash::make($accessCode);
+				$client->auth_key = Hash::make($accessCode);
 
 				$client->save();
 
@@ -135,15 +135,14 @@ class ClientController extends Controller {
 			$expDate = strtotime($client->updated_at);
 			$today = (time()-(60*10));
 
-			// TODO idea maybe add user ip to the authentication proccess verification
 			if ($expDate > $today) {
-				if (Hash::check($request->code, $client->password)) {
-					$client->password = Hash::make(uniqid('', true));
+				if (Hash::check($request->code, $client->auth_key)) {
+					$client->auth_key = Hash::make(uniqid('', true));
 					$client->save();
 
 					DB::commit();
 
-					return response(['success' => true, 'client' => $client, 'key' => base64_encode($client->password)], 200);
+					return response(['success' => true, 'client' => $client, 'key' => base64_encode($client->auth_key)], 200);
 				} else {
 					return response(['success' => false], 200);
 				}
@@ -170,7 +169,7 @@ class ClientController extends Controller {
 				return response(['success' => false], 200);
 			} else {
 				$accessCode = random_int(100000, 999999);
-				$client->password = Hash::make($accessCode);
+				$client->auth_key = Hash::make($accessCode);
 
 				$client->save();
 
@@ -200,7 +199,7 @@ class ClientController extends Controller {
 
 				return response(['success' => false], 200);
 			} else {
-				$client->password = Hash::make(uniqid('logout_', true));
+				$client->auth_key = Hash::make(uniqid('logout_', true));
 
 				$client->save();
 

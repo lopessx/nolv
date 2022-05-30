@@ -3,8 +3,16 @@
 namespace App\Models\Gateways;
 
 class CieloPaymethod {
+	/**
+	 * Pay credit card
+	 *
+	 * @param array $cardData
+	 *
+	 * @param string $amount
+	 *
+	 * @return string $result
+	 */
 	public static function payCreditCard($cardData, $amount) {
-		$queryUrl = 'https://apiquerysandbox.cieloecommerce.cielo.com.br/';
 		$postUrl = 'https://apisandbox.cieloecommerce.cielo.com.br/';
 		$cardNum = preg_replace('/\D/', '', $cardData['number']);
 		$splitExp = explode('/', $cardData['expDate']);
@@ -15,7 +23,6 @@ class CieloPaymethod {
 		$merchantId = config('auth.merchantId');
 		$merchantSecret = config('auth.merchantSecret');
 		$orderId = uniqid('nlv_');
-		$bin = substr($cardNum, 0, 6);
 		$amount = number_format($amount, 2, '', '');
 
 		$header = [
@@ -23,31 +30,6 @@ class CieloPaymethod {
 			'MerchantId: ' . $merchantId,
 			'MerchantKey: ' . $merchantSecret,
 		];
-		/*
-				$ch = curl_init();
-
-				curl_setopt_array($ch, [
-					CURLOPT_CUSTOMREQUEST => 'GET',
-					CURLOPT_URL => $queryUrl . '1/cardBin/' . $bin,
-					CURLOPT_HTTPHEADER => $header,
-					CURLOPT_RETURNTRANSFER => true,
-				]);
-
-				$response = json_decode(curl_exec($ch));
-				$info = curl_getinfo($ch);
-
-				curl_close($ch);
-
-				if (isset($response->Provider)) {
-					$provider = $response->Provider;
-				} else {
-					// TODO fallback with regex?
-					CieloPaymethod::getProviderRegex($bin);
-				}
-
-				if ($provider === 'MASTERCARD') {
-					$provider = 'MASTER';
-				} */
 
 		$provider = CieloPaymethod::getProviderRegex($cardNum);
 
@@ -94,6 +76,13 @@ class CieloPaymethod {
 		}
 	}
 
+	/**
+	 * Get regex by card number
+	 *
+	 * @param string $cardNum
+	 *
+	 * @return string $provider
+	 */
 	public static function getProviderRegex($cardNum) {
 		// Stores regex for Card Bin Tests
 		$bin = [

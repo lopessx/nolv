@@ -23,18 +23,17 @@ class Client extends Model implements AuthenticatableContract, AuthorizableContr
 	 */
 	protected $table = 'clients';
 
-	// TODO refactor password attributes to access_key or something alike
 	/**
 	 * The attributes that are mass assignable.
 	 *
 	 * @var array
 	 */
-	protected $fillable = ['name', 'email', 'password', 'phone'];
+	protected $fillable = ['name', 'email', 'auth_key', 'phone'];
 
 	/**
 	 * The columns that are hidden from front-end view
 	 *
 	 * @var array
 	 */
-	protected $hidden = ['password', 'created_at', 'updated_at'];
+	protected $hidden = ['auth_key', 'created_at', 'updated_at'];
 }

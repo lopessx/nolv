@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\Gateways\CieloPaymethod;
-use App\Models\Gateways\GetnetPaymethod;
 use App\Models\Gateways\PaghiperPaymethod;
 use App\Models\Paymethod;
 use App\Models\Order;
@@ -95,13 +94,8 @@ class PaymethodController extends Controller {
 					$order->save();
 
 					break;
-				case 'pix':
-					$result = PaghiperPaymethod::payPix($request->paymentData, $order->total);
-
-					break;
 				case 'boleto':
-					$result = PaghiperPaymethod::payBoleto($request->paymentData, $order->total);
-					// $result = GetnetPaymethod::payBoleto($request->paymentData, $order->total);
+					$result = PaghiperPaymethod::payBoleto($request->paymentData, $order->total, $order->id);
 
 					if (!isset($result['url']) || empty($result['url'])) {
 						$order->status_id = 2;
@@ -123,6 +117,50 @@ class PaymethodController extends Controller {
 			DB::rollBack();
 
 			return response(['message' => $e->getMessage(), 'code' => $e->getCode(), 'trace' => $e->getTrace()], 404);
+		}
+	}
+
+	public function listenPayment(Request $request, $orderId) {
+		$orderId = $orderId;
+		$urlBol= 'https://api.paghiper.com/';
+		$token = config('auth.paghiperToken');
+		$apiKey = config('auth.paghiperKey');
+		$transaction_id = $request->transaction_id; // $_POST['transaction_id'];
+		$notification_id = $request->notification_id; //$_POST['notification_id'];
+
+		$order = Order::find($orderId);
+
+		$header = [
+			'Content-Type: application/json',
+			'Accept: application/json',
+		];
+		$body = [
+			'token' => $token,
+			'apiKey' => $apiKey,
+			'transaction_id' => $transaction_id,
+			'notification_id' => $notification_id,
+		];
+
+		$ch = curl_init();
+
+		curl_setopt_array($ch, [
+			CURLOPT_CUSTOMREQUEST => 'POST',
+			CURLOPT_URL => $urlBol . 'transaction/notification/',
+			CURLOPT_HTTPHEADER => $header,
+			CURLOPT_POST => 1,
+			CURLOPT_POSTFIELDS => json_encode($body),
+			CURLOPT_RETURNTRANSFER => true,
+		]);
+
+		$result = json_decode(curl_exec($ch));
+		$info = curl_getinfo($ch);
+
+		if ($result->status_request->status == 'completed' || $result->status_request->status == 'paid') {
+			$order->status_id = 4;
+			$order->save();
+		} else {
+			$order->status_id = 2;
+			$order->save();
 		}
 	}
 }
