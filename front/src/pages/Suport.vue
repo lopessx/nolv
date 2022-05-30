@@ -110,7 +110,7 @@ export default defineComponent({
           const products = response.data.products
           if (products && response.data.success === true) {
             products.forEach(product => {
-              this.allProductOptions.push({ label: product.name, value: product.store_id })
+              this.allProductOptions.push({ label: product.name, value: product.id, store: product.store_id })
             })
           }
         })
@@ -131,7 +131,7 @@ export default defineComponent({
         this.showMessage('Preencha todos os campos', 'warning', 'warning')
         this.loading = false
       } else {
-        api.post('/ticket', { message: this.message, clientId: this.clientId, storeId: this.productInput.value })
+        api.post('/ticket', { message: this.message, clientId: this.clientId, storeId: this.productInput.store, productName: this.productInput.label })
           .then((response) => {
             console.log('resposta: ' + JSON.stringify(response.data))
             if (response.data.success === true) {

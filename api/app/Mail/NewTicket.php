@@ -11,11 +11,18 @@ class NewTicket extends Mailable {
 	use SerializesModels;
 
 	/**
-	 * The product instance.
+	 * The client name.
 	 *
 	 * @var string
 	 */
 	public $clientName;
+
+	/**
+	 * The product name
+	 *
+	 * @var string
+	 */
+	public $productName;
 
 	/**
 	 * The ticket message
@@ -29,9 +36,10 @@ class NewTicket extends Mailable {
 	 *
 	 * @return void
 	 */
-	public function __construct($clientName, $content) {
+	public function __construct($clientName, $content, $productName) {
 		$this->clientName = $clientName;
 		$this->content = $content;
+		$this->productName = $productName;
 	}
 
 	/**

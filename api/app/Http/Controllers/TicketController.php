@@ -52,7 +52,7 @@ class TicketController extends Controller {
 			$client = Client::find($request->clientId);
 
 			Mail::to((string) $client->email)
-			->send(new NewTicket($client->name, $ticket->message));
+			->send(new NewTicket($client->name, $ticket->message, $request->productName));
 
 			return response(['success' => true]);
 		} catch (Exception $e) {
