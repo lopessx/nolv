@@ -22,5 +22,5 @@ class Paymethod extends Model {
 	 *
 	 * @var array
 	 */
-	protected $fillable = ['name', 'type', 'active'];
+	protected $fillable = ['id', 'name', 'type', 'active'];
 }

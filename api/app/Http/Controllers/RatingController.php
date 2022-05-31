@@ -86,8 +86,15 @@ class RatingController extends Controller {
 
 		try {
 			$rating = Rating::where('id', $id)->first();
-			$rating->rating = $request->rating;
-			$rating->comment = $request->comment;
+
+			if ($request->exists('rating')) {
+				$rating->rating = $request->rating;
+			}
+
+			if ($request->exists('comment')) {
+				$rating->comment = $request->comment;
+			}
+
 			$rating->save();
 
 			DB::commit();

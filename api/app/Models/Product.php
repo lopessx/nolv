@@ -22,7 +22,7 @@ class Product extends Model {
 	 *
 	 * @var array
 	 */
-	protected $fillable = ['store_id', 'category_id', 'name', 'price', 'file_path', 'operational_system_id', 'lang_id', 'main_image_path'];
+	protected $fillable = ['store_id', 'category_id', 'name', 'price', 'file_path', 'operational_system_id', 'language_id', 'main_image_path', 'description'];
 
 	public function category() {
 		return $this->hasOne(Category::class, 'id', 'category_id');

@@ -1,17 +1,19 @@
 <?php
 
 use Laravel\Lumen\Testing\DatabaseMigrations;
-use Laravel\Lumen\Testing\DatabaseTransactions;
 
-class CategoryTest extends TestCase
-{
-    /**
-     * A basic test example.
-     *
-     * @return void
-     */
-    public function testExample()
-    {
-        $this->assertTrue(true);
-    }
+class CategoryTest extends TestCase {
+	use DatabaseMigrations;
+
+	/**
+	 * Test categories list
+	 *
+	 * @return void
+	 */
+	public function testListCategories() {
+		$this->json('GET', '/categories')
+			->seeJson([
+				'success' => true,
+			]);
+	}
 }
