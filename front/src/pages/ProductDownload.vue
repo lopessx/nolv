@@ -168,6 +168,22 @@
           inset
           color="grey"
         />
+
+        <q-item>
+          <q-item-section>
+            <q-item-label>Vendido por</q-item-label>
+          </q-item-section>
+
+          <q-item-section side>
+            <q-item-label>{{ store }}</q-item-label>
+          </q-item-section>
+        </q-item>
+
+        <q-separator
+          spaced
+          inset
+          color="grey"
+        />
       </q-card>
     </div>
 
