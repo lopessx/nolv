@@ -1,0 +1,24 @@
+{
+  "vetur.validation.template": false,
+  "vetur.format.enable": false,
+  "eslint.validate": ["javascript", "javascriptreact", "typescript", "vue"],
+  
+  "vetur.experimental.templateInterpolationService": true,
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": true,
+  },
+  "eslint.alwaysShowStatus": true,
+
+  "php.executablePath":"/usr/bin/php7.4",
+   "workbench.iconTheme": "vscode-icons",
+   "php.validate.executablePath": "/usr/bin/php7.4",
+   "php.suggest.basic": false,
+   "[php]": {
+       "editor.defaultFormatter": "junstyle.php-cs-fixer",
+       "editor.formatOnSave": true
+   },
+   "php-cs-fixer.executablePath": "${extensionPath}/php-cs-fixer.phar",
+   "php-cs-fixer.onsave": true,
+   "php-cs-fixer.rules": "@PSR2",
+   "php-cs-fixer.config": "/home/emanuel/.vscode/.php-cs-fixer.php"
+}
