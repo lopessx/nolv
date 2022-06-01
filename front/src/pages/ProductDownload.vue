@@ -76,6 +76,7 @@
             class="col-xs-12 col-sm-8"
             color="accent"
             label="Download"
+            :loading="loading"
             @click="downloadProduct()"
           />
         </div>
@@ -210,6 +211,7 @@ export default defineComponent({
   components: { Comments },
   setup () {
     return {
+      loading: ref(false),
       downloadProgress: ref(0),
       downloadProgressLabel: ref(0),
       productId: ref(''),
@@ -237,6 +239,7 @@ export default defineComponent({
     }
   },
   created () {
+    this.loading = true
     const client = this.$q.localStorage.getItem('client')
 
     if (client) {
@@ -337,6 +340,7 @@ export default defineComponent({
         })
     },
     downloadProduct () {
+      this.loading = true
       this.downloadProgress = parseInt(5 / 100)
       download.get(`/product/download/${this.productId}`, {
         onDownloadProgress: progressEvent => {
@@ -359,6 +363,9 @@ export default defineComponent({
         .catch((error) => {
           console.error('message ' + error.message + ' code ' + error.code)
           this.showMessage('Download falhou', 'negative', 'error')
+        })
+        .finally(() => {
+          this.loading = false
         })
     },
     updateRating (newRating) {

@@ -16,6 +16,7 @@
               label="Mínimo"
               debounce="500"
               outlined
+              :readonly="loading"
               @update:model-value="filterProducts(1)"
             />
           </div>
@@ -25,6 +26,7 @@
               label="Máximo"
               debounce="500"
               outlined
+              :readonly="loading"
               @update:model-value="filterProducts(1)"
             />
           </div>
@@ -37,6 +39,7 @@
             v-model="categorySearch"
             label="Selecione uma categoria"
             :options="categoryOptions"
+            :readonly="loading"
             @update:model-value="filterProducts(1)"
           />
         </div>
@@ -48,6 +51,7 @@
             v-model="osSearch"
             label="Selecione um sistema operacional"
             :options="osOptions"
+            :readonly="loading"
             @update:model-value="filterProducts(1)"
           />
         </div>
@@ -59,6 +63,7 @@
             v-model="languageSearch"
             label="Selecione um idioma"
             :options="languageOptions"
+            :readonly="loading"
             @update:model-value="filterProducts(1)"
           />
         </div>
@@ -77,6 +82,7 @@
                   label="Mínimo"
                   debounce="500"
                   outlined
+                  :disable="loading"
                   @update:model-value="filterProducts(1)"
                 />
               </div>
@@ -86,6 +92,7 @@
                   label="Máximo"
                   debounce="500"
                   outlined
+                  :readonly="loading"
                   @update:model-value="filterProducts(1)"
                 />
               </div>
@@ -97,6 +104,7 @@
               <q-select
                 v-model="categorySearch"
                 label="Selecione uma categoria"
+                :readonly="loading"
                 :options="categoryOptions"
                 @update:model-value="filterProducts(1)"
               />
@@ -109,6 +117,7 @@
                 v-model="osSearch"
                 label="Selecione um sistema operacional"
                 :options="osOptions"
+                :readonly="loading"
                 @update:model-value="filterProducts(1)"
               />
             </div>
@@ -120,6 +129,7 @@
                 v-model="languageSearch"
                 label="Selecione um idioma"
                 :options="languageOptions"
+                :readonly="loading"
                 @update:model-value="filterProducts(1)"
               />
             </div>
@@ -304,6 +314,8 @@ export default defineComponent({
       this.$router.push(`/produto/${val}`)
     },
     async getProducts () {
+      this.loading = true
+
       api.get('/products?search=' + this.filter)
         .then((response) => {
           console.log('RESPOSTA COMPLETA: ' + JSON.stringify(response.data))
@@ -323,6 +335,9 @@ export default defineComponent({
         })
         .catch((error) => {
           console.error('erro identificado ' + error.message + ' code ' + error.code)
+        })
+        .finally(() => {
+          this.loading = false
         })
     },
     async getCategories () {
@@ -356,6 +371,7 @@ export default defineComponent({
         })
     },
     changePage (page) {
+      this.loading = true
       let category = ''
       let os = ''
       let language = ''
@@ -394,6 +410,9 @@ export default defineComponent({
         })
         .catch((error) => {
           console.error('erro identificado ' + error.message + ' code ' + error.code)
+        })
+        .finally(() => {
+          this.loading = false
         })
     },
     filterProducts (page) {
