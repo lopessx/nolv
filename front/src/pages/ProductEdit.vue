@@ -91,7 +91,7 @@
           hide-upload-btn
           :form-fields="[{name: 'productId', value: productId}, {name: 'productName', value: productName}]"
           style="max-width: 280px"
-          max-file-size="2048000000"
+          max-file-size="204800000"
           accept=".zip"
           :headers="[{name: 'Authorization', value: 'bearer ' + $q.cookies.get('authKey')}]"
           @finish="resetValidations()"
