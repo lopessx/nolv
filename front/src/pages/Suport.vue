@@ -106,7 +106,6 @@ export default defineComponent({
 
       api.get(`/products/client/${this.clientId}`)
         .then((response) => {
-          console.log('reposta produtos ' + JSON.stringify(response.data))
           const products = response.data.products
           if (products && response.data.success === true) {
             products.forEach(product => {
@@ -133,7 +132,6 @@ export default defineComponent({
       } else {
         api.post('/ticket', { message: this.message, clientId: this.clientId, storeId: this.productInput.store, productName: this.productInput.label })
           .then((response) => {
-            console.log('resposta: ' + JSON.stringify(response.data))
             if (response.data.success === true) {
               this.showMessage('Mensagem enviada com sucesso', 'positive', 'check_circle')
               this.$router.push('/cliente')

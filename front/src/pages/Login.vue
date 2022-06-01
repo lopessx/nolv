@@ -147,7 +147,6 @@ export default defineComponent({
       } else {
         api.post('/client/auth', { email: this.email })
           .then((response) => {
-            console.log('solicitação de autenticação feita ' + JSON.stringify(response.data))
             if (response.data.success === true) {
               this.step = 2
             } else {
@@ -180,12 +179,9 @@ export default defineComponent({
       } else {
         api.post('/client/login', { email: this.email, code: this.otp })
           .then((response) => {
-            console.log('login efetuado ' + JSON.stringify(response.data))
             if (response.data.success === true) {
               this.$q.localStorage.set('client', response.data.client)
               this.$q.cookies.set('authKey', response.data.key, { expires: 30 })
-
-              console.log('cookie ' + this.$q.cookies.get('authKey'))
 
               window.dispatchEvent(new CustomEvent('client-localstorage-changed', {
                 detail: {

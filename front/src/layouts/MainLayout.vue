@@ -344,18 +344,12 @@ export default defineComponent({
       this.logout()
     }
 
-    console.log('nova sessão criada')
-    console.log('carrinho: ' + JSON.stringify(this.$q.localStorage.getItem('cart')))
-    console.log('cliente ' + JSON.stringify(this.clientName))
-
     window.addEventListener('search-products', (event) => {
       this.searchText = event.detail.searchText
-      console.log('evento de busca: ' + this.filter)
     }, false)
   },
 
   mounted () {
-    console.log('layout montado')
     window.addEventListener('modify-cart', (event) => {
       this.cartItems = event.detail.productQtd
     })
@@ -364,17 +358,14 @@ export default defineComponent({
       this.sessionStarted = true
 
       this.clientName = event.detail.client.name.split(' ')[0]
-      console.log('client: ' + this.clientName)
     })
   },
 
   methods: {
     searchProduct (searchText) {
-      console.log('procurar produto: ' + JSON.stringify(searchText))
       window.location.href = '/?s=' + searchText
     },
     logout () {
-      console.log('logout clicado')
       const client = this.$q.localStorage.getItem('client')
       if (client) {
         api.post('/logout', { email: client.email })

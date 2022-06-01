@@ -135,7 +135,6 @@ export default defineComponent({
   methods: {
     register () {
       this.loading = true
-      console.log('api call to register')
       this.$refs.nameInput.validate()
       this.$refs.emailInput.validate()
       this.$refs.phoneInput.validate()
@@ -147,14 +146,13 @@ export default defineComponent({
         api.post('/client/register', { email: this.email, name: this.name, phone: this.phone })
           .then((response) => {
             if (response.data.success === true) {
-              console.log('resposta do registro ' + JSON.stringify(response.data))
               this.step = 2
             } else {
               this.showMessage('Cliente já registrado', 'negative', 'error')
             }
           })
           .catch((error) => {
-            console.log('erro ' + error.message)
+            console.error('message error: ' + error.message)
             this.showMessage('Erro ao registrar novo cliente', 'negative', 'error')
           })
           .finally(() => {
@@ -180,7 +178,6 @@ export default defineComponent({
       } else {
         api.post('/client/login', { email: this.email, code: this.otp })
           .then((response) => {
-            console.log('login efetuado ' + JSON.stringify(response.data))
             if (response.data.success === true) {
               this.$q.localStorage.set('client', response.data.client)
               this.$q.cookies.set('authKey', response.data.key, { expires: 30 })

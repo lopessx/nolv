@@ -278,7 +278,6 @@ export default defineComponent({
       } else {
         api.post('/store', { clientId: this.clientId, name: this.storeName })
           .then((response) => {
-            console.log('resposta ' + JSON.stringify(response.data))
             if (response.data.success === true) {
               this.storeId = response.data.store.id
               this.hasStore = true
@@ -309,7 +308,6 @@ export default defineComponent({
       } else {
         api.put(`/store/${this.storeId}`, { clientId: this.clientId, name: this.storeName })
           .then((response) => {
-            console.log('resposta ' + JSON.stringify(response.data))
             if (response.data.success === true) {
               this.storeId = response.data.store.id
               this.hasStore = true
@@ -337,7 +335,6 @@ export default defineComponent({
         },
         persistent: true
       }).onOk(() => {
-        console.log('loja a ser deletada: ' + this.storeId)
         api.delete(`/store/${this.storeId}`)
           .then((response) => {
             if (response.data.success === true) {
@@ -356,7 +353,6 @@ export default defineComponent({
       })
     },
     selectProduct (productId) {
-      console.log('produto selecionado ' + JSON.stringify(productId))
       this.$router.push(`/produto/editar/${productId}`)
     },
     showMessage (msg, color, icon) {

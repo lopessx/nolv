@@ -248,45 +248,45 @@ export default defineComponent({
 
     this.productId = this.$route.params.id
     this.getProductDetails()
-
-    console.log('category options: ' + JSON.stringify(this.categoryOptions) + ' category ' + this.category)
   },
   methods: {
     async getProductDetails () {
-      api.get(`/product/${this.productId}`)
-        .then((response) => {
-          console.log('resposta: ' + JSON.stringify(response.data))
-          this.productName = response.data.product.name
-          this.language = response.data.product.language.id
-          this.version = response.data.product.version
-          this.price = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(response.data.product.price)
-          this.category = response.data.product.category.id
-          this.store = response.data.product.store.name
-          this.os = response.data.product.os.id
-          this.description = response.data.product.description
-          this.imgs = response.data.product.images
-          const fileName = response.data.product.file_path
+      const responseLang = await this.getLanguages()
+      const responseOs = await this.getOs()
+      const responseCategories = await this.getCategories()
 
-          const fileNameSplit = fileName.split('.')
+      if (responseLang === true && responseOs === true && responseCategories === true) {
+        api.get(`/product/${this.productId}`)
+          .then((response) => {
+            this.productName = response.data.product.name
+            this.language = response.data.product.language.id
+            this.version = response.data.product.version
+            this.price = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(response.data.product.price)
+            this.category = response.data.product.category.id
+            this.store = response.data.product.store.name
+            this.os = response.data.product.os.id
+            this.description = response.data.product.description
+            this.imgs = response.data.product.images
+            const fileName = response.data.product.file_path
 
-          this.file = { name: fileNameSplit[0], ext: fileNameSplit[1], completeName: fileName }
+            const fileNameSplit = fileName.split('.')
 
-          for (let c = 0; c < this.imgs.length; c++) {
-            this.imgs[c].order = c + 1
-          }
-        })
-        .catch((error) => {
-          console.error('erro encontrado: ' + error.message)
-        })
-        .finally(() => {
-          this.loading = false
-          this.getLanguages()
-          this.getOs()
-          this.getCategories()
-        })
+            this.file = { name: fileNameSplit[0], ext: fileNameSplit[1], completeName: fileName }
+
+            for (let c = 0; c < this.imgs.length; c++) {
+              this.imgs[c].order = c + 1
+            }
+          })
+          .catch((error) => {
+            console.error('erro encontrado: ' + error.message)
+          })
+          .finally(() => {
+            this.loading = false
+          })
+      }
     },
-    getLanguages () {
-      api.get('/languages')
+    async getLanguages () {
+      const result = await api.get('/languages')
         .then((response) => {
           if (response.data.success) {
             response.data.languages.forEach(language => {
@@ -294,17 +294,31 @@ export default defineComponent({
                 this.language = language.label
               }
             })
+
+            return true
           } else {
             this.showMessage('Nenhum idioma encontrado', 'negative', 'error')
+
+            return false
           }
         })
         .catch((error) => {
           console.error('message ' + error.message + ' code ' + error.code)
           this.showMessage('Nenhum idioma encontrado', 'negative', 'error')
+
+          return false
         })
+
+      return new Promise(function (resolve, reject) {
+        if (result === true) {
+          resolve(true)
+        } else {
+          resolve(false)
+        }
+      })
     },
-    getOs () {
-      api.get('/os')
+    async getOs () {
+      const result = await api.get('/os')
         .then((response) => {
           if (response.data.success) {
             response.data.operational_systems.forEach(os => {
@@ -320,9 +334,17 @@ export default defineComponent({
           console.error('message ' + error.message + ' code ' + error.code)
           this.showMessage('Nenhum sistema operacional encontrado', 'negative', 'error')
         })
+
+      return new Promise(function (resolve, reject) {
+        if (result === true) {
+          resolve(true)
+        } else {
+          resolve(false)
+        }
+      })
     },
-    getCategories () {
-      api.get('/categories')
+    async getCategories () {
+      const result = await api.get('/categories')
         .then((response) => {
           if (response.data.success) {
             response.data.categories.forEach(category => {
@@ -338,6 +360,14 @@ export default defineComponent({
           console.error('message ' + error.message + ' code ' + error.code)
           this.showMessage('Nenhuma categoria encontrada', 'negative', 'error')
         })
+
+      return new Promise(function (resolve, reject) {
+        if (result === true) {
+          resolve(true)
+        } else {
+          resolve(false)
+        }
+      })
     },
     downloadProduct () {
       this.loading = true
@@ -347,11 +377,9 @@ export default defineComponent({
           const percentCompleted = (parseInt((progressEvent.loaded / progressEvent.total) * 100) / 100)
           this.downloadProgress = percentCompleted
           this.downloadProgressLabel = parseInt(percentCompleted * 100)
-          console.log('completed: ', percentCompleted)
         }
       })
         .then((response) => {
-          console.log('FINALIZADO')
           const url = window.URL.createObjectURL(new Blob([response.data]))
           const link = document.createElement('a')
           link.href = url
@@ -369,7 +397,6 @@ export default defineComponent({
         })
     },
     updateRating (newRating) {
-      console.log('atualizar rating ' + newRating)
       this.ratingModel = newRating.ratingAvg
       this.ratingQtd = newRating.ratingQtd
     },

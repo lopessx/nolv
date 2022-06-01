@@ -162,7 +162,6 @@ const orderColumns = [
     label: 'Status',
     field: 'status',
     format: (val) => {
-      console.log('valor' + val)
       switch (val) {
         case 1:
 
@@ -249,7 +248,6 @@ export default defineComponent({
     getClientProducts () {
       api.get(`/products/client/${this.clientId}`)
         .then((response) => {
-          console.log('reposta produtos ' + JSON.stringify(response.data))
           const products = response.data.products
           if (products && response.data.success === true) {
             products.forEach(product => {
@@ -292,7 +290,6 @@ export default defineComponent({
         })
     },
     selectProduct (productId) {
-      console.log('produto selecionado ' + JSON.stringify(productId))
       this.$router.push(`/produto/${productId}/download`)
     },
     formatStatus (status) {
