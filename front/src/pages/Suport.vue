@@ -12,16 +12,29 @@
     </div>
     <q-separator />
     <q-form ref="formMessage">
+      <div class="row q-py-md justify-center q-gutter-md">
+        <q-btn
+          label="Problemas com um produto"
+          :color="!isProductSupport ? 'black' : 'accent'"
+          @click="isProductSupport = true"
+        />
+        <q-btn
+          label="Problemas com o site ou dúvidas"
+          :color="isProductSupport ? 'black' : 'accent'"
+          @click="isProductSupport = false"
+        />
+      </div>
       <div class="row justify-start align-center q-pt-md">
-        <div class="col-6 q-pa-md">
+        <div class="col-xs-12 col-sm-6 q-pa-md">
           <q-select
+            v-if="isProductSupport === true"
             v-model="productInput"
             clearable
             required
             outlined
             :options="productOptions"
             :readonly="loading"
-            label="Enviar para..."
+            label="Escolha um produto..."
             input-debounce="0"
             use-input
             @filter="filterFn"
@@ -54,7 +67,7 @@
           :loading="loading"
           color="accent"
           label="Enviar"
-          @click="sendNewMessage"
+          @click="(isProductSupport === true) ? sendNewMessage() : sendNewAdminMessage()"
         />
       </div>
     </q-form>
@@ -76,7 +89,8 @@ export default defineComponent({
       productOptions: ref([]),
       allProductOptions: ref([]),
       productInput: ref(''),
-      filter: ref('')
+      filter: ref(''),
+      isProductSupport: ref(true)
     }
   },
 
@@ -131,6 +145,33 @@ export default defineComponent({
         this.loading = false
       } else {
         api.post('/ticket', { message: this.message, clientId: this.clientId, storeId: this.productInput.store, productName: this.productInput.label })
+          .then((response) => {
+            if (response.data.success === true) {
+              this.showMessage('Mensagem enviada com sucesso', 'positive', 'check_circle')
+              this.$router.push('/cliente')
+            } else {
+              this.showMessage('Erro ao enviar mensagem', 'negative', 'error')
+            }
+          })
+          .catch((error) => {
+            console.error('message ' + error.message + ' code ' + error.code)
+            this.showMessage('Erro ao enviar mensagem', 'negative', 'error')
+          })
+          .finally(() => {
+            this.loading = false
+          })
+      }
+    },
+    sendNewAdminMessage () {
+      this.loading = true
+
+      this.$refs.formMessage.validate()
+
+      if (this.$refs.messageInput.hasError) {
+        this.showMessage('Preencha todos os campos', 'warning', 'warning')
+        this.loading = false
+      } else {
+        api.post('/ticket/admin', { message: this.message, clientId: this.clientId, storeId: this.productInput.store, productName: this.productInput.label })
           .then((response) => {
             if (response.data.success === true) {
               this.showMessage('Mensagem enviada com sucesso', 'positive', 'check_circle')
