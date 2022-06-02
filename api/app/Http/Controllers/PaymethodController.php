@@ -78,7 +78,7 @@ class PaymethodController extends Controller {
 				case 'card':
 					$result = CieloPaymethod::payCreditCard($request->paymentData['card'], $order->total);
 
-					if ($result === 1 || $result === 2) {
+					if ($result == 1 || $result == 2) {
 						$order->status_id = 4;
 						$productsSold = ProductOrder::where('order_id', $order->id)->get(['product_id']);
 						foreach ($productsSold as $key => $product) {
