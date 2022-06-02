@@ -21,11 +21,31 @@
             v-ripple
             clickable
             class="text-secondary"
-            to="/cliente"
+            to="/"
           >
             <q-item-section avatar>
               <q-icon
                 name="home"
+                color="accent"
+              />
+            </q-item-section>
+
+            <q-item-section>
+              Página inicial
+            </q-item-section>
+          </q-item>
+
+          <q-separator />
+
+          <q-item
+            v-ripple
+            clickable
+            class="text-secondary"
+            to="/cliente"
+          >
+            <q-item-section avatar>
+              <q-icon
+                name="download_for_offline"
                 color="accent"
               />
             </q-item-section>
@@ -150,7 +170,7 @@
               @click="$router.push('/cliente')"
             >
               <q-item-section>
-                <q-item-label>Compras</q-item-label>
+                <q-item-label>Minhas Compras</q-item-label>
               </q-item-section>
             </q-item>
 

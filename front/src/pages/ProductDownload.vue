@@ -259,12 +259,12 @@ export default defineComponent({
         api.get(`/product/${this.productId}`)
           .then((response) => {
             this.productName = response.data.product.name
-            this.language = response.data.product.language.id
+            this.language = response.data.product.language.name
             this.version = response.data.product.version
             this.price = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(response.data.product.price)
-            this.category = response.data.product.category.id
+            this.category = response.data.product.category.name
             this.store = response.data.product.store.name
-            this.os = response.data.product.os.id
+            this.os = response.data.product.os.name
             this.description = response.data.product.description
             this.imgs = response.data.product.images
             const fileName = response.data.product.file_path
@@ -326,13 +326,19 @@ export default defineComponent({
                 this.os = os.label
               }
             })
+
+            return true
           } else {
             this.showMessage('Nenhum sistema operacional encontrado', 'negative', 'error')
+
+            return false
           }
         })
         .catch((error) => {
           console.error('message ' + error.message + ' code ' + error.code)
           this.showMessage('Nenhum sistema operacional encontrado', 'negative', 'error')
+
+          return false
         })
 
       return new Promise(function (resolve, reject) {
@@ -352,13 +358,19 @@ export default defineComponent({
                 this.category = category.label
               }
             })
+
+            return true
           } else {
             this.showMessage('Nenhuma categoria encontrada', 'negative', 'error')
+
+            return false
           }
         })
         .catch((error) => {
           console.error('message ' + error.message + ' code ' + error.code)
           this.showMessage('Nenhuma categoria encontrada', 'negative', 'error')
+
+          return false
         })
 
       return new Promise(function (resolve, reject) {

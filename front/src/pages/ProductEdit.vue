@@ -315,9 +315,9 @@ export default defineComponent({
             this.language = { label: response.data.product.language.name, value: response.data.product.language.id }
             this.version = response.data.product.version
             this.price = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(response.data.product.price)
-            this.category = response.data.product.category.id
+            this.category = { label: response.data.product.category.name, value: response.data.product.category.id }
             this.store = response.data.product.store.name
-            this.os = response.data.product.os.id
+            this.os = { label: response.data.product.os.name, value: response.data.product.os.id }
             this.description = response.data.product.description
             this.imgs = response.data.product.images
           })

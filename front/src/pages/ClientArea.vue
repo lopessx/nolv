@@ -145,11 +145,11 @@ const orderColumns = [
     label: 'Método de pagamento',
     field: 'paymethod',
     format: (val) => {
-      switch (val) {
-        case 1:
+      switch (val.toString()) {
+        case '1':
 
           return 'Cartão de crédito'
-        case 2:
+        case '2':
 
           return 'Boleto bancário'
       }
@@ -162,17 +162,17 @@ const orderColumns = [
     label: 'Status',
     field: 'status',
     format: (val) => {
-      switch (val) {
-        case 1:
+      switch (val.toString()) {
+        case '1':
 
           return 'Pendente'
-        case 2:
+        case '2':
 
           return 'Cancelado'
-        case 3:
+        case '3':
 
           return 'Abandonado'
-        case 4:
+        case '4':
 
           return 'Concluído'
       }
@@ -291,22 +291,6 @@ export default defineComponent({
     },
     selectProduct (productId) {
       this.$router.push(`/produto/${productId}/download`)
-    },
-    formatStatus (status) {
-      switch (status) {
-        case '1':
-
-          return 'Pendente'
-        case '2':
-
-          return 'Cancelado'
-        case '3':
-
-          return 'Abandonado'
-        case '4':
-
-          return 'Concluído'
-      }
     }
   }
 })

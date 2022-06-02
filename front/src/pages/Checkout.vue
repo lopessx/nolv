@@ -299,7 +299,7 @@
                 @click="login()"
               />
               <q-btn
-                v-if="step === 3"
+                v-if="step === 3 && paymentMethod !== null"
                 color="primary"
                 label="Confirmar"
                 :loading="loading"
@@ -335,8 +335,8 @@
                   <q-btn
                     round
                     color="red"
-                    icon="remove_circle"
-                    size="xs"
+                    icon="delete"
+                    size="sm"
                     :disable="loading"
                     @click="deleteFromCheckout(product.id)"
                   />
@@ -635,7 +635,7 @@ export default defineComponent({
     getTotalPrice () {
       this.totalPrice = 0
       for (let c = 0; c < this.products.length; c++) {
-        this.totalPrice += this.products[c].price
+        this.totalPrice += parseFloat(this.products[c].price)
       }
     },
     async getPaymethods () {
