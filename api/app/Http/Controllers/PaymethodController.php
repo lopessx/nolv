@@ -83,8 +83,8 @@ class PaymethodController extends Controller {
 						$productsSold = ProductOrder::where('order_id', $order->id)->get(['product_id']);
 						foreach ($productsSold as $key => $product) {
 							$tempProduct = Product::where('id', $product->product_id)->first(['store_id', 'price']);
-							$store = Store::find($tempProduct->store_id)->first();
-							$store->balance += $tempProduct->price;
+							$store = Store::find($tempProduct->store_id);
+							$store->balance = $store->balance + ($tempProduct->price - ($tempProduct->price * 0.09));
 							$store->save();
 						}
 					} else {
