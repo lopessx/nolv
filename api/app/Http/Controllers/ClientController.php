@@ -22,23 +22,40 @@ class ClientController extends Controller {
 
 	public function get(Request $request) {
 		try {
-			return response(['success' => true]);
+			$query = Client::query();
+
+			if ($request->exists('name') && !empty($request->name)) {
+				$query->where('name', 'like', '%' . $request->name . '%');
+			}
+
+			if ($request->exists('phone') && !empty($request->phone)) {
+				$query->where('phone', $request->phone);
+			}
+
+			if ($request->exists('email') && $request->email) {
+				$query->where('email', $request->email);
+			}
+
+			if ($request->exists('order') && !empty($request->order)) {
+				$query->orderBy(
+					$request->get('sortBy', 'name'),
+					$request->get('sortOrder', ($request->order == 2) ? 'desc' : 'asc')
+				);
+			}
+
+			$pagination = $query->paginate(5);
+
+			return response(['success' => true, 'pagination' => $pagination]);
 		} catch (Exception $e) {
 			return response(['message' => $e->getMessage(), 'code' => $e->getCode()], 404);
 		}
 	}
 
-	public function getOne(Request $request) {
+	public function getOne(Request $request, $id) {
 		try {
-			return response(['success' => true]);
-		} catch (Exception $e) {
-			return response(['message' => $e->getMessage(), 'code' => $e->getCode()], 404);
-		}
-	}
+			$client = Client::findOrFail($id);
 
-	public function store(Request $request) {
-		try {
-			return response(['success' => true]);
+			return response(['success' => true, 'client' => $client]);
 		} catch (Exception $e) {
 			return response(['message' => $e->getMessage(), 'code' => $e->getCode()], 404);
 		}

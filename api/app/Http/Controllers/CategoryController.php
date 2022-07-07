@@ -25,36 +25,4 @@ class CategoryController extends Controller {
 			return response(['message' => $e->getMessage(), 'code' => $e->getCode()], 404);
 		}
 	}
-
-	public function getOne(Request $request) {
-		try {
-			return response(['success' => true]);
-		} catch (Exception $e) {
-			return response(['message' => $e->getMessage(), 'code' => $e->getCode()], 404);
-		}
-	}
-
-	public function store(Request $request) {
-		try {
-			return response(['success' => true]);
-		} catch (Exception $e) {
-			return response(['message' => $e->getMessage(), 'code' => $e->getCode()], 404);
-		}
-	}
-
-	public function update(Request $request) {
-		try {
-			return response(['success' => true]);
-		} catch (Exception $e) {
-			return response(['message' => $e->getMessage(), 'code' => $e->getCode()], 404);
-		}
-	}
-
-	public function delete(Request $request) {
-		try {
-			return response(['success' => true]);
-		} catch (Exception $e) {
-			return response(['message' => $e->getMessage(), 'code' => $e->getCode()], 404);
-		}
-	}
 }
