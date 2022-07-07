@@ -13,11 +13,11 @@
     "@quasar/extras": "^1.14.0",
     "axios": "^0.21.1",
     "core-js": "^3.6.5",
-    "quasar": "^2.7.0"
+    "quasar": "^2.7.1"
   },
   "devDependencies": {
     "@babel/eslint-parser": "^7.13.14",
-    "@quasar/app-webpack": "^3.5.2",
+    "@quasar/app-webpack": "^3.5.3",
     "eslint": "^7.14.0",
     "eslint-config-standard": "^16.0.2",
     "eslint-plugin-import": "^2.19.1",

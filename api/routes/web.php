@@ -45,6 +45,7 @@ $router->group(['middleware' => 'auth'], function () use ($router) {
 
 	// Tickets
 	$router->post('/ticket', 'TicketController@store');
+	$router->post('/ticket/admin', 'TicketController@sendSupportMessageAdmin');
 
 	// Orders
 	$router->get('/order', 'OrderController@get');

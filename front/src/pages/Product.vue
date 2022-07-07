@@ -213,8 +213,6 @@ export default defineComponent({
     }
   },
   created () {
-    console.log('nova página renderizada')
-    console.log('para: ' + this.$route.params.id)
     this.productId = this.$route.params.id
     this.getProductDetails()
     this.getProductRatings()
@@ -224,7 +222,6 @@ export default defineComponent({
       api.get(`/ratings/product/${this.productId}`)
         .then((response) => {
           this.ratings = response.data.ratings
-          console.log('ratings: ' + JSON.stringify(this.ratings))
           this.ratingQtd = this.ratings.length
           if (this.ratings.length > 0) {
             let ratingAverage = 0
@@ -241,7 +238,6 @@ export default defineComponent({
     async getProductDetails () {
       api.get(`/product/${this.productId}`)
         .then((response) => {
-          console.log('resposta: ' + JSON.stringify(response.data))
           this.productName = response.data.product.name
           this.languages = response.data.product.language.name
           this.version = response.data.product.version
@@ -264,7 +260,6 @@ export default defineComponent({
     },
 
     async addToCart () {
-      console.log('adicionado ao carrinho')
       let cart = this.$q.localStorage.getItem('cart')
       let hasCartProduct = false
       if (cart) {

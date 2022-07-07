@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\NewAdminSupport;
 use App\Mail\NewTicket;
 use App\Models\Client;
 use App\Models\Ticket;
@@ -40,19 +41,24 @@ class TicketController extends Controller {
 		DB::beginTransaction();
 
 		try {
+			$clientId = preg_replace('/\D/', '', $request->clientId);
+
+			$client = Client::find($clientId);
+
+			$clientName = strip_tags($client->name);
+			$productName = strip_tags($request->productName);
+
 			$ticket = new Ticket();
-			$ticket->client_id = $request->clientId;
-			$ticket->store_id = $request->storeId;
+			$ticket->client_id = $clientId;
+			$ticket->store_id = preg_replace('/\D/', '', $request->storeId);
 			$ticket->status_ticket_id = 1;
-			$ticket->message = $request->message;
+			$ticket->message = strip_tags($request->message);
 			$ticket->save();
 
 			DB::commit();
 
-			$client = Client::find($request->clientId);
-
 			Mail::to((string) $client->email)
-			->send(new NewTicket($client->name, $ticket->message, $request->productName));
+			->send(new NewTicket($clientName, $ticket->message, $productName));
 
 			return response(['success' => true]);
 		} catch (Exception $e) {
@@ -75,6 +81,22 @@ class TicketController extends Controller {
 			return response(['success' => true]);
 		} catch (Exception $e) {
 			return response(['message' => $e->getMessage(), 'code' => $e->getCode()], 404);
+		}
+	}
+
+	public function sendSupportMessageAdmin(Request $request) {
+		try {
+			$adminEmail = config('mail.from.address');
+			$message = strip_tags($request->message);
+			$clientId = strip_tags($request->clientId);
+			$client = Client::find($clientId);
+
+			Mail::to((string) $adminEmail)
+			->send(new NewAdminSupport($client->name, $client->email, $message));
+
+			return response(['success' => true]);
+		} catch (Exception $e) {
+			return response(['message' => $e->getMessage(), 'code' => $e->getCode()], 500);
 		}
 	}
 }

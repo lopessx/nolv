@@ -1,5 +1,19 @@
 <template>
   <q-page>
+    <div class="row align-center justify-start q-gutter-xs q-px-md q-pt-lg">
+      <q-icon
+        name="store"
+        color="accent"
+        size="sm"
+      />
+      <div class="text-subtitle1">
+        Área do lojista
+      </div>
+    </div>
+    <div class="row align-center justify-start text-grey-7 q-pa-md">
+      <span class="text-body-2">Insira o nome da sua loja e clique em cadastrar para vender seus produtos em nosso site.</span>
+    </div>
+    <q-separator />
     <q-form class="row q-px-md q-pt-xl q-pb-md justify-start align-center">
       <div class="row col-12 justify-center text-center">
         <q-card
@@ -47,6 +61,7 @@
               <q-btn
                 color="accent"
                 label="Cadastrar"
+                :loading="loading"
                 @click="newStore()"
               />
             </div>
@@ -208,21 +223,21 @@ export default defineComponent({
   name: 'VendorArea',
   setup () {
     return {
-      hasStore: ref(true),
+      hasStore: ref(false),
       storeName: ref(''),
       storeId: ref(''),
       email: ref(''),
       productsList: ref([]),
       balance: ref(0),
       drawer: ref(false),
-      miniState: ref(true),
       username: ref(''),
       clientId: ref(''),
       filter: ref(''),
       inputLocked: ref(false),
       columns,
       productsPerPage: ref([6, 9, 15, 21, 27, 30, 42, 0]),
-      imgUrl: ref(process.env.API + '/storage/')
+      imgUrl: ref(process.env.API + '/storage/'),
+      loading: ref(false)
     }
   },
 
@@ -240,6 +255,8 @@ export default defineComponent({
 
   methods: {
     async getClientStore () {
+      this.loading = true
+
       api.get(`/store/client/${this.clientId}`)
         .then((response) => {
           if (response.data.success === true) {
@@ -262,12 +279,16 @@ export default defineComponent({
                 this.productsList.push(product)
               }
             }
+            this.hasStore = true
           } else {
             this.hasStore = false
           }
         })
         .catch((error) => {
           console.error('error message ' + error.message + ' code ' + error.code)
+        })
+        .finally(() => {
+          this.loading = false
         })
     },
     newStore () {
@@ -278,7 +299,6 @@ export default defineComponent({
       } else {
         api.post('/store', { clientId: this.clientId, name: this.storeName })
           .then((response) => {
-            console.log('resposta ' + JSON.stringify(response.data))
             if (response.data.success === true) {
               this.storeId = response.data.store.id
               this.hasStore = true
@@ -309,7 +329,6 @@ export default defineComponent({
       } else {
         api.put(`/store/${this.storeId}`, { clientId: this.clientId, name: this.storeName })
           .then((response) => {
-            console.log('resposta ' + JSON.stringify(response.data))
             if (response.data.success === true) {
               this.storeId = response.data.store.id
               this.hasStore = true
@@ -337,7 +356,6 @@ export default defineComponent({
         },
         persistent: true
       }).onOk(() => {
-        console.log('loja a ser deletada: ' + this.storeId)
         api.delete(`/store/${this.storeId}`)
           .then((response) => {
             if (response.data.success === true) {
@@ -356,7 +374,6 @@ export default defineComponent({
       })
     },
     selectProduct (productId) {
-      console.log('produto selecionado ' + JSON.stringify(productId))
       this.$router.push(`/produto/editar/${productId}`)
     },
     showMessage (msg, color, icon) {

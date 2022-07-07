@@ -100,7 +100,7 @@ class OrderController extends Controller {
 			$ordersArr = [];
 
 			foreach ($orders as $key => $order) {
-				if ($order->status_id === 4) {
+				if ($order->status_id == 4) {
 					$ordersArr[] = $order->id;
 				}
 			}

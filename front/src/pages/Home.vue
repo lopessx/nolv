@@ -237,7 +237,7 @@
             color="grey-8"
             :max="pagesNumber"
             :max-pages="5"
-            size="1rem"
+            size="1.4rem"
             direction-links
             @update:model-value="changePage"
           />
@@ -290,18 +290,15 @@ export default defineComponent({
     }
   },
   created () {
-    console.log('ex query param: ' + this.$route.query.s)
     if (this.$route.query.s) {
       this.filter = this.$route.query.s
     }
-    console.log('nova página renderizada')
     this.getProducts()
     this.getCategories()
     this.getOs()
     this.getLanguages()
   },
   mounted () {
-    console.log('página montada')
     window.dispatchEvent(new CustomEvent('search-products', {
       detail: {
         searchText: this.filter
@@ -310,7 +307,6 @@ export default defineComponent({
   },
   methods: {
     selectProduct (val) {
-      console.log('produto selecionado ' + JSON.stringify(val))
       this.$router.push(`/produto/${val}`)
     },
     async getProducts () {
@@ -318,9 +314,7 @@ export default defineComponent({
 
       api.get('/products?search=' + this.filter)
         .then((response) => {
-          console.log('RESPOSTA COMPLETA: ' + JSON.stringify(response.data))
           this.pagesNumber = response.data.pagination.last_page
-          console.log('length ' + response.data.pagination.data.length)
           for (let c = 0; c < response.data.pagination.data.length; c++) {
             const product = {}
             product.id = response.data.pagination.data[c].id
@@ -343,7 +337,6 @@ export default defineComponent({
     async getCategories () {
       api.get('/categories')
         .then((response) => {
-          console.log('resposta: ' + JSON.stringify(response.data))
           this.categoryOptions = response.data.categories
         })
         .catch((error) => {
@@ -353,7 +346,6 @@ export default defineComponent({
     async getOs () {
       api.get('/os')
         .then((response) => {
-          console.log('resposta: ' + JSON.stringify(response.data))
           this.osOptions = response.data.operational_systems
         })
         .catch((error) => {
@@ -363,7 +355,6 @@ export default defineComponent({
     async getLanguages () {
       api.get('/languages')
         .then((response) => {
-          console.log('resposta: ' + JSON.stringify(response.data))
           this.languageOptions = response.data.languages
         })
         .catch((error) => {

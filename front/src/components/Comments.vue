@@ -150,7 +150,6 @@ export default defineComponent({
     async getRatings () {
       const queryRatings = await api.get(`ratings/product/${this.productId}`)
         .then((response) => {
-          console.log('response query ratings: ' + JSON.stringify(response.data))
           if (response.data.success === true) {
             this.ratingQtd = response.data.ratings.length
             let ratingAvg = 0
@@ -173,7 +172,7 @@ export default defineComponent({
 
             ratingAvg = parseInt(ratingAvg / this.ratingQtd)
             this.ratingModel = ratingAvg
-            console.log('before emit' + this.ratingModel)
+
             this.$emit('update', { ratingAvg: this.ratingModel, ratingQtd: this.ratingQtd })
 
             return true
@@ -214,7 +213,6 @@ export default defineComponent({
       if (this.ratingModelClient > 0 && this.commentInput !== '') {
         api.post('/rating', { clientId: this.clientId, rating: this.ratingModelClient, comment: this.commentInput, productId: this.productId })
           .then((response) => {
-            console.log('response send rating: ' + JSON.stringify(response.data))
             if (response.data.success === true) {
               this.comments = []
               this.commentInput = ''
@@ -282,10 +280,6 @@ export default defineComponent({
           .finally(() => {
             this.loading = false
           })
-      }).onCancel(() => {
-        // console.log('>>>> Cancel')
-      }).onDismiss(() => {
-        // console.log('I am triggered on both OK and Cancel')
       })
     },
     showMessage (msg, color, icon) {

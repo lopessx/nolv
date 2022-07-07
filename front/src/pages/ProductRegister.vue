@@ -32,7 +32,7 @@
           hide-upload-btn
           :form-fields="[{name: 'productId', value: productId}, {name: 'productName', value: productName}]"
           style="max-width: 280px"
-          max-file-size="2048000000"
+          max-file-size="204800000"
           accept=".zip"
           :headers="[{name: 'Authorization', value: 'bearer ' + $q.cookies.get('authKey')}]"
           @added="files => validateFiles(files)"
@@ -318,7 +318,6 @@ export default defineComponent({
           api.post('/product', { categoryId: this.category.value, storeId: this.storeId, languageId: this.language.value, osId: this.os.value, name: this.productName, description: this.description, version: this.version, price: this.price })
             .then((response) => {
               if (response.data.success === true) {
-                console.log('sucesso ' + JSON.stringify(response.data))
                 this.productId = response.data.product.id
               } else {
                 this.showMessage('Erro ao salvar novo produto', 'negative', 'error')
@@ -351,13 +350,11 @@ export default defineComponent({
       })
     },
     validateFiles (files) {
-      console.log('files ' + JSON.stringify(files))
       if (files.length > 0) {
         this.hasFile = true
       }
     },
     validateImages (imgs) {
-      console.log('imgs ' + JSON.stringify(imgs))
       if (imgs.length > 0) {
         this.hasImg = true
       }

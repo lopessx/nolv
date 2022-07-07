@@ -91,7 +91,7 @@
           hide-upload-btn
           :form-fields="[{name: 'productId', value: productId}, {name: 'productName', value: productName}]"
           style="max-width: 280px"
-          max-file-size="2048000000"
+          max-file-size="204800000"
           accept=".zip"
           :headers="[{name: 'Authorization', value: 'bearer ' + $q.cookies.get('authKey')}]"
           @finish="resetValidations()"
@@ -171,8 +171,6 @@
                     :options="languageOptions"
                     label="Idioma"
                     required
-                    emit-value
-                    map-options
                     :readonly="loading"
                     lazy-rules
                     :rules="[required]"
@@ -202,8 +200,6 @@
                   :options="categoryOptions"
                   label="Categoria"
                   required
-                  emit-value
-                  map-options
                   :readonly="loading"
                   lazy-rules
                   :rules="[required]"
@@ -231,8 +227,6 @@
                 :options="osOptions"
                 label="Sistema operacional"
                 required
-                emit-value
-                map-options
                 :readonly="loading"
                 lazy-rules
                 :rules="[required]"
@@ -301,13 +295,7 @@ export default defineComponent({
     this.loading = true
     this.productId = this.$route.params.id
 
-    const langResult = await this.getLanguages()
-    const osResult = await this.getOs()
-    const categoryResult = await this.getCategories()
-
-    if (langResult === true && osResult === true && categoryResult === true) {
-      this.getProductDetails()
-    }
+    this.getProductDetails()
 
     this.price = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(this.price)
     this.price = this.price.replace(/R\$/gm, '')
@@ -316,26 +304,30 @@ export default defineComponent({
   methods: {
     async getProductDetails () {
       this.loading = true
+      const langResult = await this.getLanguages()
+      const osResult = await this.getOs()
+      const categoryResult = await this.getCategories()
 
-      api.get(`/product/${this.productId}`)
-        .then((response) => {
-          console.log('resposta: ' + JSON.stringify(response.data))
-          this.productName = response.data.product.name
-          this.language = response.data.product.language.id
-          this.version = response.data.product.version
-          this.price = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(response.data.product.price)
-          this.category = response.data.product.category.id
-          this.store = response.data.product.store.name
-          this.os = response.data.product.os.id
-          this.description = response.data.product.description
-          this.imgs = response.data.product.images
-        })
-        .catch((error) => {
-          console.error('erro encontrado: ' + error.message)
-        })
-        .finally(() => {
-          this.loading = false
-        })
+      if (langResult === true && osResult === true && categoryResult === true) {
+        api.get(`/product/${this.productId}`)
+          .then((response) => {
+            this.productName = response.data.product.name
+            this.language = { label: response.data.product.language.name, value: response.data.product.language.id }
+            this.version = response.data.product.version
+            this.price = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(response.data.product.price)
+            this.category = { label: response.data.product.category.name, value: response.data.product.category.id }
+            this.store = response.data.product.store.name
+            this.os = { label: response.data.product.os.name, value: response.data.product.os.id }
+            this.description = response.data.product.description
+            this.imgs = response.data.product.images
+          })
+          .catch((error) => {
+            console.error('erro encontrado: ' + error.message)
+          })
+          .finally(() => {
+            this.loading = false
+          })
+      }
     },
     async getLanguages () {
       const result = await api.get('/languages')
@@ -428,7 +420,6 @@ export default defineComponent({
       })
     },
     deleteImage () {
-      console.log('deletar imagem: ' + this.slide + ' imagem: ' + JSON.stringify(this.imgs[this.slide - 1]))
       this.$q.dialog({
         title: 'Tem certeza que deseja deletar essa imagem?',
         message: 'Essa ação será irreversível.',
@@ -445,7 +436,6 @@ export default defineComponent({
         const imgId = this.imgs[this.slide - 1].id
         api.delete(`/product/image/delete/${imgId}`)
           .then((response) => {
-            console.log('resposta exclusão: ' + JSON.stringify(response.data))
             this.showMessage('Imagem excluída com sucesso', 'positive', 'check_circle')
             this.getProductDetails()
           })
@@ -459,7 +449,7 @@ export default defineComponent({
       this.loading = true
       this.$refs.formProduct.validate(false).then(outcome => {
         if (outcome === true) {
-          api.put(`/product/${this.productId}`, { categoryId: this.category, storeId: this.storeId, languageId: this.language, osId: this.os, name: this.productName, description: this.description, version: this.version, price: this.price })
+          api.put(`/product/${this.productId}`, { categoryId: this.category.value, storeId: this.storeId, languageId: this.language.value, osId: this.os.value, name: this.productName, description: this.description, version: this.version, price: this.price })
             .then((response) => {
               if (response.data.success === true) {
                 this.showMessage('Produto editado com sucesso', 'positive', 'check_circle')
@@ -499,7 +489,6 @@ export default defineComponent({
       }).onOk(() => {
         api.delete(`/product/${this.productId}`)
           .then((response) => {
-            console.log('produto deletado ' + JSON.stringify(response.data))
             if (response.data.success === true) {
               this.showMessage('Produto deletado com sucesso', 'positive', 'check_circle')
               this.$router.push('/vendedor')
@@ -514,13 +503,11 @@ export default defineComponent({
       })
     },
     validateFiles (files) {
-      console.log('files ' + JSON.stringify(files))
       if (files.length > 0) {
         this.hasFile = true
       }
     },
     validateImages (imgs) {
-      console.log('imgs ' + JSON.stringify(imgs))
       if (imgs.length > 0) {
         this.hasImg = true
       }

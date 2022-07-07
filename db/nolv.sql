@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost
--- Tempo de geração: 03/05/2022 às 23:01
+-- Tempo de geração: 01/06/2022 às 03:00
 -- Versão do servidor: 10.4.21-MariaDB
 -- Versão do PHP: 7.4.23
 
@@ -24,18 +24,6 @@ SET time_zone = "+00:00";
 -- --------------------------------------------------------
 
 --
--- Estrutura para tabela `cards`
---
-
-CREATE TABLE `cards` (
-  `id` bigint(20) UNSIGNED NOT NULL,
-  `client_id` bigint(20) UNSIGNED NOT NULL,
-  `token` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
--- --------------------------------------------------------
-
---
 -- Estrutura para tabela `categories`
 --
 
@@ -49,9 +37,12 @@ CREATE TABLE `categories` (
 --
 
 INSERT INTO `categories` (`id`, `name`) VALUES
-(1, 'Design'),
-(2, 'Entretenimento'),
-(3, 'Produtividade');
+(1, 'Comunicação'),
+(2, 'Design'),
+(3, 'Entretenimento'),
+(4, 'Ferramentas'),
+(5, 'Finanças'),
+(6, 'Produtividade');
 
 -- --------------------------------------------------------
 
@@ -63,7 +54,7 @@ CREATE TABLE `clients` (
   `id` bigint(20) UNSIGNED NOT NULL,
   `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   `email` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `password` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `auth_key` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   `phone` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL
@@ -106,21 +97,20 @@ CREATE TABLE `migrations` (
 --
 
 INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES
-(1, '2022_04_18_213140_create_clients_table', 1),
-(2, '2022_04_18_213149_create_languages_table', 1),
-(3, '2022_04_18_213158_create_operational_systems_table', 1),
-(4, '2022_04_18_213241_create_paymethods_table', 1),
-(5, '2022_04_18_213334_create_categories_table', 1),
-(6, '2022_04_18_213359_create_stores_table', 1),
-(7, '2022_04_18_213425_create_products_table', 1),
-(8, '2022_04_18_213435_create_order_status_table', 1),
-(9, '2022_04_18_213450_create_product_images_table', 1),
-(10, '2022_04_18_213510_create_orders_table', 1),
-(11, '2022_04_18_213533_create_product_orders_table', 1),
-(12, '2022_04_18_213614_create_cards_table', 1),
-(13, '2022_04_18_213629_create_status_tickets_table', 1),
-(14, '2022_04_18_213638_create_tickets_table', 1),
-(15, '2022_04_18_213649_create_ratings_table', 1);
+(29, '2022_04_18_213140_create_clients_table', 1),
+(30, '2022_04_18_213149_create_languages_table', 1),
+(31, '2022_04_18_213158_create_operational_systems_table', 1),
+(32, '2022_04_18_213241_create_paymethods_table', 1),
+(33, '2022_04_18_213334_create_categories_table', 1),
+(34, '2022_04_18_213359_create_stores_table', 1),
+(35, '2022_04_18_213425_create_products_table', 1),
+(36, '2022_04_18_213435_create_order_status_table', 1),
+(37, '2022_04_18_213450_create_product_images_table', 1),
+(38, '2022_04_18_213510_create_orders_table', 1),
+(39, '2022_04_18_213533_create_product_orders_table', 1),
+(40, '2022_04_18_213629_create_status_tickets_table', 1),
+(41, '2022_04_18_213638_create_tickets_table', 1),
+(42, '2022_04_18_213649_create_ratings_table', 1);
 
 -- --------------------------------------------------------
 
@@ -191,6 +181,14 @@ CREATE TABLE `paymethods` (
   `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   `type` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Despejando dados para a tabela `paymethods`
+--
+
+INSERT INTO `paymethods` (`id`, `active`, `name`, `type`) VALUES
+(1, 1, 'Cartão de crédito - Cielo', 'card'),
+(2, 1, 'Boleto bancário', 'boleto');
 
 -- --------------------------------------------------------
 
@@ -307,13 +305,6 @@ CREATE TABLE `tickets` (
 --
 
 --
--- Índices de tabela `cards`
---
-ALTER TABLE `cards`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `cards_client_id_foreign` (`client_id`);
-
---
 -- Índices de tabela `categories`
 --
 ALTER TABLE `categories`
@@ -323,7 +314,8 @@ ALTER TABLE `categories`
 -- Índices de tabela `clients`
 --
 ALTER TABLE `clients`
-  ADD PRIMARY KEY (`id`);
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `clients_email_unique` (`email`);
 
 --
 -- Índices de tabela `languages`
@@ -424,16 +416,10 @@ ALTER TABLE `tickets`
 --
 
 --
--- AUTO_INCREMENT de tabela `cards`
---
-ALTER TABLE `cards`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
-
---
 -- AUTO_INCREMENT de tabela `categories`
 --
 ALTER TABLE `categories`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT de tabela `clients`
@@ -451,7 +437,7 @@ ALTER TABLE `languages`
 -- AUTO_INCREMENT de tabela `migrations`
 --
 ALTER TABLE `migrations`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=43;
 
 --
 -- AUTO_INCREMENT de tabela `operational_systems`
@@ -475,7 +461,7 @@ ALTER TABLE `order_status`
 -- AUTO_INCREMENT de tabela `paymethods`
 --
 ALTER TABLE `paymethods`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT de tabela `products`
@@ -522,12 +508,6 @@ ALTER TABLE `tickets`
 --
 -- Restrições para tabelas despejadas
 --
-
---
--- Restrições para tabelas `cards`
---
-ALTER TABLE `cards`
-  ADD CONSTRAINT `cards_client_id_foreign` FOREIGN KEY (`client_id`) REFERENCES `clients` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Restrições para tabelas `orders`

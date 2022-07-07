@@ -299,7 +299,7 @@
                 @click="login()"
               />
               <q-btn
-                v-if="step === 3"
+                v-if="step === 3 && paymentMethod !== null"
                 color="primary"
                 label="Confirmar"
                 :loading="loading"
@@ -335,8 +335,8 @@
                   <q-btn
                     round
                     color="red"
-                    icon="remove_circle"
-                    size="xs"
+                    icon="delete"
+                    size="sm"
                     :disable="loading"
                     @click="deleteFromCheckout(product.id)"
                   />
@@ -444,6 +444,8 @@ export default defineComponent({
   },
 
   created () {
+    this.getPaymethods()
+
     const cart = this.$q.localStorage.getItem('cart')
     const client = this.$q.localStorage.getItem('client')
 
@@ -462,11 +464,6 @@ export default defineComponent({
     }
   },
 
-  mounted () {
-    console.log('carregado')
-    this.getPaymethods()
-  },
-
   methods: {
     auth () {
       this.loading = true
@@ -481,7 +478,6 @@ export default defineComponent({
       } else {
         api.post('/client/auth', { email: this.paymentData.email })
           .then((response) => {
-            console.log('solicitação de autenticação feita ' + JSON.stringify(response.data))
             if (response.data.success === true) {
               this.step = 2
             } else {
@@ -520,7 +516,6 @@ export default defineComponent({
       } else {
         api.post('/client/login', { email: this.paymentData.email, code: this.otp })
           .then((response) => {
-            console.log('login efetuado ' + JSON.stringify(response.data))
             if (response.data.success === true) {
               const client = response.data.client
               this.$q.localStorage.set('client', response.data.client)
@@ -566,7 +561,6 @@ export default defineComponent({
 
               api.post('/order', { total: this.totalPrice, paymethodId: this.paymentMethod.value, clientId: this.clientId, products: this.products })
                 .then((response) => {
-                  console.log('novo pedido ' + JSON.stringify(response.data))
                   if (response.data.success === true) {
                     this.order = response.data.order
                     this.capturePayment()
@@ -593,10 +587,7 @@ export default defineComponent({
 
           api.post('/payment/capture/' + this.order.id, { paymentData: this.paymentData })
             .then((response) => {
-              console.log('response ' + JSON.stringify(response.data))
               if (response.data.result === 1 || response.data.result === 2) {
-                console.log('caputura dados: ' + response.data.result)
-
                 window.dispatchEvent(new CustomEvent('modify-cart', {
                   detail: {
                     productQtd: 0
@@ -626,14 +617,11 @@ export default defineComponent({
       })
     },
     deleteFromCheckout (id) {
-      console.log('produto a ser deletado: ' + id)
       for (let c = 0; c < this.products.length; c++) {
-        console.log('repetição produto: ' + this.products[c].id + ' id deletado: ' + id)
         if (this.products[c].id === id) {
           this.products.splice(c, 1)
         }
       }
-      console.log('produtos ' + JSON.stringify(this.products))
       this.$q.localStorage.set('cart', this.products)
 
       window.dispatchEvent(new CustomEvent('modify-cart', {
@@ -647,27 +635,28 @@ export default defineComponent({
     getTotalPrice () {
       this.totalPrice = 0
       for (let c = 0; c < this.products.length; c++) {
-        this.totalPrice += this.products[c].price
+        this.totalPrice += parseFloat(this.products[c].price)
       }
     },
     async getPaymethods () {
+      this.loading = true
+
       api.get('/payment/list')
         .then((response) => {
-          console.log('payment methods ' + JSON.stringify(response.data.paymethods))
           const paymethods = response.data.paymethods
           paymethods.forEach(element => {
-            if (element.active === 1) {
+            if (element.active === 1 || element.active === '1') {
               this.paymentOptions.push({ label: element.name, value: element.id, type: element.type })
             }
           })
         })
+        .finally(() => {
+          this.loading = false
+        })
     },
     async getCep (zipCode) {
-      console.log('get cep ' + zipCode)
-
       request.get('https://viacep.com.br/ws/' + zipCode + '/json')
         .then((response) => {
-          console.log('response ' + JSON.stringify(response))
           if (response.data.uf) {
             this.paymentData.slip.city = response.data.localidade
             this.paymentData.slip.district = response.data.bairro

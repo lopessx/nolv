@@ -94,7 +94,6 @@ export default defineComponent({
   },
 
   mounted () {
-    console.log('carregado')
     const client = this.$q.localStorage.getItem('client')
     this.name = client.name
     this.phone = client.phone
@@ -113,7 +112,6 @@ export default defineComponent({
         this.loading = false
         this.showMessage('Preencha todos os campos', 'warning', 'warning')
       } else {
-        console.log('alterações salvas')
         api.put(`/client/update/${this.clientId}`, { name: this.name, email: this.email, phone: this.phone })
           .then((response) => {
             if (response.data.success === true) {
@@ -141,7 +139,6 @@ export default defineComponent({
       }
     },
     deleteProfile () {
-      console.log('deletar perfil')
       this.$q.dialog({
         title: 'Tem certeza que deseja deletar esse perfil?',
         message: 'Essa ação será irreversível.',
