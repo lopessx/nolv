@@ -13,56 +13,60 @@
 |
 */
 
+$router->get('/', function () {
+    return response();
+});
+
 // Routes with throttle
 $router->group(['middleware' => 'throttle:global'], function () use ($router) {
-	// Clients
-	$router->post('/client/login', 'ClientController@login');
-	$router->post('/client/auth', 'ClientController@auth');
-	$router->post('/client/register', 'ClientController@register');
+    // Clients
+    $router->post('/client/login', 'ClientController@login');
+    $router->post('/client/auth', 'ClientController@auth');
+    $router->post('/client/register', 'ClientController@register');
 });
 
 $router->group(['middleware' => 'auth'], function () use ($router) {
-	// Clients
-	$router->post('/logout', 'ClientController@logout');
-	$router->delete('/client/delete/{id}', 'ClientController@delete');
-	$router->put('/client/update/{id}', 'ClientController@update');
+    // Clients
+    $router->post('/logout', 'ClientController@logout');
+    $router->delete('/client/delete/{id}', 'ClientController@delete');
+    $router->put('/client/update/{id}', 'ClientController@update');
 
-	// Products
-	$router->post('/product', 'ProductController@store');
-	$router->put('/product/{id}', 'ProductController@update');
-	$router->delete('/product/{id}', 'ProductController@delete');
-	$router->post('/product/upload', 'ProductController@uploadProduct');
-	$router->post('/product/image/upload', 'ProductController@storeImages');
-	$router->delete('/product/image/delete/{imgId}', 'ProductController@deleteProductImage');
-	$router->get('/products/client/{id}', 'OrderController@getProductsClient');
-	$router->get('/product/download/{id}', 'ProductController@downloadProduct');
+    // Products
+    $router->post('/product', 'ProductController@store');
+    $router->put('/product/{id}', 'ProductController@update');
+    $router->delete('/product/{id}', 'ProductController@delete');
+    $router->post('/product/upload', 'ProductController@uploadProduct');
+    $router->post('/product/image/upload', 'ProductController@storeImages');
+    $router->delete('/product/image/delete/{imgId}', 'ProductController@deleteProductImage');
+    $router->get('/products/client/{id}', 'OrderController@getProductsClient');
+    $router->get('/product/download/{id}', 'ProductController@downloadProduct');
 
-	// Stores
-	$router->delete('/store/{storeId}', 'StoreController@delete');
-	$router->get('/store/client/{clientId}', 'StoreController@getClientStore');
-	$router->post('/store', 'StoreController@store');
-	$router->put('/store/{storeId}', 'StoreController@update');
+    // Stores
+    $router->delete('/store/{storeId}', 'StoreController@delete');
+    $router->get('/store/client/{clientId}', 'StoreController@getClientStore');
+    $router->post('/store', 'StoreController@store');
+    $router->put('/store/{storeId}', 'StoreController@update');
 
-	// Tickets
-	$router->post('/ticket', 'TicketController@store');
-	$router->post('/ticket/admin', 'TicketController@sendSupportMessageAdmin');
+    // Tickets
+    $router->post('/ticket', 'TicketController@store');
+    $router->post('/ticket/admin', 'TicketController@sendSupportMessageAdmin');
 
-	// Orders
-	$router->get('/order', 'OrderController@get');
-	$router->get('/orders/client/{id}', 'OrderController@getOrdersClient');
-	$router->get('/order/{id}', 'OrderController@show');
-	$router->post('/order', 'OrderController@store');
-	$router->put('/order/{id}', 'OrderController@update');
-	$router->delete('/order/{id}', 'OrderController@delete');
+    // Orders
+    $router->get('/order', 'OrderController@get');
+    $router->get('/orders/client/{id}', 'OrderController@getOrdersClient');
+    $router->get('/order/{id}', 'OrderController@show');
+    $router->post('/order', 'OrderController@store');
+    $router->put('/order/{id}', 'OrderController@update');
+    $router->delete('/order/{id}', 'OrderController@delete');
 
-	// Product Ratings
-	$router->get('/rating/product/{pid}/client/{cid}', 'RatingController@getClientRating');
-	$router->post('/rating', 'RatingController@store');
-	$router->put('/rating/{id}', 'RatingController@update');
-	$router->delete('/rating/{id}', 'RatingController@delete');
+    // Product Ratings
+    $router->get('/rating/product/{pid}/client/{cid}', 'RatingController@getClientRating');
+    $router->post('/rating', 'RatingController@store');
+    $router->put('/rating/{id}', 'RatingController@update');
+    $router->delete('/rating/{id}', 'RatingController@delete');
 
-	// Payment methods
-	$router->post('/payment/capture/{orderId}', 'PaymethodController@capturePayment');
+    // Payment methods
+    $router->post('/payment/capture/{orderId}', 'PaymethodController@capturePayment');
 });
 
 // Products
