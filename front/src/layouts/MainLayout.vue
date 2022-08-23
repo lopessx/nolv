@@ -383,13 +383,13 @@ export default defineComponent({
 
   methods: {
     searchProduct (searchText) {
-      window.location.href = '/?s=' + searchText
+      window.location.href = 'pesquisar/?s=' + searchText
     },
     logout () {
       const client = this.$q.localStorage.getItem('client')
       if (client) {
         api.post('/logout', { email: client.email })
-          .then((response) => {
+          .then(() => {
             this.$q.localStorage.clear()
             this.$q.cookies.remove('authKey')
             this.clientName = ''
