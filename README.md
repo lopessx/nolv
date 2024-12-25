@@ -1,4 +1,4 @@
-# Nolv 1
+# Nolv
 
 A responsive open source software marketplace built with Lumen and Quasar.
 
