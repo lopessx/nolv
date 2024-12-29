@@ -4,7 +4,7 @@ const authSession = (to, from, next) => {
   if (Cookies.has('authKey')) {
     return next()
   } else {
-    return next('/restrito')
+    return next('/login')
   }
 }
 
