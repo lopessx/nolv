@@ -51,7 +51,7 @@ module.exports = configure(function (ctx) {
       env: {
         API: ctx.dev
           ? 'http://127.0.0.1:8000'
-          : 'https://prod.api.com'
+          : process.env.LUMEN_API
       },
 
       vueRouterMode: 'history', // available values: 'hash', 'history'
