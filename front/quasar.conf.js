@@ -49,9 +49,7 @@ module.exports = configure(function (ctx) {
 
       // passing down to UI code from quasar.conf.js
       env: {
-        API: ctx.dev
-          ? 'http://127.0.0.1:8000'
-          : process.env.LUMEN_API
+        API: process.env.VUE_APP_API_URL
       },
 
       vueRouterMode: 'history', // available values: 'hash', 'history'
