@@ -20,9 +20,22 @@ class StoreController extends Controller {
 
 	public function get(Request $request) {
 		try {
-			$stores = Store::all();
+			$query = Store::query();
 
-			return response(['success' => true, 'stores' => $stores]);
+			if ($request->exists('name') && !empty($request->name)) {
+				$query->where('name', 'like', '%' . $request->name . '%');
+			}
+
+			if ($request->exists('order') && !empty($request->order)) {
+				$query->orderBy(
+					$request->get('sortBy', 'name'),
+					$request->get('sortOrder', ($request->order == 2) ? 'desc' : 'asc')
+				);
+			}
+
+			$pagination = $query->paginate(5);
+
+			return response(['success' => true, 'pagination' => $pagination]);
 		} catch (Exception $e) {
 			return response(['message' => $e->getMessage(), 'code' => $e->getCode()], 404);
 		}

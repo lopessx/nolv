@@ -4,7 +4,7 @@ const authSession = (to, from, next) => {
   if (Cookies.has('authKey')) {
     return next()
   } else {
-    return next('/restrito')
+    return next('/login')
   }
 }
 
@@ -14,6 +14,7 @@ const routes = [
     component: () => import('layouts/MainLayout.vue'),
     children: [
       { path: '', component: () => import('src/pages/Home.vue') },
+      { path: 'pesquisar', component: () => import('src/pages/Search.vue') },
       { path: 'login', component: () => import('src/pages/Login.vue') },
       { path: 'pagamento', component: () => import('src/pages/Checkout.vue') },
       { path: 'cliente', component: () => import('src/pages/ClientArea.vue'), beforeEnter: authSession },

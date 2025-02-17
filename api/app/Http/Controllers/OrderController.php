@@ -21,15 +21,33 @@ class OrderController extends Controller {
 
 	public function get(Request $request) {
 		try {
-			return response(['success' => true]);
+			$query = Order::query();
+
+			if ($request->exists('client') && !empty($request->client)) {
+				$query->where('client_id', $request->client);
+			}
+
+			if ($request->exists('paymethod') && !empty($request->paymethod)) {
+				$query->where('paymethod_id', $request->paymethod);
+			}
+
+			if ($request->exists('status') && !empty($request->status)) {
+				$query->where('status_id', $request->status);
+			}
+
+			$pagination = $query->paginate(5);
+
+			return response(['success' => true, 'pagination' => $pagination]);
 		} catch (Exception $e) {
 			return response(['message' => $e->getMessage(), 'code' => $e->getCode()], 404);
 		}
 	}
 
-	public function getOne(Request $request) {
+	public function getOne(Request $request, $id) {
 		try {
-			return response(['success' => true]);
+			$order = Order::findOrFail($id);
+
+			return response(['success' => true, 'order' => $order]);
 		} catch (Exception $e) {
 			return response(['message' => $e->getMessage(), 'code' => $e->getCode()], 404);
 		}

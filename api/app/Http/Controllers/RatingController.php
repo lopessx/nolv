@@ -17,14 +17,6 @@ class RatingController extends Controller {
 		//
 	}
 
-	public function get(Request $request) {
-		try {
-			return response(['success' => true]);
-		} catch (Exception $e) {
-			return response(['message' => $e->getMessage(), 'code' => $e->getCode()], 404);
-		}
-	}
-
 	public function getProductRatings($id) {
 		try {
 			$ratings = Rating::where('product_id', $id)->get();
@@ -47,14 +39,6 @@ class RatingController extends Controller {
 			$rating->client;
 
 			return response(['success' => true, 'rating' => $rating]);
-		} catch (Exception $e) {
-			return response(['message' => $e->getMessage(), 'code' => $e->getCode()], 404);
-		}
-	}
-
-	public function getOne(Request $request) {
-		try {
-			return response(['success' => true]);
 		} catch (Exception $e) {
 			return response(['message' => $e->getMessage(), 'code' => $e->getCode()], 404);
 		}
